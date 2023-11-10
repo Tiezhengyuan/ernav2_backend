@@ -1,0 +1,4 @@
+
+venv/
+externals/output/
+pipelines/tests/temp/*
