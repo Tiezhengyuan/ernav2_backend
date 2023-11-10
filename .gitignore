@@ -2,3 +2,17 @@
 venv/
 externals/output/
 pipelines/tests/temp/*
+erna/erna/settings/*.env
+
+
+# 
+*/__pycache__/
+erna/*/__pycache__/
+erna/*/*/__pycache__/
+erna/*/migrations/
+pipelines/*/__pycache__/
+pipelines/*/*/__pycache__/
+
+# database
+erna/erna/db.sqlite3
+

@@ -25,16 +25,6 @@ CORS_ORIGIN_WHITELIST = (
 )
 
 
-
-#email
-EMAIL_HOST = 'smtp-mail.outlook.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "tiezhengyuan@hotmail.com"
-EMAIL_HOST_PASSWORD = "am!ab8"
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -49,20 +39,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 PIPELINES_DIR = os.environ['PIPELINES_DIR'] if os.environ.get('PIPELINES_DIR') \
     else os.path.join(PROJECT_DIR, 'pipelines')
 
-# main entrance for launch bioinformatics pipeline
-PIPELINE_ERNA = os.path.join(BASE_DIR, 'erna_app.py')
-
-# depreciated in the future 
-TOOLS_DIR = os.environ['TOOLS_DIR'] if os.environ.get('TOOLS_DIR') \
-    else os.path.join(PIPELINES_DIR, 'externals')
-
 # third-party bioinformatics tools
 EXTERNALS_DIR = os.environ['EXTERNALS_DIR'] if os.environ.get('EXTERNALS_DIR') \
-    else os.path.join(PIPELINES_DIR, 'externals', 'bin')
-
-# store data uploaded by user
-DATA_DIR = os.environ['DATA_DIR'] if os.environ.get('DATA_DIR') \
-    else os.path.join(PROJECT_DIR, 'data')
+    else os.path.join(PROJECT_DIR, 'externals', 'bin')
 
 # raw data namely fastq
 RAW_DATA_DIR = os.environ['RAW_DATA_DIR'] if os.environ.get('RAW_DATA_DIR') \
