@@ -3,14 +3,15 @@ Django settings for erna project in DEV.
 """
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv()
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv('.env.dev'))
 from celery.schedules import crontab
 import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 PROJECT_DIR = os.path.dirname(BASE_DIR)
+# print('###', PROJECT_DIR)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,24 +37,20 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # other related path
-PIPELINES_DIR = os.environ['PIPELINES_DIR'] if os.environ.get('PIPELINES_DIR') \
-    else os.path.join(PROJECT_DIR, 'pipelines')
+PIPELINES_DIR = os.path.join(PROJECT_DIR, 'pipelines')
 
 # third-party bioinformatics tools
-EXTERNALS_DIR = os.environ['EXTERNALS_DIR'] if os.environ.get('EXTERNALS_DIR') \
-    else os.path.join(PROJECT_DIR, 'externals', 'bin')
+EXTERNALS_DIR = os.path.join(PROJECT_DIR, 'externals')
+# print(EXTERNALS_DIR)
 
 # raw data namely fastq
-RAW_DATA_DIR = os.environ['RAW_DATA_DIR'] if os.environ.get('RAW_DATA_DIR') \
-    else os.path.join(PROJECT_DIR, 'raw_data')
+RAW_DATA_DIR = os.environ['RAW_DATA_DIR']
 
 # analytic results
-RESULTS_DIR = os.environ['RESULTS_DIR'] if os.environ.get('RESULTS_DIR') \
-    else os.path.join(PROJECT_DIR, 'results')
+RESULTS_DIR = os.environ['RESULTS_DIR']
 
 # reference namely genome DNA in fa format
-REFERENCES_DIR = os.environ['REFERENCES_DIR'] if os.environ.get('REFERENCES_DIR') \
-    else os.path.join(PROJECT_DIR, 'references')
+REFERENCES_DIR = os.environ['REFERENCES_DIR']
 
 
 #celery settings

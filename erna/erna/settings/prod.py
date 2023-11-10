@@ -3,8 +3,8 @@ Django settings for erna project in PROD.
 """
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv()
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv('.env.prod'))
 from celery.schedules import crontab
 import json
 

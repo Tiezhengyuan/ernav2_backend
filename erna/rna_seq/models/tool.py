@@ -5,8 +5,18 @@ import os
 import sys
 from django.db import models
 from django.conf import settings
-from pipelines.process.utils.dir import Dir
+from pipelines.utils.dir import Dir
 
+TOOL_EXE = {
+    'bowtie': ['bowtie2', 'bowtie2-build', 'bowtie2-inspect',
+        'bowtie', 'bowtie-build', 'bowtie-inspect'],
+    'fastqc': ['fastqc',],
+    'hisat2': ['hisat2', 'hisat2-build', 'hisat2-inspect'],
+    'minimap2': ['minimap2',],
+    'samtools': ['samtools',],
+    'stringtie': ['stringtie'],
+    'tophat': ['tophat'],
+}
 
 class ToolManager(models.Manager):
     def refresh(self):
@@ -18,43 +28,63 @@ class ToolManager(models.Manager):
         # add tools
         res = []
         externals_dir = settings.EXTERNALS_DIR
-        for exe_path in Dir(externals_dir).recrusive_files():
-            tool_path = os.readlink(exe_path)
-            tool_name = os.path.basename(tool_path)
-            version = os.path.basename(os.path.dirname(tool_path))
-            tool = self.update_or_create(
-                tool_name=tool_name,
-                version=version,
-                defaults= {'tool_path':tool_path, 'exe_path':exe_path}
-            )
-            res.append(tool)
+        for tool_name in os.listdir(externals_dir):
+            versions_path = os.path.join(externals_dir, tool_name)
+            for version in os.listdir(versions_path):
+                tool_path = os.path.join(versions_path, version)
+                for exe_name in TOOL_EXE.get(tool_name, []):
+                    exe_path = os.path.join(tool_path, exe_name)
+                    if os.path.isfile(exe_path):
+                        tool = self.update_or_create(
+                            tool_name=tool_name,
+                            version=version,
+                            exe_name=exe_name,
+                            defaults = {
+                                'tool_path': tool_path,
+                                'exe_path': exe_path,
+                            }
+                        )
+                        res.append(tool)
         return res
 
-    def get_tool(self, tool_name:str, version:str=None):
+    def get_tool(self, exe_name:str, version:str=None):
         if version:
-            return self.get(tool_name=tool_name, version=version)
-        return self.filter(tool_name=tool_name).last()
+            return self.get(exe_name=exe_name, version=version)
+        return self.filter(exe_name=exe_name).last()
 
 class Tool(models.Model):
     # required
-    tool_name = models.CharField(max_length=32)
+    tool_name = models.CharField(
+        max_length=32,
+        verbose_name='Tool name',
+    )
     version = models.CharField(max_length=32)
-    tool_path = models.CharField(max_length=256)
-    exe_path = models.CharField(max_length=256)
+    exe_name = models.CharField(
+        max_length=32,
+        verbose_name='Executable name',
+    )
+    tool_path = models.CharField(
+        max_length=256,
+        verbose_name='Path of tool',
+    )
+    exe_path = models.CharField(
+        max_length=256,
+        verbose_name='Path of the executable',
+    )
     # optional
     default_params = models.CharField(
         max_length=1028,
         blank=True,
         null=True,
-        verbose_name='default parameters of the tool'
+        verbose_name='Default parameters'
     )
 
     objects = ToolManager()
 
     class Meta:
         app_label = 'rna_seq'
-        unique_together = ['tool_name', 'version']
-        ordering = ['tool_name', 'version']
+        unique_together = ['exe_name', 'version']
+        ordering = ['tool_name', 'version', 'exe_name']
     
     def __str__(self):
         return self.tool_name

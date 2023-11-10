@@ -1,8 +1,8 @@
 '''
 process genome annotations before analysis
 '''
-from .connector.connect_ncbi import ConnectNCBI
-from process.utils.handle_json import HandleJson
+from connector.connect_ncbi import ConnectNCBI
+from utils.handle_json import HandleJson
 
 from annot.models import Specie, Genome, Annotation
 

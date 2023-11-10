@@ -5,7 +5,7 @@ import os
 import re
 from sh import gunzip
 from ftplib import FTP
-from process.utils import Dir
+from utils import Dir
 
 class ConnectFTP:
     def __init__(self, url:str, username:str=None, password:str=None):

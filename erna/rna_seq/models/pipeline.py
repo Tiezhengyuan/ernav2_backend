@@ -10,9 +10,9 @@ class PipelineManager(models.Manager):
         res = []
         child = None
         while steps:
-            method_name, tool_name, tool_version = steps.pop()
+            method_name, exe_name, tool_version = steps.pop()
             method_tool = MethodTool.objects.get_method_tool(
-                method_name, tool_name, tool_version
+                method_name, exe_name, tool_version
             )
             data = {
                 'pipeline_name': pipeline_name,

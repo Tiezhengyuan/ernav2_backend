@@ -17,8 +17,7 @@ class ToolSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tool
-        fields = ['tool_name', 'version', 'tool_path', \
-            'exe_path', 'default_params', 'methods']
+        fields = '__all__'
 
 class MethodRelationSerializer(serializers.ModelSerializer):
     class Meta:

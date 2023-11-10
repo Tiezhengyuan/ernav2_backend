@@ -6,7 +6,7 @@ from django.core.files import File
 from pathlib import Path
 
 from .specie import Specie
-from process.utils.dir import Dir
+from utils.dir import Dir
 
 class GenomeManager(models.Manager):
     def get_genome(self, organism_name:str, version:str=None):

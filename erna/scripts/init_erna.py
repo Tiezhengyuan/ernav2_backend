@@ -9,7 +9,7 @@ from process.process_raw_data import ProcessRawData
 from process.process_genome import ProcessGenome
 
 
-'''
+
 # annotation-related tables
 
 # refresh Specie and Genome
@@ -22,11 +22,13 @@ genomes = Genome.objects.refresh()
 references = Reference.objects.refresh()
 
 
+'''
 # refresh Method
 methods = Method.objects.refresh()
 
 # refresh Tool
 tools = Tool.objects.refresh()
+
 
 # refresh MethodTool
 method_tools = MethodTool.objects.refresh()
@@ -44,6 +46,7 @@ mrna_seq = [
 ]
 steps = Pipeline.objects.load_pipeline('mRNA-Seq', mrna_seq)
 
+
 mirna_seq = [
     ("trim_sequences", None, None),
     ("align_short_reads", "bowtie2", None),
@@ -52,8 +55,7 @@ mirna_seq = [
 steps = Pipeline.objects.load_pipeline('miRNA-Seq', mirna_seq)
 
 
-'''
-
 # Delete all data in RawData, Sample, SampleFile, SampleProject
 # refresh RawData
 res = ProcessRawData().reset_sample()
+'''

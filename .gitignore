@@ -2,7 +2,7 @@
 venv/
 externals/output/
 pipelines/tests/temp/*
-erna/erna/settings/*.env
+erna/erna/settings/*.env*
 
 
 # 
