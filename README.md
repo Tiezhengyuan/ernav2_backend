@@ -26,3 +26,19 @@ cd erna
 source venv/bin/activate
 celery -A erna worker --beat --scheduler django -l info --pool=solo
 ```
+
+
+### run bioinformatics pipelines saparately
+All bioinformatics data analysis is taken as asynchronous tasks. A bioinformatics pipeline or even a single step can be executed separately at server.
+
+```
+cd erna
+python erna_app.py <method> [arguments...]
+```
+
+
+## Unit testing
+for example test file is tests/test_project.py
+```
+ python3 manage.py test tests -k test_project -v 2
+```
