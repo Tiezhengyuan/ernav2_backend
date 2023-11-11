@@ -3,7 +3,7 @@ process raw data namely fastq
 '''
 import os
 from typing import Iterable
-from sample.models import RawData as RawDataModel
+from rna_seq.models import RawData
 
 class RawData:
   def __init__(self, dir_raw_data):
@@ -20,4 +20,4 @@ class RawData:
             raw_data[batch].append((root, file))
       else:
         raw_data['UN'].append((self.dir_raw_data, batch))
-    return RawDataModel.objects.load_data(raw_data)
+    return RawData.objects.load_data(raw_data)

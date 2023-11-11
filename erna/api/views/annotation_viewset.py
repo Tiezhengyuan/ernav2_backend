@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from annot.models import Genome, Annotation, Reference
+from rna_seq.models import Annotation
 from api.serializers import AnnotationSerializer
 
 

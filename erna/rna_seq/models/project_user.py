@@ -1,6 +1,7 @@
 
 from django.db import models
 from django.conf import settings
+
 from commons.models import CustomUser
 from .project import Project
 

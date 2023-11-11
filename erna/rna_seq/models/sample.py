@@ -1,4 +1,5 @@
 import json
+from django.conf import settings
 from django.db import models
 
 class SampleManager(models.Manager):
@@ -62,25 +63,19 @@ class SampleManager(models.Manager):
         import samples into database
         study_name + sample_name should be unique
         '''
-        res = {
-            'created': [],
-            'updated': [],
-        }
+        res = []
         for sample in samples:
-            existing_sample = self.filter(study_name = sample['study_name'], \
-                sample_name=sample['sample_name'])
-            print(existing_sample)
-            if not existing_sample:
-                new_sample = self.create(study_name = sample['study_name'], \
-                    sample_name=sample['sample_name'], creator=user)
-                if 'metadata' in sample:
-                    new_sample.metadata = json.dumps(sample['metadata'])
-                new_sample.save()
-                res['created'].append(new_sample.id)
-            else:
-                if 'metadata' in sample:
-                    existing_sample.update(metadata=json.dumps(sample['metadata']))
-                    res['updated'] += [s.id for s in existing_sample]
+            metadata = json.dumps(sample['metadata']) if \
+                'metadata' in sample else None
+            obj = self.update_or_create(
+                study_name = sample['study_name'],
+                sample_name=sample['sample_name'],
+                defaults = {
+                    'creator': user,
+                    'metadata': metadata,
+                },
+            )
+            res.append(obj)
         return res
     
 
@@ -123,7 +118,7 @@ class Sample(models.Model):
     # one sample on one name
     sample_name = models.CharField(max_length=100)
     creator = models.ForeignKey(
-        'commons.CustomUser',
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
     # namely phenotype

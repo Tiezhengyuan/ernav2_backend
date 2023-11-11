@@ -21,6 +21,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
+        depth = 1
 
 class ProjectUserSerializer(serializers.ModelSerializer):
     class Meata:

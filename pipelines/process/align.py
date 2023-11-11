@@ -5,8 +5,8 @@ import os
 import subprocess
 from django.conf import settings
 
-from annot.models import Genome, Reference
-from process.utils.dir import Dir
+from rna_seq.models import Genome, Reference
+from utils.dir import Dir
 
 EXTERNALS_DIR = getattr(settings, 'EXTERNALS_DIR')
 REFERENCES_DIR = getattr(settings, 'REFERENCES_DIR')

@@ -74,7 +74,8 @@ class RawData(models.Model):
 
   class Meta:
     app_label = 'rna_seq'
-    ordering = ['batch_name', 'file_path']
+    unique_together = ['batch_name', 'file_path', 'file_name']
+    ordering = ['batch_name', 'file_path', 'file_name']
   
   def to_dict(self):
     return {

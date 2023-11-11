@@ -42,6 +42,24 @@ class SampleFileManager(models.Manager):
             res[sample_name]['raw_data'].append(sample_file)
         return res
 
+    def load_sample_files(self, sample_files:list):
+        '''
+        '''
+        res = []
+        for data in sample_files:
+            raw_data = RawData.objects.get(
+                batch_name=data['batch_name'],
+                file_path=data['file_path'],
+                file_name=data['file_name'],
+            )
+            sample = Sample.objects.get(
+                study_name=data['study_name'],
+                sample_name=data['sample_name']
+            )
+            obj = self.update_or_create(sample=sample, raw_data=raw_data)
+            res.append(obj)
+        return res
+
     def add_sample_file(self, sample_file:dict):
         '''
         post a new record

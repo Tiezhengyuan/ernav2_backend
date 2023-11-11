@@ -2,7 +2,7 @@ from rest_framework.decorators import action
 from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.response import Response
 
-from annot.models import Specie
+from rna_seq.models import Specie
 from api.serializers import SpecieSerializer
 
 

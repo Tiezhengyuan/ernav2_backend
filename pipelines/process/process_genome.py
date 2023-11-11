@@ -4,7 +4,7 @@ process genome annotations before analysis
 from connector.connect_ncbi import ConnectNCBI
 from utils.handle_json import HandleJson
 
-from annot.models import Specie, Genome, Annotation
+from rna_seq.models import Specie, Genome, Annotation
 
 class ProcessGenome:
 

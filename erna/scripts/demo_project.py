@@ -4,12 +4,12 @@ example:
 '''
 import json
 from rna_seq.models import *
-from annot.models import *
 from commons.models import CustomUser
 
 
+user = CustomUser.objects.get(pk=1)
 project_id = "P00001"
-
+'''
 # cretae project
 new_project = {
     "project_id": project_id,
@@ -17,8 +17,7 @@ new_project = {
     "description": "for testing mRNA-seq",
     "status": "A",
     "sequencing": "M",
-    'owner': CustomUser.objects.get(pk=1),
-    'specie': Specie.objects.get(organism_name='Homo sapiens'),
+    'owner': user,
 }
 Project.objects.filter(project_id=project_id).delete()
 project = Project.objects.create(**new_project)
@@ -83,14 +82,35 @@ print(tasks)
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, tasks_data)
 print(tasks_tree)
 
-
-samples = {
-    'sample_1': {
-        'R1': 'sample_1_R1.fastq',
-        'R2': 'sample_1_R2.fastq',
+'''
+# load samples
+sample_data = [
+    {   
+        'study_name':'demo',
+        'sample_name': 'reads',
+        'metadata':{'gender':'F', 'age':20,},
     },
-    'sample_2': {
-        'R1': 'sample_2_R1.fastq',
-        'R2': 'sample_2_R2.fastq',
-    }
-}
+]
+samples = Sample.objects.load_samples(user, sample_data)
+print(samples)
+
+#RawData
+sample_data= [
+    {
+        'batch_name': 'demo',
+        "file_path": "/home/yuan/bio/raw_data/demo",
+        "file_name": "reads_1.fq",
+        'study_name':'demo',
+        'sample_name': 'reads',
+    },
+    {
+        'batch_name': 'demo',
+        "file_path": "/home/yuan/bio/raw_data/demo",
+        "file_name": "reads_2.fq",
+        'study_name':'demo',
+        'sample_name': 'reads',
+    },
+]
+sample_files = SampleFile.objects.load_sample_files(sample_data)
+print(sample_files)
+

@@ -21,7 +21,7 @@ class Specie(models.Model):
     )
 
     class Meta:
-        app_label = 'annot'
+        app_label = 'rna_seq'
         ordering = ['group', 'organism_name',]
 
     def __str__(self):

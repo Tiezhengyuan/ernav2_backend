@@ -97,7 +97,7 @@ class Genome(models.Model):
     objects = GenomeManager()
 
     class Meta:
-        app_label = 'annot'
+        app_label = 'rna_seq'
         unique_together = ('specie', 'version')
         ordering = ['specie', 'version']
 

@@ -4,7 +4,6 @@ example:
     python3 erna/manage.py shell < erna/scripts/init_erna.py
 '''
 from rna_seq.models import *
-from annot.models import *
 from process.process_raw_data import ProcessRawData
 from process.process_genome import ProcessGenome
 
@@ -22,7 +21,7 @@ genomes = Genome.objects.refresh()
 references = Reference.objects.refresh()
 
 
-'''
+
 # refresh Method
 methods = Method.objects.refresh()
 
@@ -58,4 +57,3 @@ steps = Pipeline.objects.load_pipeline('miRNA-Seq', mirna_seq)
 # Delete all data in RawData, Sample, SampleFile, SampleProject
 # refresh RawData
 res = ProcessRawData().reset_sample()
-'''

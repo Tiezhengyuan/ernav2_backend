@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from annot.models import *
+from rna_seq.models import Annotation, Reference, Genome, Specie
 
 
 class AnnotationSerializer(serializers.ModelSerializer):

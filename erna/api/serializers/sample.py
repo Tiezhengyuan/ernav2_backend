@@ -22,5 +22,6 @@ class SampleFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SampleFile
         fields = '__all__'
+        depth = 1
 
 

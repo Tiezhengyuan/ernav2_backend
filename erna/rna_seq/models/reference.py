@@ -62,6 +62,6 @@ class Reference(models.Model):
   objects = ReferenceManager()
 
   class Meta:
-    app_label = "annot"
+    app_label = "rna_seq"
     unique_together = ["genome", "aligner"]
     ordering = ["genome", "aligner"]

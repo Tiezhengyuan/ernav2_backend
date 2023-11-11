@@ -2,6 +2,7 @@ import json
 from django.core.serializers import serialize
 from django.db import models
 from django.conf import settings
+
 from commons.models import CustomUser
 
 class ProjectManager(models.Manager):
@@ -63,12 +64,6 @@ class Project(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name="owner identified by user_id"
-    )
-    specie = models.ForeignKey(
-        'annot.Specie',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )
     status = models.CharField(
         max_length=10,

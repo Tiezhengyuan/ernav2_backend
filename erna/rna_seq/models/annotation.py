@@ -61,7 +61,7 @@ class Annotation(models.Model):
     objects = AnnotationManager()
 
     class Meta:
-        app_label = 'annot'
+        app_label = 'rna_seq'
         unique_together = ('genome', 'file_path')
         ordering = ('genome', 'file_path')
     
