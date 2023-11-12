@@ -27,7 +27,7 @@ class ProcessGenome:
       res['genome'] = client.load_genomes()
     return res
 
-  def download_genome(self):
+  def download_genome(self, overwrite:bool=None):
     '''
     genome DNA sequences
     '''
@@ -35,7 +35,9 @@ class ProcessGenome:
     if self.data_source == "NCBI":
       # download data
       client = ConnectNCBI()
-      local_path, local_files = client.download_genome(self.specie, self.version)
+      local_path, local_files = client.download_genome(
+        self.specie, self.version, overwrite
+      )
       
       # update database
       if local_files:

@@ -62,12 +62,15 @@ def main(args):
       '''
       build index for aligner namely bowtie
       example: 
-      python3 erna_app.py build_index NCBI "Homo sapiens" GCF_000001405.40 bowtie2
+      python3 erna/erna_app.py build_index NCBI "Homo sapiens" GCF_000001405.40 bowtie 2.5.2
+      python3 erna/erna_app.py build_index NCBI "Homo sapiens" GCF_000001405.40 hisat2 2.2.1
+      python3 erna/erna_app.py build_index NCBI "Homo sapiens" GCF_009914755.1 bowtie 2.5.2
+      python3 erna/erna_app.py build_index NCBI "Homo sapiens" GCF_009914755.1 hisat2 2.2.1
       '''
       if len(args)>=5:
         from pipelines.process.align import Align
-        data_source, specie, version, aligner = args[1:]
-        p = Align(aligner)
+        data_source, specie, version, aligner, tool_version = args[1:]
+        p = Align(aligner, tool_version)
         return p.build_index(data_source, specie, version)
 
     case 'genome_alignment':

@@ -5,7 +5,7 @@ import os
 import subprocess
 from django.conf import settings
 
-from rna_seq.models import Genome, Reference
+from rna_seq.models import Genome, Reference, Tool, Annotation
 from utils.dir import Dir
 
 EXTERNALS_DIR = getattr(settings, 'EXTERNALS_DIR')
@@ -13,8 +13,9 @@ REFERENCES_DIR = getattr(settings, 'REFERENCES_DIR')
 
 
 class Align:
-  def __init__(self, aligner:str):
+  def __init__(self, aligner:str, version:str=None):
     self.aligner = aligner
+    self.version = version
 
   def build_index(self, data_source:str, specie:str, version:str):
     '''
@@ -22,35 +23,49 @@ class Align:
     '''
     genome = Genome.objects.get(data_source=data_source, \
       specie=specie, version=version)
+    annotations = Annotation.objects.filter(genome=genome)
+    tool = self.index_builder()
+    if tool is None:
+      return None
 
-    for annot in genome.annots.values():
-      fa_path = annot['file_path']
+    for annot in annotations:
+      fa_path = annot.file_path
+      index_dir_path = os.path.join(os.path.dirname(fa_path), 'index')
+      index_path = os.path.join(index_dir_path, \
+        f"{tool.tool_name}_{tool.version}_")
+      if len(os.listdir(index_dir_path)) > 0:
+        return Reference.objects.load_reference(
+          tool, annot, index_path)
+
+      # build index
       if 'genomic.fna' in fa_path and '_from_' not in fa_path:
-        index_path = os.path.join(os.path.dirname(fa_path), 'index')
-        Dir(index_path).init_dir()
-        index_path += f"/{self.aligner}"
-        # build index
+        Dir(index_dir_path).init_dir()
         cmd = [self.index_builder(), fa_path, index_path,]
         print(cmd)
         res = subprocess.run(cmd, capture_output=True, text=True)
         print(res.stdout)
         print(res.stderr)
         # update annot.Reference
-        res = Reference.objects.load_reference(genome,
-          self.aligner, fa_path, index_path)
-        return res
+        return Reference.objects.load_reference(
+          tool, annot, index_path)
     return None
 
   def index_builder(self) -> str:
     '''
     update db.Annotation based on db.Genome
     '''
-    if self.aligner == 'bowtie2':
-      return os.path.join(EXTERNALS_DIR, 'bowtie2-build')
+    exe_name = None
     if self.aligner == 'bowtie':
-      return os.path.join(EXTERNALS_DIR, 'bowtie-build')
-    if self.aligner == 'hisat2':
-      return os.path.join(EXTERNALS_DIR, 'hisat2-build')
+      exe_name='bowtie2-build'
+    elif self.aligner == 'hisat2':
+      exe_name='hisat2-build'
+    if exe_name:
+      return Tool.objects.get(tool_name=self.aligner, \
+        version=self.version, exe_name=exe_name)
+    return None
+
+
+      
 
   def genome_alignment(self, params:dict=None):
     '''

@@ -10,9 +10,11 @@ erna/erna/settings/*.env*
 erna/*/__pycache__/
 erna/*/*/__pycache__/
 erna/*/migrations/
+erna/rna_seq/*/migrations/
 pipelines/*/__pycache__/
 pipelines/*/*/__pycache__/
 
 # database
+erna/db.sqlite3
 erna/erna/db.sqlite3
 

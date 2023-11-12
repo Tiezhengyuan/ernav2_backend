@@ -38,7 +38,7 @@ class ConnectNCBI(ConnectFTP):
             res[antonomy] = local_file
         return res
 
-    def download_genome(self, specie:str, version:str):
+    def download_genome(self, specie:str, version:str, overwrite:bool=None):
         '''
         download genome including subdirectories and files
         '''
@@ -49,7 +49,8 @@ class ConnectNCBI(ConnectFTP):
         local_files = self.download_files(
             endpoint = ftp_path.replace('https://ftp.ncbi.nlm.nih.gov/', ''),
             match = '.gz',
-            local_path = local_path
+            local_path = local_path,
+            overwrite=overwrite,
         )
         # download index for alignment
         return local_path, local_files

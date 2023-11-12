@@ -99,6 +99,15 @@ class SampleProjectManager(models.Manager):
             return obj
         return None
 
+    def load_project_sample_files(self, project_id:str, sample_file_ids:list):
+        res = []
+        for sample_file_id in sample_file_ids:
+            obj = self.update_or_create(
+                project_id = project_id,
+                sample_file_id = sample_file_id,
+            )
+            res.append(obj)
+        return res
 
 class SampleProject(models.Model):
     '''

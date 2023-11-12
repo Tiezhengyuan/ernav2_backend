@@ -114,3 +114,8 @@ sample_data= [
 sample_files = SampleFile.objects.load_sample_files(sample_data)
 print(sample_files)
 
+# update SampleProject
+res = SampleProject.objects.load_project_sample_files(
+    project_id, [s.id for s,_ in sample_files]
+)
+print(res)

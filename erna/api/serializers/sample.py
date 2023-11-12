@@ -12,12 +12,6 @@ class SampleSerializer(serializers.ModelSerializer):
         model = Sample
         fields = '__all__'
 
-class SampleProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SampleProject
-        fields = '__all__'
-
-
 class SampleFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SampleFile
@@ -25,3 +19,8 @@ class SampleFileSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class SampleProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleProject
+        fields = '__all__'
+ 

@@ -21,8 +21,11 @@ class AnnotationManager(models.Manager):
                 'file_format': os.path.splitext(file_path)[1],
                 'annot_type': self.annot_type(file_path)
             }
-            obj = self.update_or_create(genome=genome, \
-                file_path=file_path, defaults=data)
+            obj = self.update_or_create(
+                genome=genome,
+                file_path=file_path,
+                defaults=data
+            )
             res.append(obj)
         return res
 

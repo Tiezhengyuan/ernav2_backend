@@ -19,9 +19,7 @@ class GenomeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genome
-        fields = ('data_source', 'version', 'specie', 'is_ready', \
-            'local_path', 'metadata', 'ftp_path', \
-            'annots', 'references')
+        fields = '__all__'
 
 
 class SpecieSerializer(serializers.ModelSerializer):

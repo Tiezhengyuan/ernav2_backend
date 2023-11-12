@@ -45,30 +45,36 @@ class ConnectFTP:
             endpoint:str,
             file_name:str,
             local_path:str,
-            run_gunzip:bool=None
+            run_gunzip:bool=None,
+            overwrite:bool=None
         ):
         '''
         download one file from FTP
         one download one connection avoiding timeout
         '''
         if run_gunzip is None: run_gunzip = True
+        if overwrite is None: overwrite = False
         Dir(local_path).init_dir()
         local_file = os.path.join(local_path, file_name)
+        unzip_file = local_file.replace('.gz', '')
+        # doesn't download if file exists and overwrite is False
+        if os.path.isfile(unzip_file) and overwrite is False:
+            return unzip_file
+        
         # connect FTP
         ftp = FTP(self.url)
         ftp.login()
         if endpoint:
             ftp.cwd(endpoint)
-
+        ftp_file = f"{self.url}/{endpoint}/{file_name}"
+        
         # download
         try:
-            ftp_file = f"{self.url}/{endpoint}/{file_name}"
             with open(local_file, 'wb') as f:
                 ftp.retrbinary(f"RETR {file_name}", f.write)
                 print(f"Download {ftp_file}")
             # unzip .gz file
             if run_gunzip and local_file.endswith('gz'):
-                unzip_file = local_file.replace('.gz', '')
                 print(f"decompress {local_file} to {unzip_file}")
                 gunzip(local_file, '-f')
                 return unzip_file
@@ -82,7 +88,8 @@ class ConnectFTP:
             self,
             endpoint:str=None,
             match:str=None,
-            local_path:str=None
+            local_path:str=None,
+            overwrite:bool=None
         ):
         '''
         download files from FTP path
@@ -95,7 +102,7 @@ class ConnectFTP:
         local_files = []
         for current_endpoint, file_name in ftp_files:
             local_file = self.download_file(current_endpoint, \
-                file_name, local_path)
+                file_name, local_path, overwrite)
             if local_file and local_file not in local_files:
                 local_files.append(local_file)
         return local_files

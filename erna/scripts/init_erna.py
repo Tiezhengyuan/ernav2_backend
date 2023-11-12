@@ -9,17 +9,6 @@ from process.process_genome import ProcessGenome
 
 
 
-# annotation-related tables
-
-# refresh Specie and Genome
-species = ProcessGenome('NCBI').retrieve_assembly_summary()
-
-#refresh downloaded genome
-genomes = Genome.objects.refresh()
-
-# refresh reference
-references = Reference.objects.refresh()
-
 
 
 # refresh Method
@@ -45,6 +34,17 @@ mrna_seq = [
 ]
 steps = Pipeline.objects.load_pipeline('mRNA-Seq', mrna_seq)
 
+# annotation-related tables
+
+# refresh Specie and Genome
+species = ProcessGenome('NCBI').retrieve_assembly_summary()
+
+#refresh downloaded genome
+genomes = Genome.objects.refresh()
+
+# download default genome
+ProcessGenome('NCBI', 'Homo sapiens', 'GCF_000001405.40').download_genome()
+ProcessGenome('NCBI', 'Homo sapiens', 'GCF_009914755.1').download_genome()
 
 mirna_seq = [
     ("trim_sequences", None, None),
@@ -57,3 +57,4 @@ steps = Pipeline.objects.load_pipeline('miRNA-Seq', mirna_seq)
 # Delete all data in RawData, Sample, SampleFile, SampleProject
 # refresh RawData
 res = ProcessRawData().reset_sample()
+
