@@ -4,22 +4,14 @@ from django.conf import settings
 
 from .genome import Genome
 
-FILE_TYPES = [
-    ('DNA', 'DNA'),
-    ('transcript', 'transcript'),
-    ('protein', 'protein'),
-    ('CDS', 'CDS'),
-    ('RNA', 'RNA'),
-    ('other', 'other'),
-]
-
 class AnnotationManager(models.Manager):
     def load_annotations(self, genome, local_files):
         res = []
         for file_path in local_files:
+            extension = os.path.splitext(file_path)[1]
             data = {
-                'file_format': os.path.splitext(file_path)[1],
-                'annot_type': self.annot_type(file_path)
+                'file_format': extension.replace('.', ''),
+                'annot_type': self.annot_type(file_path, genome)
             }
             obj = self.update_or_create(
                 genome=genome,
@@ -29,19 +21,14 @@ class AnnotationManager(models.Manager):
             res.append(obj)
         return res
 
-    def annot_type(self, file_path:str):
+    def annot_type(self, file_path:str, genome:Genome):
         '''
-        orders of if-statements do matter
+        not file format but type of annotation 
         '''
-        if 'rna' in file_path:
-            return 'RNA'
-        if 'cds' in file_path:
-            return 'CDS'
-        if file_path.endswith('fna'):
-            return 'DNA'
-        if file_path.endswith('gtf') or file_path.endswith('gff'):
-            return 'transcript'
-        return 'other'
+        file_name = os.path.basename(file_path)
+        file_name = os.path.splitext(file_name)[0]
+        file_name = file_name.replace(f"{genome.version}_", "")
+        return file_name.split('_', 1)[-1]
 
 class Annotation(models.Model):
     genome = models.ForeignKey(
@@ -56,9 +43,9 @@ class Annotation(models.Model):
         null = True
     )
     annot_type = models.CharField(
-        max_length = 24,
-        default = 'other',
-        choices = FILE_TYPES,
+        max_length = 48,
+        null=True,
+        blank=True
     )
 
     objects = AnnotationManager()

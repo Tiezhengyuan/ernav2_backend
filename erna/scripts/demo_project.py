@@ -8,8 +8,9 @@ from commons.models import CustomUser
 
 
 user = CustomUser.objects.get(pk=1)
+genome = Genome.objects.get_genome('Homo sapiens', 'GCF_000001405.40')
 project_id = "P00001"
-'''
+
 # cretae project
 new_project = {
     "project_id": project_id,
@@ -18,6 +19,7 @@ new_project = {
     "status": "A",
     "sequencing": "M",
     'owner': user,
+    'genome': genome,
 }
 Project.objects.filter(project_id=project_id).delete()
 project = Project.objects.create(**new_project)
@@ -27,13 +29,21 @@ print(project)
 tasks_data = [
     {
         'task_id': 'T01',
-        'task_name': 'build index',
         'method_name': 'build_index',
-        'tool_name': 'hisat2-build',
-        'params': {
+        'tool': {
+            'tool_name': 'hisat2',
+            'exe_name': 'hisat2-build',
+            'version': '2.2.1',
+        },
+        'params': {},
+        'genome':{
             'data_source': 'NCBI',
             'specie': 'Homo sapiens',
             'version': 'GCF_000001405.40',
+        },
+        'annotation':{
+            "file_format": "fna",
+            "annot_type": "genomic",
         },
         'child': ['T02'],
     },
@@ -41,7 +51,11 @@ tasks_data = [
         'task_id': 'T02',
         'task_name': '',
         'method_name': 'align_transcriptome',
-        'tool_name': 'hisat2',
+        'tool': {
+            'tool_name': 'hisat2',
+            'exe_name': 'hisat2',
+            'version': '2.2.1',
+        },
         'params': {
             'index_path': 'aaa',
         },
@@ -51,7 +65,11 @@ tasks_data = [
         'task_id': 'T03',
         'task_name': '',
         'method_name': 'assemble_transcripts',
-        'tool_name': 'stringtie',
+        'tool': {
+            'tool_name': 'stringtie',
+            'exe_name': 'stringtie',
+            'version': '2.2.2',
+        },
         'params': {},
         'child': ['T04'],
     },
@@ -64,7 +82,11 @@ tasks_data = [
     {
         'task_name': '',
         'method_name': 'quality_control',
-        "tool_name": "fastqc",
+        'tool': {
+            "tool_name": "fastqc",
+            "exe_name": "fastqc",
+            'version': '0.12.1'
+        }
     },
     # empty task without method_name
     {
@@ -82,7 +104,7 @@ print(tasks)
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, tasks_data)
 print(tasks_tree)
 
-'''
+
 # load samples
 sample_data = [
     {   

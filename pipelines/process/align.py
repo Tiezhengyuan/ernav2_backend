@@ -13,9 +13,8 @@ REFERENCES_DIR = getattr(settings, 'REFERENCES_DIR')
 
 
 class Align:
-  def __init__(self, aligner:str, version:str=None):
-    self.aligner = aligner
-    self.version = version
+  def __init__(self, params:dict):
+    self.parms = params
 
   def build_index(self, data_source:str, specie:str, version:str):
     '''
@@ -55,44 +54,56 @@ class Align:
     update db.Annotation based on db.Genome
     '''
     exe_name = None
-    if self.aligner == 'bowtie':
+    aligner = self.params['tool']['tool_name']
+    if aligner == 'bowtie':
       exe_name='bowtie2-build'
-    elif self.aligner == 'hisat2':
+    elif aligner == 'hisat2':
       exe_name='hisat2-build'
     if exe_name:
-      return Tool.objects.get(tool_name=self.aligner, \
-        version=self.version, exe_name=exe_name)
+      return Tool.objects.get(
+        tool_name=aligner,
+        version=self.params['tool']['version'],
+        exe_name=exe_name
+      )
     return None
 
-
-      
-
+    
   def genome_alignment(self, params:dict=None):
     '''
     genome alignment
+    example args: params = {
+      'project_id': 'P00001',
+    }
     '''
-    cmd = self.aligner_cmd()
-    res = subprocess.run(cmd, capture_output=True, text=True)
-    print(res.stdout)
-    print(res.stderr)
-    return res
+    sample_files = self.project_sample_files(params['project_id'])
+    cmd = self.cmd_bowtie()
+    # res = subprocess.run(cmd, capture_output=True, text=True)
+    # print(res.stdout)
+    # print(res.stderr)
+    # return res
 
-  def aligner_cmd(self, params:dict, input_data:dict):
+  def project_sample_files(self, project_id:str):
+    '''
+    retrieve fastq files
+    '''
+    
+
+
+
+  def cmd_bowtie(self, params:dict, input_data:dict):
     '''
 
     '''
-    cmd = []
-    if self.aligner == 'bowtie2':
-      cmd += [
-        os.path.join(EXTERNALS_DIR, 'bowtie2'),
-        '-x', params['index_path'],
-        '-S', os.path.join(input_data['sam_file']),
-      ]
-      if input_data['R1']:
-        cmd.append(f"-1 {input_data['R1']}")
-      if input_data['R2']:
-        cmd.append(f"-2 {input_data['R2']}")
-      if input_data['bam']:
-        cmd.append(f"-b {input_data['bam']}")
+    cmd = [
+      os.path.join(EXTERNALS_DIR, 'bowtie2'),
+      '-x', params['index_path'],
+      '-S', os.path.join(input_data['sam_file']),
+    ]
+    if input_data['R1']:
+      cmd.append(f"-1 {input_data['R1']}")
+    if input_data['R2']:
+      cmd.append(f"-2 {input_data['R2']}")
+    if input_data['bam']:
+      cmd.append(f"-b {input_data['bam']}")
     return cmd
 

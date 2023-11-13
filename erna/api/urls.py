@@ -28,6 +28,7 @@ router.register('sample_project', SampleProjectViewSet, basename="sample_project
 router.register('specie', SpecieViewSet, basename='specie')
 
 router.register('task', TaskViewSet, basename='task')
+router.register('task_annotation', TaskAnnotationViewSet, basename='task_annotation')
 router.register('task_execution', TaskExecutionViewSet, basename='task_execution')
 router.register('task_tree', TaskTreeViewSet, basename='task_tree')
 router.register('tool', ToolViewSet, basename='tool')

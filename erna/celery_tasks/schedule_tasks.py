@@ -5,7 +5,7 @@ search table Task and detect tasks with 'is_ready'=True
 
 from rna_seq.models import Project, Task
 
-class ExecuteTasks:
+class ScheduleTasks:
     def __init__(self):
         pass
     

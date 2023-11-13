@@ -65,6 +65,12 @@ class Project(models.Model):
         on_delete=models.CASCADE,
         verbose_name="owner identified by user_id"
     )
+    genome = models.ForeignKey(
+        'rna_seq.Genome',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     status = models.CharField(
         max_length=10,
         default='active',

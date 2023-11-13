@@ -6,6 +6,8 @@ from django.core.serializers import serialize
 from commons.models import CustomUser
 from .project import Project
 from .method_tool import MethodTool
+from .genome import Genome
+from .annotation import Annotation
 
 class TaskManager(models.Manager):
 
@@ -26,15 +28,33 @@ class TaskManager(models.Manager):
         task_id could be generated automatically
         The task could be newly created or updated
         '''
-        method_tool = MethodTool.objects.get_method_tool(
-            data['method_name'], data.get('tool_name'), data.get('version')
-        ) if 'method_name' in data else None
+        method_tool = None
+        if 'method_name' in data:
+            if 'tool' in data:
+                method_tool = MethodTool.objects.get_method_tool(
+                    data['method_name'], data['tool']['exe_name'], \
+                    data['tool']['version'])
+            else:
+                method_tool = MethodTool.objects.get_method_tool(
+                    data['method_name'])
+
+        annot = None
+        if 'genome' in data:
+            genome = Genome.objects.get_genome(data['genome']['specie'], \
+                data['genome']['version'])
+            annot = Annotation.objects.get(genome=genome, \
+                file_format=data['annotation']['file_format'], \
+                annot_type=data['annotation']['annot_type'])
+            print('###', annot)
+
         defaults = {
             'method_tool': method_tool,
             'task_name': data.get('task_name'),
             'params': json.dumps(data.get('params', {})),
             'is_ready': True if 'method_name' in data else False,
         }
+        if annot:
+            defaults['annotation'] = annot
         task = Task.objects.update_or_create(
             project=project,
             task_id=task_id,
@@ -102,6 +122,12 @@ class Task(models.Model):
         null=True,
         blank=True,
         verbose_name = "Method and Tool",
+    )
+    annotation = models.ForeignKey(
+        'rna_seq.Annotation',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     task_name = models.CharField(
         max_length=100,

@@ -8,15 +8,15 @@ from celery import shared_task
 from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
-from .execute_tasks import ExecuteTasks
+from .schedule_tasks import ScheduleTasks
 
 '''
 scheduled tasks defined in settings
 they are automatically launched with django
 '''
 @shared_task
-def execute_task():
-  res = ExecuteTasks().run_task()
+def schedule_task():
+  res = scheduleTasks().run_task()
   return res
 
 '''

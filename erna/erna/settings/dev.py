@@ -95,8 +95,8 @@ CELERY_TIMEZONE = "America/New_York"
 CELERY_ALWAYS_EAGER = True
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
-    "execute_task": {
-        "task": "celery_tasks.tasks.execute_task",
+    "schedule_task": {
+        "task": "celery_tasks.tasks.schedule_task",
         "schedule": crontab(minute="*/1"),
     },
 }

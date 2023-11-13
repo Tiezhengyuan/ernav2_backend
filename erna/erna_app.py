@@ -70,15 +70,23 @@ def main(args):
       if len(args)>=5:
         from pipelines.process.align import Align
         data_source, specie, version, aligner, tool_version = args[1:]
-        p = Align(aligner, tool_version)
-        return p.build_index(data_source, specie, version)
+        params = {
+          'tool': {
+            'tool_name': aligner,
+            'version': tool_version,
+          },
+        }
+        return Align(params).build_index(data_source, specie, version)
 
-    case 'genome_alignment':
-      if len(args)>=5:
-        from pipelines.process.align import Align
-        data_source, specie, version, aligner = args[1:]
-        p = Align(data_source, specie, version, aligner)
-        return p.build_index()
+    case 'execute_task':
+      '''
+      example:
+      python3 erna/erna_app.py execute_task P00001 T02
+      '''
+      if len(args)>=3:
+        from pipelines.process.execute_task import ExecuteTask
+        project_id, task_id = args[1:]
+        return ExecuteTask(project_id, task_id)()
 
     case 'trim_adapter':
       '''

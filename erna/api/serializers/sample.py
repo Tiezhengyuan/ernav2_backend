@@ -23,4 +23,3 @@ class SampleProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = SampleProject
         fields = '__all__'
- 
