@@ -58,26 +58,6 @@ def main(args):
         p = ProcessGenome(data_source, specie, version)
         return p.download_genome()
 
-    case 'build_index':
-      '''
-      build index for aligner namely bowtie
-      example: 
-      python3 erna/erna_app.py build_index NCBI "Homo sapiens" GCF_000001405.40 bowtie 2.5.2
-      python3 erna/erna_app.py build_index NCBI "Homo sapiens" GCF_000001405.40 hisat2 2.2.1
-      python3 erna/erna_app.py build_index NCBI "Homo sapiens" GCF_009914755.1 bowtie 2.5.2
-      python3 erna/erna_app.py build_index NCBI "Homo sapiens" GCF_009914755.1 hisat2 2.2.1
-      '''
-      if len(args)>=5:
-        from pipelines.process.align import Align
-        data_source, specie, version, aligner, tool_version = args[1:]
-        params = {
-          'tool': {
-            'tool_name': aligner,
-            'version': tool_version,
-          },
-        }
-        return Align(params).build_index(data_source, specie, version)
-
     case 'execute_task':
       '''
       example:
@@ -87,6 +67,23 @@ def main(args):
         from pipelines.process.execute_task import ExecuteTask
         project_id, task_id = args[1:]
         return ExecuteTask(project_id, task_id)()
+
+
+    case 'build_index':
+      '''
+      build index for aligner namely bowtie
+      example: 
+      python3 erna/erna_app.py build_index "Homo sapiens" GCF_000001405.40 bowtie 2.5.2
+      python3 erna/erna_app.py build_index "Homo sapiens" GCF_000001405.40 hisat2 2.2.1
+      python3 erna/erna_app.py build_index "Homo sapiens" GCF_009914755.1 bowtie 2.5.2
+      python3 erna/erna_app.py build_index "Homo sapiens" GCF_009914755.1 hisat2 2.2.1
+      '''
+      if len(args)>=4:
+        from pipelines.process.align import Align
+        specie, genome_version, aligner, aligner_version = args[1:]
+        c = Align()
+        c.index_builder(specie, genome_version, aligner, aligner_version)
+        return c.build_index()
 
     case 'trim_adapter':
       '''
@@ -122,4 +119,5 @@ def main(args):
 
 if __name__ == '__main__':
   args = sys.argv[1:]
-  main(args)
+  res = main(args)
+  print(res)

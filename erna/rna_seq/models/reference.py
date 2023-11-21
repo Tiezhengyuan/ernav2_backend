@@ -18,6 +18,27 @@ class ReferenceManager(models.Manager):
       defaults = data
     )
     return res
+
+  def refresh(self):
+    '''
+    update references if index is built given one aligner
+    '''
+    # delete all
+    self.all().delete()
+
+    res = []
+    annotations = Annotation.objects.filter(file_format='fna', annot_type='genomic')
+    tools = Tool.objects.filter(exe_name__contains='-build')
+    for annot in annotations:
+      fa_path = annot.file_path
+      index_dir_path = os.path.join(os.path.dirname(fa_path), 'index')
+      for tool in tools:
+        index_path = os.path.join(index_dir_path, \
+          f"{tool.tool_name}_{tool.version}_")
+        if len(os.listdir(index_dir_path)) > 0:
+          obj = self.load_reference(tool, annot, index_path)
+          res.append(obj)
+    return res
   
   # def refresh(self):
   #   '''

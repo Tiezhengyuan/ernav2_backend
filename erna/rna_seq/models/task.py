@@ -32,7 +32,7 @@ class TaskManager(models.Manager):
         if 'method_name' in data:
             if 'tool' in data:
                 method_tool = MethodTool.objects.get_method_tool(
-                    data['method_name'], data['tool']['exe_name'], \
+                    data['method_name'], data['tool']['exe_name'],
                     data['tool']['version'])
             else:
                 method_tool = MethodTool.objects.get_method_tool(

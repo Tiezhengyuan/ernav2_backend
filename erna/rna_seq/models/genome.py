@@ -10,10 +10,14 @@ from utils.dir import Dir
 
 class GenomeManager(models.Manager):
     def get_genome(self, organism_name:str, version:str=None):
-        specie = Specie.objects.get(organism_name=organism_name)
-        if version is None:
-            return self.filter(specie=specie).last()
-        return self.get(specie=specie, version=version)
+        try:
+            specie = Specie.objects.get(organism_name=organism_name)
+            if version is None:
+                return self.filter(specie=specie).last()
+            return self.get(specie=specie, version=version)
+        except Exception as e:
+            pass
+        return None
     
     def get_versions(self, organism_name:str):
             specie = Specie.objects.get(organism_name=organism_name)

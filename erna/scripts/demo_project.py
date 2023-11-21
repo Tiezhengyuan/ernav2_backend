@@ -121,14 +121,14 @@ sample_data= [
     {
         'batch_name': 'demo',
         "file_path": "/home/yuan/bio/raw_data/demo",
-        "file_name": "reads_1.fq",
+        "file_name": "reads_R1.fq",
         'study_name':'demo',
         'sample_name': 'reads',
     },
     {
         'batch_name': 'demo',
         "file_path": "/home/yuan/bio/raw_data/demo",
-        "file_name": "reads_2.fq",
+        "file_name": "reads_R2.fq",
         'study_name':'demo',
         'sample_name': 'reads',
     },
