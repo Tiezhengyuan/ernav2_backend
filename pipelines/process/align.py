@@ -5,7 +5,8 @@ import os
 import subprocess
 from django.conf import settings
 
-from rna_seq.models import Genome, Reference, Tool, Annotation
+from rna_seq.models import Genome, Reference, Tool, \
+  Annotation, Task, TaskExecution
 from utils.dir import Dir
 
 EXTERNALS_DIR = getattr(settings, 'EXTERNALS_DIR')
@@ -61,6 +62,7 @@ class Align:
     if tool is None:
       return None
 
+    res = {}
     annotations = Annotation.objects.filter(genome=self.params['genome'])
     for annot in annotations:
       # build index given a specific file
@@ -70,38 +72,48 @@ class Align:
         index_path = os.path.join(index_dir_path, \
           f"{tool.tool_name}_{tool.version}_")
         Dir(index_dir_path).init_dir()
-                
+
+        # update TaskExecution
+        cmd = [tool.exe_path, fa_path, index_path,]
+        TaskExecution.objects.update_command(\
+          self.params['task_execution'], ' '.join(cmd))
+        print(cmd)
+              
         # skip building if index files exist
         if self.no_index_files(index_dir_path):
-          cmd = [tool.exe_path, fa_path, index_path,]
-          print(cmd)
           res = subprocess.run(cmd, capture_output=True, text=True)
           print(res.stdout)
           print(res.stderr)
 
         # update annot.Reference
-        return Reference.objects.load_reference(
+        res['reference'] = Reference.objects.load_reference(
           tool, annot, index_path)
+        
+        # update Task
+        res['children'] = []
+        params = {'index_path': index_path}
+        for child in self.params['children']:
+          Task.objects.update_task_params(child, params)
+          print(child.params)
+          res['children'].append(child)
+        return res
     return None
-
-
-
     
   def align_transcriptome(self):
     '''
     '''
     sample_files = self.project_sample_files()
-    cmd = None
-    if self.params['tool']['exe_name'] == 'bowtie2':
-      cmd = self.cmd_bowtie()
-    elif self.params['tool']['exe_name'] == 'hisat2':
-      cmd = self.cmd_hisat2()
-
-    if cmd:
-      res = subprocess.run(cmd, capture_output=True, text=True)
-      print(res.stdout)
-      print(res.stderr)
-      return res
+    print(sample_files)
+    for sample_name, input_data in sample_files.items():
+      cmd = None
+      if self.params['tool'].exe_name == 'hisat2':
+        cmd = self.cmd_hisat2(sample_name, input_data)
+      print(cmd)
+      # if cmd:
+      #   res = subprocess.run(cmd, capture_output=True, text=True)
+      #   print(res.stdout)
+      #   print(res.stderr)
+      #   return res
     return None
 
   def project_sample_files(self):
@@ -127,22 +139,30 @@ class Align:
       if file not in res[sample_name][file_type]:
         res[sample_name][file_type].append(file)
     return res
-    
+  
+  # def get_index_path(self):
+  #   '''
+  #   index path is needed by aligner
+  #   '''
+  #   if 'params' in self.params['task'] and \
+  #     'index_path' in self.params['task']['params']:
+  #     return self.params['task']['params']['index_path']
+  #   if 
 
-  def cmd_hisat2(self, input_data:dict):
+  def cmd_hisat2(self, sample_name:str, input_data:dict):
     '''
 
     '''
     cmd = [
-      self.params['tool']['exe_path'],
-      '-x', params['index_path'],
-      '-S', os.path.join(input_data['sam_file']),
+      self.params['tool'].exe_path,
+      '-x', self.params['task']['params']['index_path'],
+      '-S', os.path.join(self.params['output_dir'], sample_name, '.sam'),
     ]
-    if input_data['R1']:
-      cmd.append(f"-1 {input_data['R1']}")
-    if input_data['R2']:
-      cmd.append(f"-2 {input_data['R2']}")
-    if input_data['bam']:
+    if input_data.get('R1'):
+      cmd.append(f"-1 {','.join(input_data['R1'])}")
+    if input_data.get('R2'):
+      cmd.append(f"-2 {','.join(input_data['R2'])}")
+    if input_data.get('bam'):
       cmd.append(f"-b {input_data['bam']}")
     return cmd
 

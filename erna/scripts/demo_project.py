@@ -56,9 +56,6 @@ tasks_data = [
             'exe_name': 'hisat2',
             'version': '2.2.1',
         },
-        'params': {
-            'index_path': 'aaa',
-        },
         'child': ['T03'],
     },
     {

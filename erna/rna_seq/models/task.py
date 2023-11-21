@@ -80,7 +80,6 @@ class TaskManager(models.Manager):
             project.save()
         return res
 
-
     def delete_tasks(self, project_id:str=None, task_id:str=None):
         '''
         delete all/some tasks, or single task
@@ -99,6 +98,13 @@ class TaskManager(models.Manager):
             if task_id is None:
                 return self.all().delete()
         return []
+
+    def update_task_params(self, task, input:dict):
+        params = json.loads(task.params)
+        params.update(input)
+        task.params = json.dumps(params)
+        task.save()
+        return task
 
 
 class Task(models.Model):
