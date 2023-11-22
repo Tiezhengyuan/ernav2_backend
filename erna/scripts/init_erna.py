@@ -45,8 +45,6 @@ steps = Pipeline.objects.load_pipeline('miRNA-Seq', mirna_seq)
 # refresh RawData
 res = ProcessRawData().reset_sample()
 
-# annotation-related tables
-
 # refresh Specie and Genome
 species = ProcessGenome('NCBI').retrieve_assembly_summary()
 
@@ -54,10 +52,8 @@ species = ProcessGenome('NCBI').retrieve_assembly_summary()
 genomes = Genome.objects.refresh()
 
 # download default genome
-ProcessGenome('NCBI', 'Homo sapiens', 'GCF_000001405.40').download_genome()
-ProcessGenome('NCBI', 'Homo sapiens', 'GCF_009914755.1').download_genome()
-
-
+ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_000001405.40').download_genome()
+ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').download_genome()
 
 # refresh Reference
 Reference.objects.refresh()

@@ -75,10 +75,11 @@ class ConnectNCBI(ConnectFTP):
                 antonomy, 'assembly_summary.json')
             obj = HandleJson(json_file).read_json()
             for _, summary in obj:
+                specie_name = summary['organism_name'].replace(' ', '_')
                 data = {
                     'version': summary['assembly_accession'],
                     'ftp_path': summary['ftp_path'],
-                    'specie': summary['organism_name'],
+                    'specie': specie_name,
                     'data_source': 'NCBI',
                     'metadata': dict([(n, summary[n]) for n in meta_names]),
                 }
@@ -105,9 +106,9 @@ class ConnectNCBI(ConnectFTP):
             json_file = os.path.join(self.dir_local, 'assembly_summary',\
                 antonomy, 'assembly_summary.json')
             obj = HandleJson(json_file).read_json()
-            print(obj)
             for _, summary in obj:
                 data = dict([(n, summary[n]) for n in names])
+                data['organism_name'] = data['organism_name'].replace(' ', '_')
                 if data['organism_name'] not in n[antonomy]:
                     Specie.objects.create(**data)
                     n[antonomy].append(data['organism_name'])

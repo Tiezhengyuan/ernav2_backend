@@ -85,10 +85,7 @@ class Tool(models.Model):
         app_label = 'rna_seq'
         unique_together = ['exe_name', 'version']
         ordering = ['tool_name', 'version', 'exe_name']
-    
-    def __str__(self):
-        return self.tool_name
-    
+   
     def add_tool(self, tool_info:dict):
         '''
         new tool would be added

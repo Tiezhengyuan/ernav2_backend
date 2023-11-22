@@ -5,11 +5,13 @@ search table Task and detect tasks with 'is_ready'=True
 import json
 import os
 from django.conf import settings
-from rna_seq.models import *
+from django.utils import timezone
+
+from rna_seq.models import Project, Task, TaskTree, TaskExecution,\
+    MethodTool, Tool, Method, SampleProject, Genome
 from .align import Align
 from utils.dir import Dir
 
-RESULTS_DIR = settings.RESULTS_DIR
 
 
 class ExecuteTask:
@@ -65,19 +67,36 @@ class ExecuteTask:
         '''
         # output dir
         self.params['output_dir'] = os.path.join(
-            RESULTS_DIR,
+            settings.RESULTS_DIR,
             self.params['project'].project_id,
             self.params['method'].method_name
         )
         Dir(self.params['output_dir']).init_dir()
+        # 
+        self.params['cmd'] = None
+        self.params['output'] = []
         
         #update TaskExecution
         self.params['task_execution'] = TaskExecution.objects\
             .run(self.params['task'])
 
     def end_task(self):
-        self.params['task_execution'] = TaskExecution.objects\
-            .finish(self.params['task_execution'].id)
+        print(self.params['task_execution'].id, self.params['output'])
+        # update TaskExecution
+        if self.params.get('cmd'):
+            TaskExecution.objects.update_command(
+                self.params['task_execution'],
+                self.params['cmd']
+            )
+            self.params['task_execution'].status = 'finish'
+        else:
+            self.params['task_execution'].status = 'skip'
+        if self.params.get('output'):
+            self.params['task_execution'].output = json.dumps(
+                self.params['output'])
+        self.params['task_execution'].end_time = timezone.now()
+        self.params['task_execution'].save()
+    
         
     def run_task(self):
         '''

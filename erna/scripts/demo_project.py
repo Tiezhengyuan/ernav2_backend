@@ -8,7 +8,7 @@ from commons.models import CustomUser
 
 
 user = CustomUser.objects.get(pk=1)
-genome = Genome.objects.get_genome('Homo sapiens', 'GCF_000001405.40')
+genome = Genome.objects.get_genome('Homo_sapiens', 'GCF_000001405.40')
 project_id = "P00001"
 
 # cretae project
@@ -38,7 +38,7 @@ tasks_data = [
         'params': {},
         'genome':{
             'data_source': 'NCBI',
-            'specie': 'Homo sapiens',
+            'specie': 'Homo_sapiens',
             'version': 'GCF_000001405.40',
         },
         'annotation':{

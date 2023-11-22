@@ -32,12 +32,13 @@ class ReferenceManager(models.Manager):
     for annot in annotations:
       fa_path = annot.file_path
       index_dir_path = os.path.join(os.path.dirname(fa_path), 'index')
-      for tool in tools:
-        index_path = os.path.join(index_dir_path, \
-          f"{tool.tool_name}_{tool.version}_")
-        if len(os.listdir(index_dir_path)) > 0:
-          obj = self.load_reference(tool, annot, index_path)
-          res.append(obj)
+      if os.path.isdir(index_dir_path):
+        for tool in tools:
+          index_path = os.path.join(index_dir_path, \
+            f"{tool.tool_name}_{tool.version}_")
+          if len(os.listdir(index_dir_path)) > 0:
+            obj = self.load_reference(tool, annot, index_path)
+            res.append(obj)
     return res
   
   # def refresh(self):
