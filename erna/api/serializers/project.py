@@ -34,6 +34,12 @@ class TaskExecutionSerializer(serializers.ModelSerializer):
         model = TaskExecution
         fields = '__all__'
 
+class ExecutionTreeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExecutionTree
+        fields = '__all__'
+        depth = 1
+
 class TaskAnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskAnnotation

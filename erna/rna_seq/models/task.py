@@ -146,6 +146,13 @@ class Task(models.Model):
         blank=True, 
         verbose_name="Parameters (in json string format)",
     )
+    execution = models.OneToOneField(
+        'rna_seq.TaskExecution',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='task_execution'
+    )
     create_time = models.DateTimeField(auto_now_add=True)
     modified_time = models.DateTimeField(auto_now=True)
 

@@ -30,6 +30,7 @@ router.register('specie', SpecieViewSet, basename='specie')
 router.register('task', TaskViewSet, basename='task')
 router.register('task_annotation', TaskAnnotationViewSet, basename='task_annotation')
 router.register('task_execution', TaskExecutionViewSet, basename='task_execution')
+router.register('execution_tree', ExecutionTreeViewSet, basename='execution_tree')
 router.register('task_tree', TaskTreeViewSet, basename='task_tree')
 router.register('tool', ToolViewSet, basename='tool')
 

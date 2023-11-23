@@ -58,15 +58,16 @@ def main(args):
         p = ProcessGenome(data_source, specie, version)
         return p.download_genome()
 
-    case 'execute_task':
+    case 'execute_tasks':
       '''
       example:
-      python3 erna/erna_app.py execute_task P00001 T02
+      python3 erna/erna_app.py execute_tasks P00001 T02
       '''
       if len(args)>=3:
-        from pipelines.process.execute_task import ExecuteTask
-        project_id, task_id = args[1:]
-        return ExecuteTask(project_id, task_id)()
+        from pipelines.process.execute_tasks import ExecuteTasks
+        project_id, task_id = args[1], args[2]
+        chain = True if len(args)==4 else False
+        return ExecuteTasks(project_id, task_id, chain)()
 
 
     case 'build_index':

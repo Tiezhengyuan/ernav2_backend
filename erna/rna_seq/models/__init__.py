@@ -3,6 +3,7 @@ from .project_user import ProjectUser
 from .task import Task
 from .task_tree import TaskTree
 from .task_execution import TaskExecution
+from .execution_tree import ExecutionTree
 from .task_annotation import TaskAnnotation
 
 from .tool import Tool

@@ -7,6 +7,7 @@ from .project_viewset import *
 from .task_viewset import *
 from .task_annotation_viewset import *
 from .task_execution_viewset import *
+from .execution_tree_viewset import *
 from .task_tree_viewset import *
 
 from .specie_viewset import *

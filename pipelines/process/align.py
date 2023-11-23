@@ -1,6 +1,7 @@
 '''
 sequence alignment
 '''
+import json
 import os
 from .process import Process
 from django.conf import settings
@@ -131,7 +132,7 @@ class Align:
     '''
     cmd = [
       self.params['tool'].exe_path,
-      '-x', self.params['task'].params['index_path'],      
+      '-x', self.get_index_path(),
     ]
     if input_data.get('R1'):
       cmd += ['-1', ','.join(input_data['R1'])]
@@ -151,5 +152,23 @@ class Align:
     })
     return cmd
 
+  def get_index_path(self):
+    '''
+    get index for aligner
+    '''
+    # Firstly check Task.params
+    if self.params.get('task') and self.params['task'].params.get('index_path'):
+      return self.params['task'].params['index_path']
+    
+    # secondly check its parent TaskExecution
+    if self.params.get('parent_params'):
+      parent_output = self.params['parent_params']['output']
+      return parent_output[0]['index_path']
 
+    # Finally check its execution of parent Task
+    parent_execution = self.params['parents'][0].execution
+    if parent_execution:
+      parent_output = json.loads(parent_execution.output)
+      return parent_output[0]['index_path']
+    return None
 
