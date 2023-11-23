@@ -1,7 +1,6 @@
 '''
 sequence alignment
 '''
-import json
 import os
 from .process import Process
 from django.conf import settings
@@ -49,8 +48,8 @@ class Align:
         # update Task
         output = {'index_path': index_path}
         self.params['output'].append(output)
-        for child in self.params['children']:
-          Task.objects.update_task_params(child, output)
+        for child_task in self.params['children']:
+          child_task.update_params(output)
     return None
   
   def index_builder(self, specie:str, genome_version:str, \
@@ -93,6 +92,7 @@ class Align:
   def align_transcriptome(self):
     '''
     '''
+    print('###', self.get_index_path())
     sample_files = self.project_sample_files()
     for sample_name, input_data in sample_files.items():
       if self.params['tool'].exe_name == 'hisat2':
@@ -157,8 +157,8 @@ class Align:
     get index for aligner
     '''
     # Firstly check Task.params
-    if self.params.get('task') and self.params['task'].params.get('index_path'):
-      return self.params['task'].params['index_path']
+    if self.params.get('task') and self.params['task'].get_params():
+      return self.params['task'].get_params().get('index_path')
     
     # secondly check its parent TaskExecution
     if self.params.get('parent_params'):
@@ -166,9 +166,9 @@ class Align:
       return parent_output[0]['index_path']
 
     # Finally check its execution of parent Task
-    parent_execution = self.params['parents'][0].execution
+    parent_execution = self.params['parents'][0].task_execution
     if parent_execution:
-      parent_output = json.loads(parent_execution.output)
+      parent_output = parent_execution.get_output()
       return parent_output[0]['index_path']
     return None
 

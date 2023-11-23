@@ -2,7 +2,6 @@
 scheduled tasks:
 search table Task and detect tasks with 'is_ready'=True
 '''
-import json
 import os
 from django.conf import settings
 from django.utils import timezone
@@ -14,7 +13,7 @@ from utils.dir import Dir
 
 
 class ExecuteTasks:
-    def __init__(self, project_id:str, task_id:str, chain:bool=None):
+    def __init__(self, project_id:str, task_id:str=None, chain:bool=None):
         self.pool = [(project_id, task_id, None)]
         self.chain = chain if chain else False
 
@@ -23,8 +22,8 @@ class ExecuteTasks:
         while self.pool:
             project_id, task_id, parent_params = self.pool.pop(0)
             params = self.retreive_metadata(project_id, task_id)
-            # stop execution because the task is occupied.
-            if params['task'].execution.status == 'run':
+            # stop execution if the task is occupied.
+            if self.skip_task(params):
                 return False
             # try to run the task
             params['parent_params'] = parent_params
@@ -40,6 +39,22 @@ class ExecuteTasks:
                     ) 
         return True
 
+    def skip_task(self, params:dict) -> bool:
+        '''
+        confirm if the task is locked due to execution
+        '''
+        if params['task'].task_execution and \
+            params['task'].task_execution.status == 'run' and \
+            params['task'].task_execution.command:
+            print(f'''
+                Skipp the task  because that is running.
+                task id={params['task'].id}
+                execution id={params['task'].task_execution.id},
+                CMD={params['task'].task_execution.command}.
+                ''')
+            return True
+        return False
+
     def retreive_metadata(self, project_id:str, task_id:str):
         '''
         retrieve all data from DB related project+task
@@ -50,9 +65,10 @@ class ExecuteTasks:
         params['project'] = project
 
         # Task
-        task = Task.objects.get(project=project, task_id=task_id)
+        task = Task.objects.get(project=project, task_id=task_id) \
+            if task_id else Task.objects.filter(project=project).first()
         params['task'] = task
-        params['task'].params = json.loads(task.params)
+
         # parent/children
         parents = TaskTree.objects.filter(child=task)
         params['parents'] = [t.task for t in parents]
@@ -93,11 +109,10 @@ class ExecuteTasks:
         #update TaskExecution
         params['task_execution'] = TaskExecution.objects.run(params['task'])
         # update Task
-        params['task'].execution = params['task_execution']
+        params['task'].task_execution = params['task_execution']
         params['task'].save()
         #update ExecutionTree
         if params.get('parent_params'):
-            print(params['parent_params']['task_execution'])
             ExecutionTree.objects.create(
                 execution = params['parent_params']['task_execution'],
                 child_execution = params['task_execution'],
@@ -113,19 +128,8 @@ class ExecuteTasks:
     
     def end_task(self, params:dict):
         print(params['task_execution'].id, params['output'])
+        params['task_execution'].end_execution(
+            params.get('cmd'), params.get('output')
+        )
 
-        # update TaskExecution
-        if params.get('cmd'):
-            TaskExecution.objects.update_command(
-                params['task_execution'],
-                params['cmd']
-            )
-            params['task_execution'].status = 'finish'
-        else:
-            params['task_execution'].status = 'skip'
-        if params.get('output'):
-            params['task_execution'].output = json.dumps(
-                params['output'])
-        params['task_execution'].end_time = timezone.now()
-        params['task_execution'].save()
     

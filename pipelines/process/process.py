@@ -11,7 +11,7 @@ class Process:
         if params.get('cmd'):
             res = subprocess.run(params['cmd'], capture_output=True, text=True)
             if res.stdout:
-                print(res.stdout)
+                print('##', res.stdout)
                 with open(f"{params.get('output_prefix', '_')}.out.log", 'w') as f:
                     f.writelines(res.stdout)
             if res.stderr:

@@ -47,18 +47,7 @@ class TaskExecutionManager(models.Manager):
     #         status[last.id] = last.status
     #     return status
 
-    def update_command(self, task_execution, new_command:list):
-        '''
-        run/execute a task
-        '''
-        command = json.loads(task_execution.command) if \
-            task_execution.command else []
-        command.append(' '.join(new_command))
-        task_execution.command = json.dumps(command)
-        task_execution.save()
-        return task_execution
-
-        
+     
     def get_command(self, id):
         return self.model.objects.get(id=id).command
 
@@ -112,3 +101,45 @@ class TaskExecution(models.Model):
     class Meta:
         app_label = 'rna_seq'
         ordering = ('task', 'id', 'start_time')
+
+    def get_output(self):
+        try:
+            return json.loads(self.output)
+        except Exception as e:
+            print(e)
+        return self.output
+
+    def update_output(self, new_output:list) -> list:
+        output = json.loads(self.output) if self.output else []
+        if new_output:
+            output += new_output
+            self.output = json.dumps(output)
+        return output
+
+    def get_command(self):
+        try:
+            return json.loads(self.command)
+        except Exception as e:
+            print(e)
+        return self.command
+    
+    def update_command(self, new_cmd:list=None) -> list:
+        cmd = json.loads(self.command) if self.command else []
+        if new_cmd:
+            cmd.append(' '.join(new_cmd))
+            self.command = json.dumps(cmd)
+        return cmd
+
+    def end_execution(self, cmd:list=None, output:list=None):
+        # update command
+        if cmd:
+            self.update_command(cmd)
+            self.status = 'finish'
+        else:
+            self.status = 'skip'
+        # update output
+        self.update_output(output)
+        # update end_time
+        self.end_time = timezone.now()
+
+    

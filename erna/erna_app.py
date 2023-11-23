@@ -63,9 +63,10 @@ def main(args):
       example:
       python3 erna/erna_app.py execute_tasks P00001 T02
       '''
-      if len(args)>=3:
+      if len(args)>=2:
         from pipelines.process.execute_tasks import ExecuteTasks
-        project_id, task_id = args[1], args[2]
+        project_id = args[1]
+        task_id = args[2] if len(args)==3 else None
         chain = True if len(args)==4 else False
         return ExecuteTasks(project_id, task_id, chain)()
 
@@ -120,5 +121,4 @@ def main(args):
 
 if __name__ == '__main__':
   args = sys.argv[1:]
-  res = main(args)
-  print(res)
+  main(args)

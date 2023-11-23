@@ -99,12 +99,7 @@ class TaskManager(models.Manager):
                 return self.all().delete()
         return []
 
-    def update_task_params(self, task, input:dict):
-        params = json.loads(task.params)
-        params.update(input)
-        task.params = json.dumps(params)
-        task.save()
-        return task
+
 
 
 class Task(models.Model):
@@ -138,7 +133,7 @@ class Task(models.Model):
     task_name = models.CharField(
         max_length=100,
         null=True,
-        blank=True,
+        blank=True, 
         verbose_name="Task Name",
     )
     params = models.CharField(
@@ -146,7 +141,7 @@ class Task(models.Model):
         blank=True, 
         verbose_name="Parameters (in json string format)",
     )
-    execution = models.OneToOneField(
+    task_execution = models.OneToOneField(
         'rna_seq.TaskExecution',
         on_delete=models.SET_NULL,
         null=True,
@@ -163,6 +158,16 @@ class Task(models.Model):
         ordering = ('project', 'task_id',)
         unique_together = ('project', 'task_id')
 
-    def __str__(self):
-        return self.task_id
+    def update_params(self, input:dict) -> dict:
+        params = json.loads(self.params) if self.params else {}
+        params.update(input)
+        self.params = json.dumps(params)
+        return params
+    
+    def get_params(self) -> dict:
+        try:
+            return json.loads(self.params)
+        except Exception as e:
+            print(e)
+        return self.params
 
