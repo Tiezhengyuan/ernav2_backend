@@ -61,11 +61,11 @@ tasks_data = [
     {
         'task_id': 'T03',
         'task_name': '',
-        'method_name': 'assemble_transcripts',
+        'method_name': 'convert_format',
         'tool': {
-            'tool_name': 'stringtie',
-            'exe_name': 'stringtie',
-            'version': '2.2.2',
+            'tool_name': 'samtools',
+            'exe_name': 'samtools',
+            'version': '1.18',
         },
         'params': {},
         'child': ['T04'],
@@ -73,8 +73,20 @@ tasks_data = [
     {
         'task_id': 'T04',
         'task_name': '',
+        'method_name': 'assemble_transcripts',
+        'tool': {
+            'tool_name': 'stringtie',
+            'exe_name': 'stringtie',
+            'version': '2.2.2',
+        },
+        'params': {},
+        'child': ['T05'],
+    },
+    {
+        'task_id': 'T05',
+        'task_name': '',
         'method_name': 'count_reads',
-        'parent': ['T03'],
+        'parent': ['T04'],
     },
     {
         'task_name': '',

@@ -4,29 +4,35 @@ search table Task and detect tasks with 'is_ready'=True
 '''
 import os
 from django.conf import settings
-from django.utils import timezone
 
 from rna_seq.models import Project, Task, TaskTree, TaskExecution,\
     ExecutionTree, MethodTool, Tool, Method, SampleProject, Genome
-from .align import Align
+from rna_seq.models.constants import METHODS
 from utils.dir import Dir
+from .align import Align
+from .convert_format import ConvertFormat
+from .assemble import Assemble
+
 
 
 class ExecuteTasks:
-    def __init__(self, project_id:str, task_id:str=None, chain:bool=None):
+    def __init__(self, project_id:str, task_id:str=None, chain:bool=None, force:bool=None):
         self.pool = [(project_id, task_id, None)]
         self.chain = chain if chain else False
+        self.force = force if force else True
 
 
     def __call__(self) -> bool:
         while self.pool:
             project_id, task_id, parent_params = self.pool.pop(0)
             params = self.retreive_metadata(project_id, task_id)
+            params['parent_params'] = parent_params
+            
             # stop execution if the task is occupied.
             if self.skip_task(params):
                 return False
+            
             # try to run the task
-            params['parent_params'] = parent_params
             self.init_task(params)
             self.run_task(params)
             self.end_task(params)
@@ -39,23 +45,40 @@ class ExecuteTasks:
                     ) 
         return True
 
+    def run_task(self, params:dict):
+        match params['method'].method_name:
+            case 'build_index':
+                return Align(params).build_index()
+            case 'align_transcriptome':
+                return Align(params).align_transcriptome()
+            case 'convert_format':
+                return ConvertFormat(params).sam_to_bam()
+            case 'assemble_transcripts':
+                return Assemble(params).align_transcriptome()
+
+
     def skip_task(self, params:dict) -> bool:
         '''
         confirm if the task is locked due to execution
         '''
-        if params['task'].task_execution and \
-            params['task'].task_execution.status == 'run' and \
-            params['task'].task_execution.command:
+        methods = [i['method_name'] for i in METHODS]
+        if params['method'].method_name not in methods:
+            print(f"wrong method name. {params['method'].method_name}.")
+            return False
+        
+        status = params['task'].task_execution.status if \
+            params['task'].task_execution else None
+        if status == 'run' and not self.force:
             print(f'''
                 Skipp the task  because that is running.
                 task id={params['task'].id}
                 execution id={params['task'].task_execution.id},
-                CMD={params['task'].task_execution.command}.
-                ''')
+                command={params['task'].task_execution.command}.
+            ''')
             return True
         return False
 
-    def retreive_metadata(self, project_id:str, task_id:str):
+    def retreive_metadata(self, project_id:str, task_id:str) -> dict:
         '''
         retrieve all data from DB related project+task
         '''
@@ -93,7 +116,7 @@ class ExecuteTasks:
         return params
 
 
-    def init_task(self, params:dict):
+    def init_task(self, params:dict) -> None:
         '''
         '''
         # variables
@@ -117,19 +140,13 @@ class ExecuteTasks:
                 execution = params['parent_params']['task_execution'],
                 child_execution = params['task_execution'],
             )
-        
-    def run_task(self, params:dict):
-        match params['method'].method_name:
-            case 'build_index':
-                return Align(params).build_index()
-            case 'align_transcriptome':
-                return Align(params).align_transcriptome()
         return None
+        
+
     
-    def end_task(self, params:dict):
-        print(params['task_execution'].id, params['output'])
-        params['task_execution'].end_execution(
-            params.get('cmd'), params.get('output')
-        )
+    def end_task(self, params:dict) -> None:
+        print('#end task:', params['task_execution'].id, params['output'])
+        params['task_execution'].end_execution(params.get('output'))
+        return None
 
     

@@ -46,7 +46,10 @@ class Align:
         Reference.objects.load_reference(tool, annot, index_path)
         
         # update Task
-        output = {'index_path': index_path}
+        output = {
+          'cmd': ' '.join(self.params['cmd']),
+          'index_path': index_path
+        }
         self.params['output'].append(output)
         for child_task in self.params['children']:
           child_task.update_params(output)
@@ -92,7 +95,6 @@ class Align:
   def align_transcriptome(self):
     '''
     '''
-    print('###', self.get_index_path())
     sample_files = self.project_sample_files()
     for sample_name, input_data in sample_files.items():
       if self.params['tool'].exe_name == 'hisat2':
@@ -146,6 +148,7 @@ class Align:
     self.params['cmd'] = cmd
     self.params['output_prefix'] = output_prefix
     self.params['output'].append({
+      'cmd': ' '.join(cmd),
       'sample_name': sample_name,
       'output_prefix': output_prefix,
       'sam_file': f"{output_prefix}.sam",

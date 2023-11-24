@@ -160,9 +160,11 @@ class Task(models.Model):
 
     def update_params(self, input:dict) -> dict:
         params = json.loads(self.params) if self.params else {}
-        params.update(input)
-        self.params = json.dumps(params)
-        return params
+        if input:
+            params.update(input)
+            self.params = json.dumps(params)
+            self.save()
+        return self.params
     
     def get_params(self) -> dict:
         try:

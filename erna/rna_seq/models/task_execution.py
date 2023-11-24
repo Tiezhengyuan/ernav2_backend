@@ -83,12 +83,6 @@ class TaskExecution(models.Model):
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
     # string type converted from json format
-    command = models.CharField(
-        max_length=1025,
-        null=True,
-        blank=True,
-        verbose_name="command for tool launching"
-    )
     output = models.CharField(
         max_length=5000,
         null=True,
@@ -100,7 +94,6 @@ class TaskExecution(models.Model):
 
     class Meta:
         app_label = 'rna_seq'
-        ordering = ('task', 'id', 'start_time')
 
     def get_output(self):
         try:
@@ -114,32 +107,19 @@ class TaskExecution(models.Model):
         if new_output:
             output += new_output
             self.output = json.dumps(output)
-        return output
+            self.save()
+        return self.output
 
-    def get_command(self):
-        try:
-            return json.loads(self.command)
-        except Exception as e:
-            print(e)
-        return self.command
-    
-    def update_command(self, new_cmd:list=None) -> list:
-        cmd = json.loads(self.command) if self.command else []
-        if new_cmd:
-            cmd.append(' '.join(new_cmd))
-            self.command = json.dumps(cmd)
-        return cmd
-
-    def end_execution(self, cmd:list=None, output:list=None):
-        # update command
-        if cmd:
-            self.update_command(cmd)
+    def end_execution(self, output:list=None):
+        print('###', output)
+        # update output
+        if output:
+            self.update_output(output)
             self.status = 'finish'
         else:
             self.status = 'skip'
-        # update output
-        self.update_output(output)
         # update end_time
         self.end_time = timezone.now()
+        self.save()
 
     
