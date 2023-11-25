@@ -2,11 +2,13 @@
 scheduled tasks:
 search table Task and detect tasks with 'is_ready'=True
 '''
+from copy import deepcopy
 import os
 from django.conf import settings
 
 from rna_seq.models import Project, Task, TaskTree, TaskExecution,\
-    ExecutionTree, MethodTool, Tool, Method, SampleProject, Genome
+    ExecutionTree, MethodTool, Tool, Method, SampleProject, Genome, \
+    Annotation
 from rna_seq.models.constants import METHODS
 from utils.dir import Dir
 from .align import Align
@@ -45,7 +47,7 @@ class ExecuteTasks:
                     ) 
         return True
 
-    def run_task(self, params:dict):
+    def run_task(self, params:dict)->None:
         match params['method'].method_name:
             case 'build_index':
                 return Align(params).build_index()
@@ -54,7 +56,10 @@ class ExecuteTasks:
             case 'convert_format':
                 return ConvertFormat(params).sam_to_bam()
             case 'assemble_transcripts':
-                return Assemble(params).align_transcriptome()
+                return Assemble(params).assemble_transcripts()
+            case 'merge_transcripts':
+                return Assemble(params).merge_transcripts()
+        return None
 
 
     def skip_task(self, params:dict) -> bool:
@@ -94,7 +99,9 @@ class ExecuteTasks:
 
         # parent/children
         parents = TaskTree.objects.filter(child=task)
-        params['parents'] = [t.task for t in parents]
+        parents = [t.task for t in parents]
+        params['parents'] = parents
+        params['parent_outputs'] = self.combine_parents_output(parents)
         children = TaskTree.objects.filter(task=task)
         params['children'] = [t.child for t in children]
 
@@ -110,11 +117,24 @@ class ExecuteTasks:
 
         # Genome
         params['genome'] = Genome.objects.get(pk=project.genome.pk)
-
+        params['annotations'] = Annotation.objects.filter(genome=params['genome'])
         # for k in params:
         #     print(f"{k}\t\t{params[k]}")
         return params
 
+    def combine_parents_output(self, parents:list) -> list:
+        '''
+        suppose that a task has one or multiple parents.
+        '''
+        if not parents:
+            return []
+        parent_output = deepcopy(parents[0].task_execution.get_output())
+        if len(parents) > 1:
+            for parent in parents[1:]:
+                another = deepcopy(parent.task_execution.get_output())
+                for a,b in zip(parent_output, another):
+                    a.update(b)
+        return parent_output
 
     def init_task(self, params:dict) -> None:
         '''
@@ -145,7 +165,7 @@ class ExecuteTasks:
 
     
     def end_task(self, params:dict) -> None:
-        print('#end task:', params['task_execution'].id, params['output'])
+        print('#end task:', params['task_execution'].id)
         params['task_execution'].end_execution(params.get('output'))
         return None
 

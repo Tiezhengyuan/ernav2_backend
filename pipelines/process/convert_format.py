@@ -10,23 +10,32 @@ class ConvertFormat:
         '''
         convert SAM to BAM
         '''
-        for parent in self.params['parents']:
-            parent_output = parent.task_execution.get_output()
-            for item in parent_output:
-                sample_name = item.get('sample_name', '_')
-                output_prefix = os.path.join(self.params['output_dir'], sample_name)
-                bamfile = output_prefix + '.sam'
-                self.params['cmd'] = [
-                    self.params['tool'].exe_path,
-                    'view',
-                    '-b',
-                    item['sam_file'],
-                    '>',
-                    bamfile
-                ]
-                Process.run_subprocess(self.params)
-                self.params['output'].append({
-                    'cmd': ' '.join(self.params['cmd']),
-                    'sample_name': sample_name,
-                    'bam_file': bamfile,
-                })
+        for parent_output in self.params['parent_outputs']:
+            sample_name = parent_output.get('sample_name', '_')
+            output_prefix = os.path.join(self.params['output_dir'], sample_name)
+
+            # to BAM
+            bamfile = output_prefix + '.bam'
+            self.params['cmd'] = [
+                self.params['tool'].exe_path,
+                'view', '-b', parent_output['sam_file'],
+                '>', bamfile
+            ]
+            Process.run_subprocess(self.params)
+
+            # sort BAM
+            sorted_bamfile = output_prefix + '.bam.sorted'
+            self.params['cmd'] = [
+                self.params['tool'].exe_path,
+                'sort',
+                '-o', sorted_bamfile,
+                bamfile,
+            ]
+            Process.run_subprocess(self.params)
+            
+            self.params['output'].append({
+                'cmd': ' '.join(self.params['cmd']),
+                'sample_name': sample_name,
+                'bam_file': bamfile,
+                'sorted_bam_file': sorted_bamfile,
+            })

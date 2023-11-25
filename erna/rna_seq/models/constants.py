@@ -31,7 +31,13 @@ METHODS = [
   },
   {
     "method_name": "assemble_transcripts",
-    "description": "rna-seq",
+    "description": "assemble transcripts after transcripts alignment",
+    "child_method": ["merge_transcripts",],
+    "exe_name": ["stringtie"],
+  },
+  {
+    "method_name": "merge_transcripts",
+    "description": "merge transcripts into a non-redundant set of transcripts",
     "child_method": ["count_reads",],
     "exe_name": ["stringtie"],
   },

@@ -5,8 +5,7 @@ import os
 from .process import Process
 from django.conf import settings
 
-from rna_seq.models import Genome, Reference, Tool, \
-  Annotation, Task
+from rna_seq.models import Genome, Reference, Tool
 from utils.dir import Dir
 
 EXTERNALS_DIR = getattr(settings, 'EXTERNALS_DIR')
@@ -28,8 +27,7 @@ class Align:
     if tool is None:
       return None
 
-    annotations = Annotation.objects.filter(genome=self.params['genome'])
-    for annot in annotations:
+    for annot in self.params['annotations']:
       # build index given a specific file
       if annot.annot_type == 'genomic' and annot.file_format == 'fna':
         fa_path = annot.file_path
@@ -38,8 +36,8 @@ class Align:
         Dir(index_dir_path).init_dir()
 
         # skip building if index files exist
+        self.params['cmd'] = [tool.exe_path, fa_path, index_path,]
         if self.no_index_files(index_dir_path):
-          self.params['cmd'] = [tool.exe_path, fa_path, index_path,]
           Process.run_subprocess(self.params)
 
         # update annot.Reference
@@ -55,6 +53,7 @@ class Align:
           child_task.update_params(output)
     return None
   
+  # TODO: move that to execute_tasks
   def index_builder(self, specie:str, genome_version:str, \
       aligner:str, aligner_version:str) -> None:
     '''
