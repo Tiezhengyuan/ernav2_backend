@@ -18,3 +18,7 @@ pipelines/*/*/__pycache__/
 erna/db.sqlite3
 erna/erna/db.sqlite3
 
+# 
+.ctab
+.ipynb_checkpoints
+.err.log

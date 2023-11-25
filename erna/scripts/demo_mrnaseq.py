@@ -128,35 +128,16 @@ print(tasks_tree)
 
 
 # load samples
-sample_data = [
-    {   
-        'study_name':'demo',
-        'sample_name': 'reads',
-        'metadata':{'gender':'F', 'age':20,},
-    },
-]
+study_name = 'test_mrnaseq'
+sample_names = ['197_L1', '1014_L1', '1073_L1']
+sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
+    for s in sample_names]
 samples = Sample.objects.load_samples(user, sample_data)
 print(samples)
 
 #RawData
-sample_data= [
-    {
-        'batch_name': 'demo',
-        "file_path": "/home/yuan/bio/raw_data/demo",
-        "file_name": "reads_R1.fq",
-        'study_name':'demo',
-        'sample_name': 'reads',
-    },
-    {
-        'batch_name': 'demo',
-        "file_path": "/home/yuan/bio/raw_data/demo",
-        "file_name": "reads_R2.fq",
-        'study_name':'demo',
-        'sample_name': 'reads',
-    },
-]
-sample_files = SampleFile.objects.load_sample_files(sample_data)
-print(sample_files)
+batch_names = ['demo_mrnaseq',]
+sample_files = SampleFile.objects.parse_sample_rawdata([study_name,], batch_names)
 
 # update SampleProject
 res = SampleProject.objects.load_project_sample_files(

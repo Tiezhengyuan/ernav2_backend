@@ -2,6 +2,8 @@ import json
 from django.conf import settings
 from django.db import models
 
+from commons.models import CustomUser
+
 class SampleManager(models.Manager):
 
     def study_exists(self, study_name:str)->bool:

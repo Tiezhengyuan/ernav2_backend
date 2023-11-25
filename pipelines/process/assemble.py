@@ -22,6 +22,9 @@ class Assemble:
     return None
 
   def cmd_stringtie(self, parent_output:dict):
+    '''
+    stringtie <in.bam ..>  [options]
+    '''
     sample_name = parent_output.get('sample_name', '_')
     output_prefix = os.path.join(self.params['output_dir'], sample_name)
     gtf_file = output_prefix + '.gtf'
@@ -39,7 +42,7 @@ class Assemble:
       covered_file = output_prefix + '.cov'
       self.params['cmd'] += [
         '-G', annot_file,
-        '-b', ballgown_file,
+        '-e', '-b', ballgown_file,
         '-A', abundance_file,
         '-C', covered_file,
       ]
@@ -84,22 +87,22 @@ class Assemble:
     '''
     run method: merge transcripts
     '''
-    print(self.params['tool'])
     if self.params['tool'].tool_name == 'stringtie':
       self.cmd_stringtie_merge()
     return Process.run_subprocess(self.params)
 
-
   def cmd_stringtie_merge(self):
+    '''
+    stringtie --merge [Options] { gtf_list | strg1.gtf ...}
+    '''
     outputs = self.params['parent_outputs']
-    gtf_files = ','.join([i['gtf_file'] for i in outputs])
     annotation_file = outputs[0]['annotation_file']
     merged_gtf_file = os.path.join(self.params['output_dir'], 'merged_transcripts.gtf')
     self.params['cmd'] = [
-      self.params['tool'].exe_path,
-      '--merge', gtf_files,
+      self.params['tool'].exe_path, '--merge',
       '-G', annotation_file,
       '-o', merged_gtf_file,
+      ' '.join([i['gtf_file'] for i in outputs]),
     ]
 
     # update output

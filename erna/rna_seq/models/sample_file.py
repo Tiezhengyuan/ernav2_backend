@@ -10,7 +10,46 @@ from .sample import Sample
 from .raw_data import RawData
 
 class SampleFileManager(models.Manager):
+    def parse_sample_rawdata(self, study_names:list, batch_names:list):
+        '''
+        parse samples ~ raw_data
+        one sample may have multiple raw_data
+        '''
+        # collect samples and raw data
+        samples = []
+        for study_name in study_names:
+            samples += Sample.objects.filter(study_name=study_name)
+        raw = []
+        for batch_name in batch_names:
+            raw += RawData.objects.filter(batch_name=batch_name)
+        
+        # parse Sample~RawData
+        sample_files = []
+        for sample in samples:
+            for raw_data in raw:
+                if raw_data.file_name.startswith(sample.sample_name):
+                    obj = self.update_or_create(sample=sample, raw_data=raw_data)
+                    sample_files.append(obj)
+        return sample_files
 
+    def load_sample_files(self, sample_files:list):
+        '''
+        '''
+        res = []
+        for data in sample_files:
+            raw_data = RawData.objects.get(
+                batch_name=data['batch_name'],
+                file_path=data['file_path'],
+                file_name=data['file_name'],
+            )
+            sample = Sample.objects.get(
+                study_name=data['study_name'],
+                sample_name=data['sample_name']
+            )
+            obj = self.update_or_create(sample=sample, raw_data=raw_data)
+            res.append(obj)
+        return res
+    
     def iterate_raw_data(self, study_name:str)->Iterable:
         '''
         Iteration of all files defined in RawData
@@ -42,23 +81,6 @@ class SampleFileManager(models.Manager):
             res[sample_name]['raw_data'].append(sample_file)
         return res
 
-    def load_sample_files(self, sample_files:list):
-        '''
-        '''
-        res = []
-        for data in sample_files:
-            raw_data = RawData.objects.get(
-                batch_name=data['batch_name'],
-                file_path=data['file_path'],
-                file_name=data['file_name'],
-            )
-            sample = Sample.objects.get(
-                study_name=data['study_name'],
-                sample_name=data['sample_name']
-            )
-            obj = self.update_or_create(sample=sample, raw_data=raw_data)
-            res.append(obj)
-        return res
 
     def add_sample_file(self, sample_file:dict):
         '''
