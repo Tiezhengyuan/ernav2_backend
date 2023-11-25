@@ -8,7 +8,7 @@ class Process:
         '''
         Note: don't update object "params"
         '''
-        if params.get('cmd'):
+        if params.get('cmd') and params['force_run']:
             cmd = ' '.join(params['cmd'])
             print(cmd)
             res = subprocess.run(cmd, capture_output=True, text=True, shell=True)

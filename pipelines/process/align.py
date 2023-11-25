@@ -52,8 +52,8 @@ class Align:
         for child_task in self.params['children']:
           child_task.update_params(output)
     return None
-  
-  # TODO: move that to execute_tasks
+
+  # used by erna_app.py
   def index_builder(self, specie:str, genome_version:str, \
       aligner:str, aligner_version:str) -> None:
     '''
@@ -143,15 +143,17 @@ class Align:
       cmd += ['-b', input_data['bam']]
     
     output_prefix = os.path.join(self.params['output_dir'], sample_name)
-    cmd += ['-S', f"{output_prefix}.sam"]
+    sam_file = f"{output_prefix}.sam"
+    cmd += ['-S', sam_file]
     self.params['cmd'] = cmd
     self.params['output_prefix'] = output_prefix
     self.params['output'].append({
       'cmd': ' '.join(cmd),
       'sample_name': sample_name,
       'output_prefix': output_prefix,
-      'sam_file': f"{output_prefix}.sam",
+      'sam_file': sam_file,
     })
+    self.params['force_run'] = False if os.path.isfile(sam_file) else True
     return cmd
 
   def get_index_path(self):

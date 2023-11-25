@@ -46,6 +46,8 @@ class Assemble:
         '-A', abundance_file,
         '-C', covered_file,
       ]
+    self.params['force_run'] = False if os.path.isfile(gtf_file) else True
+
 
     # update output
     self.params['output'].append({
@@ -104,6 +106,7 @@ class Assemble:
       '-o', merged_gtf_file,
       ' '.join([i['gtf_file'] for i in outputs]),
     ]
+    self.params['force_run'] = False if os.path.isfile(merged_gtf_file) else True
 
     # update output
     self.params['output'].append({

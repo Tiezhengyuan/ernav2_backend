@@ -12,7 +12,6 @@ from rna_seq.models import Project, Task, TaskTree, TaskExecution,\
 from rna_seq.models.constants import METHODS
 from utils.dir import Dir
 from .align import Align
-from .convert_format import ConvertFormat
 from .assemble import Assemble
 
 
@@ -54,11 +53,15 @@ class ExecuteTasks:
             case 'align_transcriptome':
                 return Align(params).align_transcriptome()
             case 'convert_format':
+                from .convert_format import ConvertFormat
                 return ConvertFormat(params).sam_to_bam()
             case 'assemble_transcripts':
                 return Assemble(params).assemble_transcripts()
             case 'merge_transcripts':
                 return Assemble(params).merge_transcripts()
+            case 'count_reads':
+                from .collect import Collect
+                return Collect(params).count_reads()
         return None
 
 
@@ -108,7 +111,9 @@ class ExecuteTasks:
         # Method and Tool
         method_tool = MethodTool.objects.get(pk=task.method_tool.pk)
         params['method'] = Method.objects.get(pk=method_tool.method.pk)
-        params['tool'] = Tool.objects.get(pk=method_tool.tool.pk)
+        params['tool'] = Tool.objects.get(pk=method_tool.tool.pk) \
+            if method_tool.tool else None
+
 
         # Samples
         project_samples = SampleProject.objects.filter(project=project)
@@ -141,6 +146,7 @@ class ExecuteTasks:
         '''
         # variables
         params['cmd'] = None
+        params['force_run'] = True
         params['output'] = []
         params['output_dir'] = os.path.join(
             settings.RESULTS_DIR,

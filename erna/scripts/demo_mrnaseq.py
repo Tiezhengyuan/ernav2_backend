@@ -81,7 +81,7 @@ tasks_data = [
             'version': '2.2.2',
         },
         'params': {},
-        'child': ['T05'],
+        'child': ['T05', 'T06'],
     },
     {
         'task_id': 'T05',
@@ -93,15 +93,15 @@ tasks_data = [
             'version': '2.2.2',
         },
         'params': {},
-        'child': ['T06'],
     },
     {
         'task_id': 'T06',
         'task_name': '',
         'method_name': 'count_reads',
-        'parent': ['T05'],
+        'parent': ['T04'],
     },
     {
+        'task_id': 'T07',
         'task_name': '',
         'method_name': 'quality_control',
         'tool': {
@@ -109,15 +109,6 @@ tasks_data = [
             "exe_name": "fastqc",
             'version': '0.12.1'
         }
-    },
-    # empty task without method_name
-    {
-        'task_id': 'T06',
-    },
-    # update task
-    {
-        'task_id': 'T06',
-        'task_name': 'test update',
     },
 ]
 tasks = Task.objects.load_tasks(project_id, tasks_data)

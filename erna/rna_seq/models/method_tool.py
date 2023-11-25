@@ -25,9 +25,10 @@ class MethodToolManager(models.Manager):
 
   def get_method_tool(self, method_name:str, exe_name:str=None, version:str=None):
     method = Method.objects.get(method_name=method_name)
-    tool = Tool.objects.get_tool(exe_name=exe_name, version=version) if \
-      exe_name or version else None
-    return self.get(method=method, tool=tool)
+    if exe_name or version:
+      tool = Tool.objects.get_tool(exe_name=exe_name, version=version)
+      return self.get(method=method, tool=tool)
+    return self.get(method=method)
 
 class MethodTool(models.Model):
   method = models.ForeignKey(

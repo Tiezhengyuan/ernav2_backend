@@ -21,6 +21,7 @@ class ConvertFormat:
                 'view', '-b', parent_output['sam_file'],
                 '>', bamfile
             ]
+            self.params['force_run'] = False if os.path.isfile(bamfile) else True
             Process.run_subprocess(self.params)
 
             # sort BAM
@@ -31,6 +32,7 @@ class ConvertFormat:
                 '-o', sorted_bamfile,
                 bamfile,
             ]
+            self.params['force_run'] = False if os.path.isfile(sorted_bamfile) else True
             Process.run_subprocess(self.params)
             
             self.params['output'].append({

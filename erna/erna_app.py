@@ -100,18 +100,7 @@ def main(args):
         params =  dict([(k,v) for k, v in zip(['adapter', 'input',\
           'output',], args[1:])])
         return TrimAdapter(params)()
-
-
-
-
-
-
-    
-    case 'genome_assembly':
-      if len(args)>=2:
-        from pipelines.process import Assembly
-        p = Assembly(args[1])
-        return p.genome_aseembly()
+  
     case 'count_reads':
       if len(args)>=3:
         from pipelines.process import Collect
