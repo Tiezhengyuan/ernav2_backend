@@ -1,8 +1,7 @@
 '''
 example:
-    python3 erna/manage.py shell < erna/scripts/demo_project.py
+    python3 erna/manage.py shell < erna/scripts/demo_mrnaseq.py
 '''
-import json
 from rna_seq.models import *
 from commons.models import CustomUser
 

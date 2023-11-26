@@ -58,6 +58,15 @@ def main(args):
         p = ProcessGenome(data_source, specie, version)
         return p.download_genome()
 
+    case 'load_mirbase':
+      '''
+      download data from miRBase FTP and load them into eRNA
+      example: python3 erna_app.py load_mirbase
+      '''
+      from pipelines.process.process_mirna import ProcessMiRNA
+      overwrite = eval(args[1]) if len(args)>1 and args[1] else False
+      return ProcessMiRNA().load_mirbase(overwrite)
+      
     case 'execute_tasks':
       '''
       example:

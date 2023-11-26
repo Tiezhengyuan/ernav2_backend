@@ -26,7 +26,6 @@ class ExecuteTasks:
         else:
             for head_task_id in self.detect_head_tasks(project_id):
                 self.pool.append((project_id, head_task_id, None))
-        print('###start tasks: ', self.pool)
         self.force = force if force else True
 
     def detect_head_tasks(self, project_id:str):

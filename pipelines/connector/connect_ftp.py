@@ -101,8 +101,12 @@ class ConnectFTP:
         # download files
         local_files = []
         for current_endpoint, file_name in ftp_files:
-            local_file = self.download_file(current_endpoint, \
-                file_name, local_path, overwrite)
+            local_file = self.download_file(
+                current_endpoint,
+                file_name,
+                local_path,
+                overwrite
+            )
             if local_file and local_file not in local_files:
                 local_files.append(local_file)
         return local_files
