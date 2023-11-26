@@ -100,8 +100,6 @@ class TaskManager(models.Manager):
         return []
 
 
-
-
 class Task(models.Model):
     # project_id + task_id = pk
     project = models.ForeignKey(

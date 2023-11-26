@@ -100,12 +100,7 @@ def main(args):
         params =  dict([(k,v) for k, v in zip(['adapter', 'input',\
           'output',], args[1:])])
         return TrimAdapter(params)()
-  
-    case 'count_reads':
-      if len(args)>=3:
-        from pipelines.process import Collect
-        p = Collect(args[1])
-        return p.count_reads()
+
   print('wrong arguments')
 
 if __name__ == '__main__':

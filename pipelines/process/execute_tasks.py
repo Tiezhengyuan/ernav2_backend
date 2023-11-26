@@ -18,10 +18,25 @@ from .assemble import Assemble
 
 class ExecuteTasks:
     def __init__(self, project_id:str, task_id:str=None, chain:bool=None, force:bool=None):
-        self.pool = [(project_id, task_id, None)]
-        self.chain = chain if chain else False
+        self.pool = []
+        self.chain = True
+        if task_id:
+            self.pool = [(project_id, task_id, None)]
+            self.chain = eval(chain) if chain else False
+        else:
+            for head_task_id in self.detect_head_tasks(project_id):
+                self.pool.append((project_id, head_task_id, None))
+        print('###start tasks: ', self.pool)
         self.force = force if force else True
 
+    def detect_head_tasks(self, project_id:str):
+        head_task_ids = []
+        tasks = Task.objects.filter(project_id=project_id)
+        for task in tasks:
+            obj = TaskTree.objects.filter(child=task)
+            if not obj:
+                head_task_ids.append(task.task_id)
+        return head_task_ids
 
     def __call__(self) -> bool:
         while self.pool:
@@ -62,6 +77,9 @@ class ExecuteTasks:
             case 'count_reads':
                 from .collect import Collect
                 return Collect(params).count_reads()
+            case 'quality_control':
+                from .quality_control import QualityControl
+                return QualityControl(params)()
         return None
 
 
