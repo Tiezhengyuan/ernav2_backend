@@ -39,8 +39,7 @@ def main(args):
     case 'assembly_summary':
       '''
       download assembly_summary.txt
-      example:
-      python3 erna_app.py assembly_summary NCBI
+      example: python3 erna/erna_app.py assembly_summary NCBI
       '''
       if len(args) >= 2:
         from pipelines.process.process_genome import ProcessGenome
@@ -60,7 +59,7 @@ def main(args):
 
     case 'load_mirbase':
       '''
-      download data from miRBase FTP and load them into eRNA
+      download data from miRBase and load them into eRNA
       example: python3 erna_app.py load_mirbase
       '''
       from pipelines.process.process_mirna import ProcessMiRNA

@@ -100,19 +100,12 @@ class ConnectNCBI(ConnectFTP):
 
         # retrieve data from json
         n = {}
-        names = ['taxid', 'organism_name', 'group']
         for antonomy in ANATOMY_GROUPS:
-            n[antonomy] = []
             json_file = os.path.join(self.dir_local, 'assembly_summary',\
                 antonomy, 'assembly_summary.json')
-            obj = HandleJson(json_file).read_json()
-            for _, summary in obj:
-                data = dict([(n, summary[n]) for n in names])
-                data['organism_name'] = data['organism_name'].replace(' ', '_')
-                if data['organism_name'] not in n[antonomy]:
-                    Specie.objects.create(**data)
-                    n[antonomy].append(data['organism_name'])
-            n[antonomy] = len(n[antonomy])
+            obj_iter = HandleJson(json_file).read_json()
+            res = Specie.objects.load_species(obj_iter)
+            n[antonomy] = len(res)
         return n
     
     def download_gene_data(self):

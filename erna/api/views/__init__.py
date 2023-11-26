@@ -14,6 +14,7 @@ from .specie_viewset import *
 from .annotation_viewset import *
 from .genome_viewset import *
 from .reference_viewset import *
+from .noncoding_rna_viewset import *
 
 from .sample_viewset import *
 from .sample_file_viewset import *

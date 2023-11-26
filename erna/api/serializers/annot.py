@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from rna_seq.models import Annotation, Reference, Genome, Specie
+from rna_seq.models import Annotation, Reference, Genome, \
+    Specie, NonCodingRNA
 
 
 class AnnotationSerializer(serializers.ModelSerializer):
@@ -27,3 +28,8 @@ class SpecieSerializer(serializers.ModelSerializer):
         model = Specie
         fields = '__all__'
 
+
+class NonCodingRNASerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NonCodingRNA
+        fields = '__all__'
