@@ -1,6 +1,7 @@
 '''
 non-coding RNA
 '''
+import os
 from django.db import models
 from typing import Iterable
 from .specie import Specie
@@ -44,3 +45,12 @@ class NonCodingRNA(models.Model):
 
     class Meta:
         app_label = 'rna_seq'
+    
+    def index_path(self, tool_name:str, tool_version:str):
+        index_dir_path = os.path.join(os.path.dirname(self.fa_path), 'index')
+        file_prefix = os.path.splitext(os.path.basename(self.fa_path))[0]        
+        index_path = os.path.join(
+            index_dir_path,
+            f"{tool_name}_{tool_version}_{file_prefix}"
+        )
+        return index_dir_path, index_path

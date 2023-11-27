@@ -129,11 +129,11 @@ class ExecuteTasks:
         params['children'] = [t.child for t in children]
 
         # Method and Tool
-        method_tool = MethodTool.objects.get(pk=task.method_tool.pk)
-        params['method'] = Method.objects.get(pk=method_tool.method.pk)
-        params['tool'] = Tool.objects.get(pk=method_tool.tool.pk) \
-            if method_tool.tool else None
-
+        if task.method_tool:
+            method_tool = MethodTool.objects.get(pk=task.method_tool.pk)
+            params['method'] = Method.objects.get(pk=method_tool.method.pk)
+            params['tool'] = Tool.objects.get(pk=method_tool.tool.pk) \
+                if method_tool.tool else None
 
         # Samples
         project_samples = SampleProject.objects.filter(project=project)
@@ -141,8 +141,9 @@ class ExecuteTasks:
         params['sample_files'] = sample_files
 
         # Genome
-        params['genome'] = Genome.objects.get(pk=project.genome.pk)
-        params['annotations'] = Annotation.objects.filter(genome=params['genome'])
+        if project.genome:
+            params['genome'] = Genome.objects.get(pk=project.genome.pk)
+            params['annotations'] = Annotation.objects.filter(genome=params['genome'])
         # for k in params:
         #     print(f"{k}\t\t{params[k]}")
         return params

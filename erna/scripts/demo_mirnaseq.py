@@ -33,7 +33,11 @@ tasks_data = [
             'version': '2.5.2',
         },
         'params': {
-            'specie': 'Homo_sapiens',
+            'model': 'NonCodingRNA',
+            'query': {
+                'specie': "Homo_sapiens",
+                'rna_type': 'mature',
+            }
         },
         'child': ['T02'],
     },

@@ -5,6 +5,7 @@ import os
 from .process import Process
 from django.conf import settings
 
+import rna_seq.models
 from rna_seq.models import Genome, Reference, Tool
 from utils.dir import Dir
 
@@ -17,8 +18,30 @@ class Align:
     self.params = params if params else {}
 
   def build_index(self):
-    pass  
-
+    '''
+    method: build_index
+    '''
+    task_params = self.params['task'].get_params()
+    this_model = getattr(rna_seq.models, task_params['model'])
+    obj = this_model.objects.get(**task_params['query'])
+    index_dir_path, index_path = obj.index_path(
+      self.params['tool'].tool_name,
+      self.params['tool'].version
+    )
+    Dir(index_dir_path).init_dir()
+    self.params['cmd'] = [
+      self.params['tool'].exe_path,
+      obj.fa_path,
+      index_path
+    ]
+    if self.no_index_files(index_dir_path):
+      Process.run_subprocess(self.params)
+    output = {
+      'cmd': ' '.join(self.params['cmd']),
+      'index_path': index_path
+    }
+    self.params['output'].append(output)
+      
   def build_genome_index(self):
     '''
     build index for genome alignment
