@@ -15,11 +15,11 @@ REFERENCES_DIR = getattr(settings, 'REFERENCES_DIR')
 class Align:
   def __init__(self, params:dict=None):
     self.params = params if params else {}
-  
-  '''
-  build index
-  '''
+
   def build_index(self):
+    pass  
+
+  def build_genome_index(self):
     '''
     build index for genome alignment
     '''

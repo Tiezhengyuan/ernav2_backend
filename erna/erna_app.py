@@ -69,7 +69,7 @@ def main(args):
     case 'execute_tasks':
       '''
       example:
-      python3 erna/erna_app.py execute_tasks P00001 T02
+      python3 erna/erna_app.py execute_tasks P00001 T01
       '''
       if len(args)>=2:
         from pipelines.process.execute_tasks import ExecuteTasks
@@ -79,7 +79,7 @@ def main(args):
         return ExecuteTasks(project_id, task_id, chain)()
 
 
-    case 'build_index':
+    case 'build_genome_index':
       '''
       build index for aligner namely bowtie
       example: 
@@ -93,7 +93,7 @@ def main(args):
         specie, genome_version, aligner, aligner_version = args[1:]
         c = Align()
         c.index_builder(specie, genome_version, aligner, aligner_version)
-        return c.build_index()
+        return c.build_genome_index()
 
     case 'trim_adapter':
       '''

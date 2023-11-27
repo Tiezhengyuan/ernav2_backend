@@ -64,6 +64,8 @@ class ExecuteTasks:
         match params['method'].method_name:
             case 'build_index':
                 return Align(params).build_index()
+            case 'build_genome_index':
+                return Align(params).build_genome_index()
             case 'align_transcriptome':
                 return Align(params).align_transcriptome()
             case 'convert_format':
@@ -79,6 +81,7 @@ class ExecuteTasks:
             case 'quality_control':
                 from .quality_control import QualityControl
                 return QualityControl(params)()
+
         return None
 
 

@@ -24,10 +24,16 @@ METHODS = [
     "exe_name": ["minimap2",],
   },
   {
+    "method_name": "build_genome_index",
+    "description": "build index against genome DNA for sequencing alignment",
+    "child_method": ["align_transcriptome", "align_genome",],
+    "exe_name": ["bowtie2-build", "hisat2-build",],
+  },
+  {
     "method_name": "build_index",
     "description": "build index for sequencing alignment",
-    "child_method": ["align_transcriptome", "align_genome", "align_short_reads",],
-    "exe_name": ["bowtie2-build", "hisat2-build",],
+    "child_method": ["align_long_reads", "align_short_reads",],
+    "exe_name": ["bowtie1-build", "bowtie2-build",],
   },
   {
     "method_name": "assemble_transcripts",

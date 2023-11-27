@@ -20,7 +20,6 @@ class ProcessMiRNA:
         '''
         # download data
         local_path, local_files = ConnectMirbase().download_mirbase(overwrite)
-        print(local_path, local_files)
 
         # split data by specie and Update
         for rna_type, fa_path in local_files:

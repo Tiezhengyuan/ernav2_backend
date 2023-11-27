@@ -1,8 +1,6 @@
 from django.db import models
 
 from .method_tool import MethodTool
-from .tool import Tool
-from .method import Method
 
 class PipelineManager(models.Manager):
 
