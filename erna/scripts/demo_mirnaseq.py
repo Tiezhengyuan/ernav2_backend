@@ -5,10 +5,10 @@ example:
 from rna_seq.models import *
 from commons.models import CustomUser
 
+user = CustomUser.objects.get(pk=1)
 
 # cretae project
 project_id = "P00002"
-user = CustomUser.objects.get(pk=1)
 project_data = {
     "project_name": "test_mirna_seq",
     "description": "test miRNA-seq pipeline",
@@ -22,10 +22,33 @@ project = Project.objects.update_or_create(
 )
 print(project)
 
+# load samples
+study_name = 'test_mirnaseq'
+sample_names = ['LW_AB_1', 'LW_AI_1', 'LW_AN_1']
+sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
+    for s in sample_names]
+samples = Sample.objects.load_samples(user, sample_data)
+print(samples)
+
+#RawData
+batch_names = ['demo_mirnaseq',]
+sample_files = SampleFile.objects.parse_sample_rawdata([study_name,], batch_names)
+
+# update SampleProject
+res = SampleProject.objects.load_project_sample_files(
+    project_id, [s.id for s,_ in sample_files]
+)
+print(res)
+
 # add tasks
 tasks_data = [
     {
         'task_id': 'T01',
+        'method_name': 'trim_sequences',
+        'child': ['T03',],
+    },
+    {
+        'task_id': 'T02',
         'method_name': 'build_index',
         'tool': {
             'tool_name': 'bowtie',
@@ -39,10 +62,10 @@ tasks_data = [
                 'rna_type': 'mature',
             }
         },
-        'child': ['T02'],
+        'child': ['T03'],
     },
     {
-        'task_id': 'T02',
+        'task_id': 'T03',
         'method_name': 'align_short_reads',
         'tool': {
             'tool_name': 'bowtie',
@@ -83,21 +106,3 @@ print(tasks)
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, tasks_data)
 print(tasks_tree)
 
-
-# load samples
-study_name = 'test_mirnaseq'
-sample_names = ['LW_AB_1', 'lW_AI_1', 'LW_AN_1']
-sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
-    for s in sample_names]
-samples = Sample.objects.load_samples(user, sample_data)
-print(samples)
-
-#RawData
-batch_names = ['demo_mIrnaseq',]
-sample_files = SampleFile.objects.parse_sample_rawdata([study_name,], batch_names)
-
-# update SampleProject
-res = SampleProject.objects.load_project_sample_files(
-    project_id, [s.id for s,_ in sample_files]
-)
-print(res)

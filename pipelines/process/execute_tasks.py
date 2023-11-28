@@ -68,6 +68,8 @@ class ExecuteTasks:
                 return Align(params).build_genome_index()
             case 'align_transcriptome':
                 return Align(params).align_transcriptome()
+            case 'align_short_reads':
+                return Align(params).align_short_reads()
             case 'convert_format':
                 from .convert_format import ConvertFormat
                 return ConvertFormat(params).sam_to_bam()

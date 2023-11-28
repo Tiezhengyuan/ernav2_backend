@@ -17,6 +17,9 @@ class Align:
   def __init__(self, params:dict=None):
     self.params = params if params else {}
 
+  '''
+  build index
+  '''
   def build_index(self):
     '''
     method: build_index
@@ -41,40 +44,6 @@ class Align:
       'index_path': index_path
     }
     self.params['output'].append(output)
-      
-  def build_genome_index(self):
-    '''
-    build index for genome alignment
-    '''
-    tool = self.params.get('tool')
-    if tool is None:
-      return None
-
-    for annot in self.params['annotations']:
-      # build index given a specific file
-      if annot.annot_type == 'genomic' and annot.file_format == 'fna':
-        fa_path = annot.file_path
-        index_dir_path = os.path.join(os.path.dirname(fa_path), 'index')
-        index_path = os.path.join(index_dir_path, f"{tool.tool_name}_{tool.version}_")
-        Dir(index_dir_path).init_dir()
-
-        # skip building if index files exist
-        self.params['cmd'] = [tool.exe_path, fa_path, index_path,]
-        if self.no_index_files(index_dir_path):
-          Process.run_subprocess(self.params)
-
-        # update annot.Reference
-        Reference.objects.load_reference(tool, annot, index_path)
-        
-        # update Task
-        output = {
-          'cmd': ' '.join(self.params['cmd']),
-          'index_path': index_path
-        }
-        self.params['output'].append(output)
-        for child_task in self.params['children']:
-          child_task.update_params(output)
-    return None
 
   # used by erna_app.py
   def index_builder(self, specie:str, genome_version:str, \
@@ -111,8 +80,43 @@ class Align:
       return False
     return True
 
+  def build_genome_index(self):
+    '''
+    build index for genome alignment
+    '''
+    tool = self.params.get('tool')
+    if tool is None:
+      return None
+
+    for annot in self.params['annotations']:
+      # build index given a specific file
+      if annot.annot_type == 'genomic' and annot.file_format == 'fna':
+        fa_path = annot.file_path
+        index_dir_path = os.path.join(os.path.dirname(fa_path), 'index')
+        index_path = os.path.join(index_dir_path, f"{tool.tool_name}_{tool.version}_")
+        Dir(index_dir_path).init_dir()
+
+        # skip building if index files exist
+        self.params['cmd'] = [tool.exe_path, fa_path, index_path,]
+        if self.no_index_files(index_dir_path):
+          Process.run_subprocess(self.params)
+
+        # update annot.Reference
+        Reference.objects.load_reference(tool, annot, index_path)
+        
+        # update Task
+        output = {
+          'cmd': ' '.join(self.params['cmd']),
+          'index_path': index_path
+        }
+        self.params['output'].append(output)
+        for child_task in self.params['children']:
+          child_task.update_params(output)
+    return None
+
+
   '''
-  transcriptome alignment
+  sequence alignment
   '''
   def align_transcriptome(self):
     '''
@@ -158,12 +162,13 @@ class Align:
       self.params['tool'].exe_path,
       '-x', self.get_index_path(),
     ]
-    if input_data.get('R1'):
-      cmd += ['-1', ','.join(input_data['R1'])]
-    if input_data.get('R2'):
-      cmd += ['-2', ','.join(input_data['R2'])]
     if input_data.get('bam'):
       cmd += ['-b', input_data['bam']]
+    else:
+      if input_data.get('R1'):
+        cmd += ['-1', ','.join(input_data['R1'])]
+      if input_data.get('R2'):
+        cmd += ['-2', ','.join(input_data['R2'])]
     
     output_prefix = os.path.join(self.params['output_dir'], sample_name)
     sam_file = f"{output_prefix}.sam"
@@ -199,3 +204,44 @@ class Align:
       return parent_output[0]['index_path']
     return None
 
+
+  def align_short_reads(self):
+    sample_files = self.project_sample_files()
+    print(sample_files, self.params['tool'].exe_name)
+    for sample_name, input_data in sample_files.items():
+      if self.params['tool'].exe_name == 'bowtie2':
+        self.cmd_bowtie2(sample_name, input_data)
+      # run process
+      print(self.params['cmd'])
+      Process.run_subprocess(self.params)
+    return None
+
+  def cmd_bowtie2(self, sample_name:str, input_data:dict):
+    cmd = [
+      self.params['tool'].exe_path,
+      '-x', self.get_index_path(),
+    ]
+    if input_data.get('R1') and input_data.get('R2'):
+      cmd += [
+        '-1', ','.join(input_data['R1']),
+        '-2', ','.join(input_data['R2']),
+      ]
+    elif input_data.get('bam'):
+      cmd += ['-b', input_data['bam']]
+    else:
+      raw_data = input_data.get('R1', []) + input_data.get('R2', [])
+      cmd += ['-U', ','.join(raw_data)]
+    
+    output_prefix = os.path.join(self.params['output_dir'], sample_name)
+    sam_file = f"{output_prefix}.sam"
+    cmd += ['-S', sam_file]
+    self.params['cmd'] = cmd
+    self.params['output_prefix'] = output_prefix
+    self.params['output'].append({
+      'cmd': ' '.join(cmd),
+      'sample_name': sample_name,
+      'output_prefix': output_prefix,
+      'sam_file': sam_file,
+    })
+    self.params['force_run'] = False if os.path.isfile(sam_file) else True
+    return cmd
