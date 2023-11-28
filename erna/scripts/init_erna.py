@@ -51,7 +51,7 @@ if enter == 5 or run:
 if enter == 6 or run:
     print('import default pipelines of miRNA-Seq...')
     mirna_seq = [
-        ("build_index", None, None),
+        ("build_index", 'bowtie2-build', None),
         ("trim_sequences", None, None),
         ("align_short_reads", "bowtie2", None),
         ("count_reads", None, None),

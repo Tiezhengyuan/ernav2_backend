@@ -8,17 +8,21 @@ from .constants import METHODS
 
 class MethodRelationManager(models.Manager):
   def refresh(self):
+    '''
+    load constant METHODS into db
+    '''
     self.all().delete()
     res = []
     for method in METHODS:
       name = method['method_name']
-      for child in method['child_method']:
+      for child in method.get('child_method', []):
         obj = self.create(
           method=Method.objects.get(method_name=name),
           child=Method.objects.get(method_name=child)
         )
         res.append(obj)
     return res
+
 
 class MethodRelation(models.Model):
   method = models.ForeignKey(

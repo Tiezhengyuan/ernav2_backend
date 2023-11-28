@@ -5,9 +5,11 @@ from django.core.serializers import serialize
 # Create your models here.
 from commons.models import CustomUser
 from .project import Project
+from .method import Method
 from .method_tool import MethodTool
 from .genome import Genome
 from .annotation import Annotation
+from .sample_project import SampleProject
 
 class TaskManager(models.Manager):
 
@@ -23,6 +25,31 @@ class TaskManager(models.Manager):
             return f"T{next_id.zfill(2)}"
         return 'T01'
     
+    def get_head_task(self, project):
+        return self.get(project=project, task_id='T00')
+
+    def add_head_task(self, project):
+        '''
+        ID of head task is always T00
+        that is automatically created
+        '''
+        method_tool = MethodTool.objects.get(
+            method=Method.objects.head_method()
+        )
+        defaults = {
+            'method_tool': method_tool,
+            'task_name': 'head_task',
+            'params': json.dumps({}),
+            'is_ready': False,
+        }
+        task = self.update_or_create(
+            project=project,
+            task_id='T00',
+            defaults=defaults
+        )
+        return task
+
+
     def add_task(self, project, task_id, data:dict):
         '''
         task_id could be generated automatically
@@ -32,20 +59,26 @@ class TaskManager(models.Manager):
         if 'method_name' in data:
             if 'tool' in data:
                 method_tool = MethodTool.objects.get_method_tool(
-                    data['method_name'], data['tool']['exe_name'],
-                    data['tool']['version'])
+                    data['method_name'],
+                    data['tool']['exe_name'],
+                    data['tool']['version']
+                )
             else:
                 method_tool = MethodTool.objects.get_method_tool(
-                    data['method_name'])
+                    data['method_name']
+                )
 
         annot = None
         if 'genome' in data:
-            genome = Genome.objects.get_genome(data['genome']['specie'], \
-                data['genome']['version'])
-            annot = Annotation.objects.get(genome=genome, \
-                file_format=data['annotation']['file_format'], \
-                annot_type=data['annotation']['annot_type'])
-            print('###', annot)
+            genome = Genome.objects.get_genome(
+                data['genome']['specie'],
+                data['genome']['version']
+            )
+            annot = Annotation.objects.get(
+                genome=genome,
+                file_format=data['annotation']['file_format'],
+                annot_type=data['annotation']['annot_type']
+            )
 
         defaults = {
             'method_tool': method_tool,
@@ -55,7 +88,7 @@ class TaskManager(models.Manager):
         }
         if annot:
             defaults['annotation'] = annot
-        task = Task.objects.update_or_create(
+        task = self.update_or_create(
             project=project,
             task_id=task_id,
             defaults=defaults
@@ -68,8 +101,12 @@ class TaskManager(models.Manager):
         '''
         # get Project
         project = Project.objects.get(project_id=project_id)
-        # add tasks
+
         res = []
+        # first add head task
+        task = self.add_head_task(project=project)
+        res.append(task)
+        # add tasks
         for data in tasks_data:
             task_id = data.get('task_id') or self.next_task_id(project_id)
             task = self.add_task(project, task_id, data)
@@ -136,6 +173,7 @@ class Task(models.Model):
     )
     params = models.CharField(
         max_length=1256,
+        null=True,
         blank=True, 
         verbose_name="Parameters (in json string format)",
     )

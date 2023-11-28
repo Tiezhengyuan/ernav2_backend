@@ -47,29 +47,18 @@ class TaskTreeManager(models.Manager):
 
     def load_tasks_tree(self, project_id:str, tasks_data:list):
         '''
-        example:
-            tasks_data = {
-                'task_id: 'T002',
-                'parent': ['T01'],
-                'child': ['T03'],
-            }
+        example: tasks_data = [('T01', 'T03'), ...],
         '''
         if not project_id:
             return []
 
         res = []
         project = Project.objects.get(project_id=project_id)
-        for data in tasks_data:
-            if 'task_id' in data:
-                task = Task.objects.get(project=project, task_id=data['task_id'])
-                for parent_task_id in data.get('parent', []):
-                    parent = Task.objects.get(project=project, task_id=parent_task_id)
-                    obj = TaskTree.objects.update_or_create(task=parent, child=task)
-                    res.append(obj)
-                for child_task_id in data.get('child', []):
-                    child = Task.objects.get(project=project, task_id=child_task_id)
-                    obj = TaskTree.objects.update_or_create(task=task, child=child)
-                    res.append(obj)
+        for parent_id, child_id in tasks_data:
+            parent = Task.objects.get(project=project, task_id=parent_id)
+            child = Task.objects.get(project=project, task_id=child_id)
+            obj = self.update_or_create(task=parent, child=child)
+            res.append(obj)
         return res
 
 

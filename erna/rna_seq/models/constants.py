@@ -1,5 +1,9 @@
 METHODS = [
   {
+    "method_name": "import_data",
+    "description": "bound with task 00",
+  },
+  {
     "method_name": "align_transcriptome",
     "description": "RNA-seq",
     "child_method": ["assemble_transcripts",],

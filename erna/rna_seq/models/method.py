@@ -2,12 +2,15 @@
 
 '''
 from django.db import models
-from .tool import Tool
 from .constants import METHODS
 
 
 class MethodManager(models.Manager):
+
   def refresh(self):
+    '''
+    load methods defined in METHODS
+    '''
     self.all().delete()
     res = []
     for method in METHODS:
@@ -18,6 +21,9 @@ class MethodManager(models.Manager):
       obj = self.create(**data)
       res.append(obj)
     return res
+
+  def head_method(self):
+    return self.get(method_name='import_data')
 
 class Method(models.Model):
   method_name = models.CharField(

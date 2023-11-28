@@ -7,7 +7,7 @@ from commons.models import CustomUser
 
 user = CustomUser.objects.get(pk=1)
 
-# cretae project
+print("Cretae project...") 
 project_id = "P00002"
 project_data = {
     "project_name": "test_mirna_seq",
@@ -22,7 +22,7 @@ project = Project.objects.update_or_create(
 )
 print(project)
 
-# load samples
+print('Load samples...')
 study_name = 'test_mirnaseq'
 sample_names = ['LW_AB_1', 'LW_AI_1', 'LW_AN_1']
 sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
@@ -30,22 +30,24 @@ sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
 samples = Sample.objects.load_samples(user, sample_data)
 print(samples)
 
-#RawData
+print('Load RawData...')
 batch_names = ['demo_mirnaseq',]
 sample_files = SampleFile.objects.parse_sample_rawdata([study_name,], batch_names)
 
-# update SampleProject
+print('Update SampleProject...')
 res = SampleProject.objects.load_project_sample_files(
     project_id, [s.id for s,_ in sample_files]
 )
 print(res)
 
-# add tasks
+print('Add tasks...')
 tasks_data = [
     {
         'task_id': 'T01',
         'method_name': 'trim_sequences',
-        'child': ['T03',],
+        'params': {
+            'adapter_3end': 'TATGC',
+        },
     },
     {
         'task_id': 'T02',
@@ -62,7 +64,6 @@ tasks_data = [
                 'rna_type': 'mature',
             }
         },
-        'child': ['T03'],
     },
     {
         'task_id': 'T03',
@@ -72,25 +73,22 @@ tasks_data = [
             'exe_name': 'bowtie2',
             'version': '2.5.2',
         },
-        'child': ['T03', 'T04'],
     },
     {
-        'task_id': 'T03',
+        'task_id': 'T04',
         'method_name': 'convert_format',
         'tool': {
             'tool_name': 'samtools',
             'exe_name': 'samtools',
             'version': '1.18',
         },
-        'parent': ['T02'],
-    },
-    {
-        'task_id': 'T04',
-        'method_name': 'count_reads',
-        'parent': ['T02'],
     },
     {
         'task_id': 'T05',
+        'method_name': 'count_reads',
+    },
+    {
+        'task_id': 'T06',
         'method_name': 'quality_control',
         'tool': {
             "tool_name": "fastqc",
@@ -103,6 +101,12 @@ Task.objects.filter(project_id=project_id).delete()
 tasks = Task.objects.load_tasks(project_id, tasks_data)
 print(tasks)
 
-tasks_tree = TaskTree.objects.load_tasks_tree(project_id, tasks_data)
+print('Add Task Tree...')
+task_pair = [
+    ('T00', 'T01'),('T00', 'T02'),('T00', 'T06'),
+    ('T01', 'T03'),('T02', 'T03'),
+    ('T03', 'T04'),('T03', 'T05'),
+]
+tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
 print(tasks_tree)
 

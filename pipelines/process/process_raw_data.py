@@ -58,7 +58,6 @@ class ProcessRawData:
     res['created'][RawData.__name__] = len(data)
     return res
 
-
   def parse_sample_data(self, study_name, prefix=None, postfix=None):
     '''
     one raw data match one sample

@@ -20,22 +20,9 @@ class ExecuteTasks:
     def __init__(self, project_id:str, task_id:str=None, chain:bool=None, force:bool=None):
         self.pool = []
         self.chain = True
-        if task_id:
-            self.pool = [(project_id, task_id, None)]
-            self.chain = eval(chain) if chain else False
-        else:
-            for head_task_id in self.detect_head_tasks(project_id):
-                self.pool.append((project_id, head_task_id, None))
+        self.pool = [(project_id, task_id, None),]
+        self.chain = eval(chain) if chain else False
         self.force = force if force else True
-
-    def detect_head_tasks(self, project_id:str):
-        head_task_ids = []
-        tasks = Task.objects.filter(project_id=project_id)
-        for task in tasks:
-            obj = TaskTree.objects.filter(child=task)
-            if not obj:
-                head_task_ids.append(task.task_id)
-        return head_task_ids
 
     def __call__(self) -> bool:
         while self.pool:
@@ -62,6 +49,13 @@ class ExecuteTasks:
 
     def run_task(self, params:dict)->None:
         match params['method'].method_name:
+            case 'import_data':
+                # task T00
+                from .collect import Collect
+                return Collect(params).import_data()
+            case 'trim_sequences':
+                from .trim_adapter import TrimAdapter
+                return TrimAdapter(params)()
             case 'build_index':
                 return Align(params).build_index()
             case 'build_genome_index':
@@ -118,8 +112,8 @@ class ExecuteTasks:
         params['project'] = project
 
         # Task
-        task = Task.objects.get(project=project, task_id=task_id) \
-            if task_id else Task.objects.filter(project=project).first()
+        task = Task.objects.get(project=project, task_id=task_id) if \
+            task_id else Task.objects.get_head_task(project=project)
         params['task'] = task
 
         # parent/children
@@ -136,11 +130,6 @@ class ExecuteTasks:
             params['method'] = Method.objects.get(pk=method_tool.method.pk)
             params['tool'] = Tool.objects.get(pk=method_tool.tool.pk) \
                 if method_tool.tool else None
-
-        # Samples
-        project_samples = SampleProject.objects.filter(project=project)
-        sample_files = [ obj.sample_file for obj in project_samples]
-        params['sample_files'] = sample_files
 
         # Genome
         if project.genome:
