@@ -80,6 +80,27 @@ class Align:
       return False
     return True
 
+  def get_index_path(self):
+    '''
+    get index for aligner
+    '''
+    # Firstly check Task.params
+    if self.params.get('task') and self.params['task'].get_params():
+      return self.params['task'].get_params().get('index_path')
+    
+    # secondly check its parent TaskExecution
+    if self.params.get('parent_params'):
+      parent_output = self.params['parent_params']['output']
+      return parent_output[0]['index_path']
+
+    # Finally check its execution of parent Task
+    parent_execution = self.params['parents'][0].task_execution
+    if parent_execution:
+      parent_output = parent_execution.get_output()
+      return parent_output[0]['index_path']
+    return None
+
+
   def build_genome_index(self):
     '''
     build index for genome alignment
@@ -118,42 +139,22 @@ class Align:
   '''
   sequence alignment
   '''
-  def align_transcriptome(self):
+  def align(self):
     '''
     '''
-    sample_files = self.project_sample_files()
-    for sample_name, input_data in sample_files.items():
-      if self.params['tool'].exe_name == 'hisat2':
-        self.cmd_hisat2(sample_name, input_data)
+    sample_files = self.params['parent_outputs']
+    for input_data in sample_files:
+      exe_name = self.params['tool'].exe_name
+      if exe_name == 'hisat2':
+        self.cmd_hisat2(input_data)
+      elif exe_name == 'bowtie2':
+        self.cmd_bowtie2(input_data)
+
       # run process
       Process.run_subprocess(self.params)
     return None
-
-  def project_sample_files(self):
-    '''
-    retrieve fastq files
-    {
-      'sample_name': {
-        'R1': 'sample_R1.fq',
-        'R2': 'sample_R2.fq',
-      },
-    }
-    '''
-    res = {}
-    for sample_file in self.params['sample_files']:
-      sample_name = sample_file.sample.sample_name
-      if sample_name not in res:
-        res[sample_name] = {}
-      file_type = sample_file.raw_data.file_type
-      if file_type not in res[sample_name]:
-        res[sample_name][file_type] = []
-      file = os.path.join(sample_file.raw_data.file_path, \
-        sample_file.raw_data.file_name)
-      if file not in res[sample_name][file_type]:
-        res[sample_name][file_type].append(file)
-    return res
-
-  def cmd_hisat2(self, sample_name:str, input_data:dict):
+ 
+  def cmd_hisat2(self, input_data:dict):
     '''
     format cmd
     update self.params
@@ -169,7 +170,8 @@ class Align:
         cmd += ['-1', ','.join(input_data['R1'])]
       if input_data.get('R2'):
         cmd += ['-2', ','.join(input_data['R2'])]
-    
+
+    sample_name = input_data['sample_name']
     output_prefix = os.path.join(self.params['output_dir'], sample_name)
     sam_file = f"{output_prefix}.sam"
     cmd += ['-S', sam_file]
@@ -184,39 +186,8 @@ class Align:
     self.params['force_run'] = False if os.path.isfile(sam_file) else True
     return cmd
 
-  def get_index_path(self):
-    '''
-    get index for aligner
-    '''
-    # Firstly check Task.params
-    if self.params.get('task') and self.params['task'].get_params():
-      return self.params['task'].get_params().get('index_path')
-    
-    # secondly check its parent TaskExecution
-    if self.params.get('parent_params'):
-      parent_output = self.params['parent_params']['output']
-      return parent_output[0]['index_path']
 
-    # Finally check its execution of parent Task
-    parent_execution = self.params['parents'][0].task_execution
-    if parent_execution:
-      parent_output = parent_execution.get_output()
-      return parent_output[0]['index_path']
-    return None
-
-
-  def align_short_reads(self):
-    sample_files = self.project_sample_files()
-    print(sample_files, self.params['tool'].exe_name)
-    for sample_name, input_data in sample_files.items():
-      if self.params['tool'].exe_name == 'bowtie2':
-        self.cmd_bowtie2(sample_name, input_data)
-      # run process
-      print(self.params['cmd'])
-      Process.run_subprocess(self.params)
-    return None
-
-  def cmd_bowtie2(self, sample_name:str, input_data:dict):
+  def cmd_bowtie2(self, input_data:dict):
     cmd = [
       self.params['tool'].exe_path,
       '-x', self.get_index_path(),
@@ -232,6 +203,7 @@ class Align:
       raw_data = input_data.get('R1', []) + input_data.get('R2', [])
       cmd += ['-U', ','.join(raw_data)]
     
+    sample_name = input_data['sample_name']
     output_prefix = os.path.join(self.params['output_dir'], sample_name)
     sam_file = f"{output_prefix}.sam"
     cmd += ['-S', sam_file]

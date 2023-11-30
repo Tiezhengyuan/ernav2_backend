@@ -2,7 +2,6 @@ import os
 from django.db import models
 from django.conf import settings
 
-from .genome import Genome
 
 class AnnotationManager(models.Manager):
     def load_annotations(self, genome, local_files):
@@ -32,7 +31,7 @@ class AnnotationManager(models.Manager):
 
 class Annotation(models.Model):
     genome = models.ForeignKey(
-        Genome,
+        'rna_seq.Genome',
         related_name = 'annots',
         on_delete = models.CASCADE
     )

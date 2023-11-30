@@ -21,7 +21,7 @@ class ExecuteTasks:
         self.pool = []
         self.chain = True
         self.pool = [(project_id, task_id, None),]
-        self.chain = eval(chain) if chain else False
+        self.chain = True if (chain or task_id is None) else False
         self.force = force if force else True
 
     def __call__(self) -> bool:
@@ -61,12 +61,9 @@ class ExecuteTasks:
             case 'build_genome_index':
                 return Align(params).build_genome_index()
             case 'align_transcriptome':
-                return Align(params).align_transcriptome()
+                return Align(params).align()
             case 'align_short_reads':
-                return Align(params).align_short_reads()
-            case 'convert_format':
-                from .convert_format import ConvertFormat
-                return ConvertFormat(params).sam_to_bam()
+                return Align(params).align()
             case 'assemble_transcripts':
                 return Assemble(params).assemble_transcripts()
             case 'merge_transcripts':
@@ -77,6 +74,9 @@ class ExecuteTasks:
             case 'quality_control':
                 from .quality_control import QualityControl
                 return QualityControl(params)()
+            case 'convert_format':
+                from .convert_format import ConvertFormat
+                return ConvertFormat(params).sam_to_bam()
 
         return None
 

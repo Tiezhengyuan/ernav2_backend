@@ -1,15 +1,12 @@
 import json
 from django.db import models
-from django.core.serializers import serialize
 
 # Create your models here.
-from commons.models import CustomUser
 from .project import Project
 from .method import Method
 from .method_tool import MethodTool
 from .genome import Genome
 from .annotation import Annotation
-from .sample_project import SampleProject
 
 class TaskManager(models.Manager):
 
@@ -88,11 +85,8 @@ class TaskManager(models.Manager):
         }
         if annot:
             defaults['annotation'] = annot
-        task = self.update_or_create(
-            project=project,
-            task_id=task_id,
-            defaults=defaults
-        )
+        task = self.update_or_create(project=project,
+            task_id=task_id, defaults=defaults)
         return task
 
     def load_tasks(self, project_id:str, tasks_data:list):

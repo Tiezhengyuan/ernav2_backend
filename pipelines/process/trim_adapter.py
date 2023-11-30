@@ -13,7 +13,6 @@ class TrimAdapter:
 
   def __call__(self):
     task_params = self.params['task'].get_params()
-    print(task_params)
     for parent_output in self.params['parent_outputs']:
       file_path = parent_output['file_path']
       outfile = os.path.join(self.params['output_dir'], os.path.basename(file_path))
@@ -26,10 +25,7 @@ class TrimAdapter:
     print('skipp adapter trimming.')
 
   def trim_3end_adapter(self, task_params, infile:str, outfile:str):
-    info = {
-      'total_reads': 0,
-      'trimmed_reads': 0,
-    }
+    info = {'total_reads': 0, 'trimmed_reads': 0,}
     trimmer = TrimSeq(
       task_params['adapter_3end'],
       task_params.get('min_match'),
@@ -47,5 +43,6 @@ class TrimAdapter:
           info['trimmed_reads'] += 1
         SeqIO.write(rec, out_handle, 'fastq')
     info['trim_percentage'] = round(info['trimmed_reads']/info['total_reads'], 4)
+    print(info)
     return info
   

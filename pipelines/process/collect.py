@@ -5,11 +5,30 @@ from copy import deepcopy
 import pandas as pd
 import os
 from rna_seq.models import SampleProject
+from utils.utils import Utils
 
 class Collect:
   def __init__(self, params:dict):
     self.params = params
-  
+
+  def import_data(self):
+    # Samples
+    project_samples = SampleProject.objects.filter(
+      project=self.params['project']
+    )
+    sample_files = [obj.sample_file for obj in project_samples]
+    self.params['sample_files'] = sample_files
+    res = {}
+    for sf in sample_files:
+      path = os.path.join(sf.raw_data.file_path, sf.raw_data.file_name)
+      sample_name = sf.sample.sample_name
+      file_type = sf.raw_data.file_type
+      Utils.init_dict(res, [sample_name, file_type], [])
+      res[sample_name][file_type].append(path)
+    for k,v in res.items():
+      v['sample_name'] = k 
+      self.params['output'].append(v) 
+
   def count_reads(self):
     '''
     reads counting
@@ -47,19 +66,3 @@ class Collect:
     df2=df.loc[:, df.columns != 'FPKM']
     df2.columns = df2.columns.str.replace('TPM', sample_name)
     return df1, df2
-
-  def import_data(self):
-    # Samples
-    project_samples = SampleProject.objects.filter(
-      project=self.params['project']
-    )
-    sample_files = [obj.sample_file for obj in project_samples]
-    self.params['sample_files'] = sample_files
-    for s in sample_files:
-      item = {
-        'sample_name': s.sample.sample_name,
-        'file_path': os.path.join(s.raw_data.file_path, s.raw_data.file_name),
-        'file_format': s.raw_data.file_format,
-        'file_type': s.raw_data.file_type,
-      }
-      self.params['output'].append(item)
