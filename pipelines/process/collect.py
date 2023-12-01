@@ -2,8 +2,10 @@
 retrieve data for further analysis
 '''
 from copy import deepcopy
-import pandas as pd
 import os
+import pandas as pd
+import pysam
+
 from rna_seq.models import SampleProject
 from utils.utils import Utils
 
@@ -29,15 +31,7 @@ class Collect:
       v['sample_name'] = k 
       self.params['output'].append(v) 
 
-  def count_reads(self):
-    '''
-    reads counting
-    '''
-    for parent in self.params['parents']:
-      print(parent)
-      output = parent.task_execution.get_output()
-      if parent.method_tool.tool.tool_name == 'stringtie':
-        self.stringtie_counting(output)
+
   
 
   def stringtie_counting(self, parent_output:dict):
@@ -66,3 +60,37 @@ class Collect:
     df2=df.loc[:, df.columns != 'FPKM']
     df2.columns = df2.columns.str.replace('TPM', sample_name)
     return df1, df2
+
+
+
+  def count_reads(self):
+    '''
+    reads counting
+    '''
+    for parent in self.params['parents']:
+      output = parent.task_execution.get_output()
+      if parent.method_tool.tool.tool_name == 'stringtie':
+        self.stringtie_counting(output)
+      else:
+        res = {}
+        for item in output:
+          sample_name = item['sample_name']
+          if 'sam_file' in item:
+            res[sample_name] = self.count_reads_from_samfile(item['sam_file'])
+        df = pd.DataFrame.from_dict(res).fillna(0).astype('i8')
+        # print(df)
+        outfile = os.path.join(self.params['output_dir'], 'RC.txt')
+        df.to_csv(outfile, sep='\t')
+        self.params['output'].append({'RC': outfile,})
+
+  def count_reads_from_samfile(self, sam_file):
+    rc = {}
+    samfile = pysam.AlignmentFile(sam_file, 'r')
+    for rec in samfile.fetch():
+      if rec.reference_name:
+        if rec.reference_name not in rc:
+          rc[rec.reference_name] = 1
+        else:
+          rc[rec.reference_name] += 1
+    return rc
+      

@@ -1,7 +1,7 @@
 import os
 from django.db import models
 from django.conf import settings
-
+from .genome import Genome
 
 class AnnotationManager(models.Manager):
     def load_annotations(self, genome, local_files):

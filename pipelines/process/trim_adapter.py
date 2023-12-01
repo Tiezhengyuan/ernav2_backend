@@ -13,15 +13,16 @@ class TrimAdapter:
 
   def __call__(self):
     task_params = self.params['task'].get_params()
-    for parent_output in self.params['parent_outputs']:
-      file_path = parent_output['file_path']
-      outfile = os.path.join(self.params['output_dir'], os.path.basename(file_path))
-      if 'adapter_3end' in task_params:
-        self.trim_3end_adapter(task_params, file_path, outfile)
-      self.params['output'].append({
-        'sample_name': parent_output['sample_name'],
-        'file_path': outfile,
-      })
+    for item in self.params['parent_outputs']:
+      output = {'sample_name': item['sample_name']}
+      for type in [i for i in item if i in ('R1', 'R2')]:
+        output[type] = []
+        for infile in item[type]:
+          outfile = os.path.join(self.params['output_dir'], os.path.basename(infile))
+          if 'adapter_3end' in task_params:
+            self.trim_3end_adapter(task_params, infile, outfile)
+          output[type].append(outfile)
+      self.params['output'].append(output)
     print('skipp adapter trimming.')
 
   def trim_3end_adapter(self, task_params, infile:str, outfile:str):

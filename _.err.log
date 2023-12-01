@@ -1,6 +1,7 @@
 Option d is ambiguous (delete, dir, dup_length)
-Failed to process /home/yuan/bio/results/P00001/quality_control
-java.io.FileNotFoundException: /home/yuan/bio/results/P00001/quality_control (Is a directory)
+Failed to process /home/yuan/bio/results/P00002/T06_quality_control
+Started analysis of LW_AN_1_GCCAAT_L004_R1.fastq
+java.io.FileNotFoundException: /home/yuan/bio/results/P00002/T06_quality_control (Is a directory)
 	at java.base/java.io.FileInputStream.open0(Native Method)
 	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
 	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
@@ -10,24 +11,23 @@ java.io.FileNotFoundException: /home/yuan/bio/results/P00001/quality_control (Is
 	at uk.ac.babraham.FastQC.Analysis.OfflineRunner.processFile(OfflineRunner.java:163)
 	at uk.ac.babraham.FastQC.Analysis.OfflineRunner.<init>(OfflineRunner.java:125)
 	at uk.ac.babraham.FastQC.FastQCApplication.main(FastQCApplication.java:316)
-Started analysis of 197_L1_R2.fq
-Approx 5% complete for 197_L1_R2.fq
-Approx 10% complete for 197_L1_R2.fq
-Approx 15% complete for 197_L1_R2.fq
-Approx 20% complete for 197_L1_R2.fq
-Approx 25% complete for 197_L1_R2.fq
-Approx 30% complete for 197_L1_R2.fq
-Approx 35% complete for 197_L1_R2.fq
-Approx 40% complete for 197_L1_R2.fq
-Approx 45% complete for 197_L1_R2.fq
-Approx 50% complete for 197_L1_R2.fq
-Approx 55% complete for 197_L1_R2.fq
-Approx 60% complete for 197_L1_R2.fq
-Approx 65% complete for 197_L1_R2.fq
-Approx 70% complete for 197_L1_R2.fq
-Approx 75% complete for 197_L1_R2.fq
-Approx 80% complete for 197_L1_R2.fq
-Approx 85% complete for 197_L1_R2.fq
-Approx 90% complete for 197_L1_R2.fq
-Approx 95% complete for 197_L1_R2.fq
-Approx 100% complete for 197_L1_R2.fq
+Approx 5% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 10% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 15% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 20% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 25% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 30% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 35% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 40% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 45% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 50% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 55% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 60% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 65% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 70% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 75% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 80% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 85% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 90% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 95% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Approx 100% complete for LW_AN_1_GCCAAT_L004_R1.fastq

@@ -46,7 +46,7 @@ tasks_data = [
         'task_id': 'T01',
         'method_name': 'trim_sequences',
         'params': {
-            'adapter_3end': 'TATGC',
+            'adapter_3end': 'TGGAATTCTCGGGTGCCAAGG',
         },
     },
     {

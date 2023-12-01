@@ -25,7 +25,6 @@ class QualityControl:
             '-o', self.params['output_dir'],
             '-d', self.params['output_dir'],
         ]
-        print(cmd)
         self.params['cmd'] = cmd
         fq_prefix = os.path.splitext(os.path.basename(fq_file))[0]
         self.params['output'].append({

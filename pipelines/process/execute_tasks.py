@@ -121,6 +121,8 @@ class ExecuteTasks:
         parents = [t.task for t in parents]
         params['parents'] = parents
         params['parent_outputs'] = self.combine_parents_output(parents)
+        print(params['parents'])
+        print('###', params['parent_outputs'])
         children = TaskTree.objects.filter(task=task)
         params['children'] = [t.child for t in children]
 
@@ -135,8 +137,6 @@ class ExecuteTasks:
         if project.genome:
             params['genome'] = Genome.objects.get(pk=project.genome.pk)
             params['annotations'] = Annotation.objects.filter(genome=params['genome'])
-        # for k in params:
-        #     print(f"{k}\t\t{params[k]}")
         return params
 
     def combine_parents_output(self, parents:list) -> list:
@@ -163,7 +163,7 @@ class ExecuteTasks:
         params['output_dir'] = os.path.join(
             settings.RESULTS_DIR,
             params['project'].project_id,
-            params['method'].method_name
+            f"{params['task'].task_id}_{params['method'].method_name}",
         )
         Dir(params['output_dir']).init_dir()
         

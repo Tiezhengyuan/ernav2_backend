@@ -91,13 +91,13 @@ class Align:
     # secondly check its parent TaskExecution
     if self.params.get('parent_params'):
       parent_output = self.params['parent_params']['output']
-      return parent_output[0]['index_path']
+      if parent_output and 'index_path' in parent_output[0]:
+        return parent_output[0]['index_path']
 
     # Finally check its execution of parent Task
-    parent_execution = self.params['parents'][0].task_execution
-    if parent_execution:
-      parent_output = parent_execution.get_output()
-      return parent_output[0]['index_path']
+    for parent_output in self.params['parent_outputs']:
+      if 'index_path' in parent_output:
+        return parent_output['index_path']
     return None
 
 
