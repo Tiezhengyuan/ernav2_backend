@@ -1,3 +1,6 @@
+'''
+miRBase: https://mirbase.org/
+'''
 import os
 from Bio import SeqIO
 from io import StringIO
@@ -16,15 +19,17 @@ class ConnectMirbase:
         self.dir_local = os.path.join(ref_dir, "miRBase")
         Dir(self.dir_local).init_dir()
     
-    def download_mirbase(self, overwrite:bool):
+    def download_data(self, overwrite:bool):
         local_files = []
-        for file_name in ['hairpin.fa', 'mature.fa']:
+        meta = [
+            ('hairpin.fa', 'miRNA_hairpin'),
+            ('mature.fa', 'miRNA_mature')
+        ]
+        for file_name, rna_type in meta:
             local_file = os.path.join(self.dir_local, file_name)
             if overwrite or not os.path.isfile(local_file):
                 self.parse_fasta(f"{self.url}/{file_name}",local_file)
-            local_files.append(
-                (file_name.replace('.fa', ''), local_file),
-            )
+            local_files.append((rna_type, local_file))
         return self.dir_local, local_files
 
     def parse_fasta(self, url_path, local_file):

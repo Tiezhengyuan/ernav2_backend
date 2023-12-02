@@ -1,6 +1,6 @@
 '''
 example:
-    python3 erna/manage.py shell < erna/scripts/demo_mirnaseq.py
+    python3 erna/manage.py shell < erna/scripts/demo_mirnaseq_iterative.py
 '''
 from rna_seq.models import *
 from commons.models import CustomUser
@@ -8,9 +8,9 @@ from commons.models import CustomUser
 user = CustomUser.objects.get(pk=1)
 
 print("Cretae project...") 
-project_id = "P00002"
+project_id = "P00003"
 project_data = {
-    "project_name": "test_mirna_seq",
+    "project_name": "test_iterative_mirna_seq",
     "description": "test miRNA-seq pipeline",
     "status": "active",
     "sequencing": "mirna-seq",
@@ -44,13 +44,22 @@ print('Add tasks...')
 tasks_data = [
     {
         'task_id': 'T01',
+        'method_name': 'quality_control',
+        'tool': {
+            "tool_name": "fastqc",
+            "exe_name": "fastqc",
+            'version': '0.12.1'
+        }
+    },
+    {
+        'task_id': 'T02',
         'method_name': 'trim_sequences',
         'params': {
             'adapter_3end': 'TGGAATTCTCGGGTGCCAAGG',
         },
     },
     {
-        'task_id': 'T02',
+        'task_id': 'T03',
         'method_name': 'build_index',
         'tool': {
             'tool_name': 'bowtie',
@@ -66,7 +75,7 @@ tasks_data = [
         },
     },
     {
-        'task_id': 'T03',
+        'task_id': 'T04',
         'method_name': 'align_short_reads',
         'tool': {
             'tool_name': 'bowtie',
@@ -75,27 +84,61 @@ tasks_data = [
         },
     },
     {
-        'task_id': 'T04',
-        'method_name': 'convert_format',
+        'task_id': 'T05',
+        'method_name': 'build_index',
         'tool': {
-            'tool_name': 'samtools',
-            'exe_name': 'samtools',
-            'version': '1.18',
+            'tool_name': 'bowtie',
+            'exe_name': 'bowtie2-build',
+            'version': '2.5.2',
+        },
+        'params': {
+            'model': 'NonCodingRNA',
+            'query': {
+                'specie': "Homo_sapiens",
+                'rna_type': 'mature',
+            }
         },
     },
     {
-        'task_id': 'T05',
-        'method_name': 'count_reads',
+        'task_id': 'T06',
+        'method_name': 'align_short_reads',
+        'tool': {
+            'tool_name': 'bowtie',
+            'exe_name': 'bowtie2',
+            'version': '2.5.2',
+        },
     },
     {
-        'task_id': 'T06',
-        'method_name': 'quality_control',
+        'task_id': 'T07',
+        'method_name': 'build_index',
         'tool': {
-            "tool_name": "fastqc",
-            "exe_name": "fastqc",
-            'version': '0.12.1'
-        }
+            'tool_name': 'bowtie',
+            'exe_name': 'bowtie2-build',
+            'version': '2.5.2',
+        },
+        'params': {
+            'model': 'NonCodingRNA',
+            'query': {
+                'specie': "Homo_sapiens",
+                'rna_type': 'mature',
+            }
+        },
     },
+    {
+        'task_id': 'T08',
+        'method_name': 'align_short_reads',
+        'tool': {
+            'tool_name': 'bowtie',
+            'exe_name': 'bowtie2',
+            'version': '2.5.2',
+        },
+    },
+
+    {
+        'task_id': 'T09',
+        'method_name': 'count_reads',
+    },
+
 ]
 Task.objects.filter(project_id=project_id).delete()
 tasks = Task.objects.load_tasks(project_id, tasks_data)
@@ -103,21 +146,25 @@ print(tasks)
 
 
 '''
-     T00
-  /   |   \
-T01  T02  T06
- \   /
-  T03
-   |
-  T04
-   |
-  T05
+         T00
+  /   /   |   \    \
+T01  T02  T03 T05  T07
+      \   /    /   /
+       T04    /   /
+        |\   /   /
+        | T06   /
+        |  |\  /
+        |  | T08
+         \ | /
+          T09
 '''
 print('Add Task Tree...')
 task_pair = [
-    ('T00', 'T01'),('T00', 'T02'),('T00', 'T06'),
-    ('T01', 'T03'),('T02', 'T03'),
-    ('T03', 'T04'),('T03', 'T05'),
+    ('T00', 'T01'), ('T00', 'T02'), ('T00', 'T03'), ('T00', 'T05'), ('T00', 'T07'),
+    ('T02', 'T04'), ('T03', 'T04'),
+    ('T04', 'T06'), ('T05', 'T06'),
+    ('T06', 'T08'), ('T07', 'T08'),
+    ('T04', 'T09'), ('T06', 'T09'), ('T08', 'T09'),
 ]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
 print(tasks_tree)

@@ -9,22 +9,31 @@ from .specie import Specie
 class NonCodingRNAManager(models.Manager):
     def load_data(self, data:Iterable):
         for item in data:
-            specie = Specie.objects.filter(abbreviation=item['abb'])
-            if specie:
-                if len(specie) == 1:
-                    self.update_or_create(
-                        specie = specie[0],
-                        rna_type = item['rna_type'],
-                        defaults = {
-                            'fa_path': item['fa_path'],
-                            'database': item['db'],
-                        }
-                    )
+            specie = None
+            species = Specie.objects.filter(specie_name=item['specie_name'])
+            if species:
+                if len(species) == 1:
+                    specie = species[0]
                 else:
                     print(f"Duplicated specie detectd. {item}")
             else:
-                pass
-                # print(f"No specie detectd. {item}")
+                new_data = {
+                    'specie_name': item['specie_name'],
+                    'organism_name': item['organism_name'],
+                    'other_names': item.get('other_names'),
+                    'abbreviation': item['abb'],
+                }
+                specie = Specie.objects.create(**new_data)
+            if specie:
+                self.update_or_create(
+                    specie = specie,
+                    rna_type = item['rna_type'],
+                    defaults = {
+                        'fa_path': item['fa_path'],
+                        'database': item['database'],
+                    }
+                )
+
 
 class NonCodingRNA(models.Model):
     specie = models.ForeignKey(

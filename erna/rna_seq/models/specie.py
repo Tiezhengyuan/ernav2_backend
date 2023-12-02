@@ -4,14 +4,14 @@ from django.db import models
 class SpecieManager(models.Manager):
     def load_species(self, obj_iter:Iterable):
         res = []
-        names = ['taxid', 'organism_name', 'group']
+        names = ['taxid', 'organism_name', 'group', 'other_names']
         for _, summary in obj_iter:
-            data = dict([(n, summary[n]) for n in names])
+            data = dict([(n, summary[n]) for n in names if n in summary])
             name1, name2 = data['organism_name'].split(' ')[:2]
             data['abbreviation'] = name1[0].lower() + name2[:2].lower()
-            data['organism_name'] = data['organism_name'].replace(' ', '_')
+            data['specie_name'] = data['organism_name'].replace(' ', '_')
             obj = self.update_or_create(
-                organism_name = data['organism_name'],
+                specie_name = data['specie_name'],
                 defaults = data
             )
             res.append(obj)
@@ -19,9 +19,18 @@ class SpecieManager(models.Manager):
 
 
 class Specie(models.Model):
-    organism_name = models.CharField(
+    # replace whitespace with underscore
+    specie_name = models.CharField(
         primary_key=True,
-        max_length=256
+        max_length=128
+    )
+    # scientific name
+    organism_name = models.CharField(max_length=128)
+    # readable name
+    other_names = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True
     )
     group = models.CharField(
         max_length=56,

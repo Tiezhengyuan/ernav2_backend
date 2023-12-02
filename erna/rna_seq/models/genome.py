@@ -9,9 +9,9 @@ from .specie import Specie
 from utils.dir import Dir
 
 class GenomeManager(models.Manager):
-    def get_genome(self, organism_name:str, version:str=None):
+    def get_genome(self, specie_name:str, version:str=None):
         try:
-            specie = Specie.objects.get(organism_name=organism_name)
+            specie = Specie.objects.get(specie_name=specie_name)
             if version is None:
                 return self.filter(specie=specie).last()
             return self.get(specie=specie, version=version)
@@ -19,8 +19,8 @@ class GenomeManager(models.Manager):
             pass
         return None
     
-    def get_versions(self, organism_name:str):
-            specie = Specie.objects.get(organism_name=organism_name)
+    def get_versions(self, specie_name:str):
+            specie = Specie.objects.get(specie_name=specie_name)
             query = self.filter(specie=specie)
             return [i.version for i in query]
 
@@ -38,7 +38,7 @@ class GenomeManager(models.Manager):
             existing = Genome.objects.filter(specie=data['specie'],\
                 version=data['version'])
             if not existing:
-                data['specie'] = Specie.objects.get(organism_name=data['specie'])
+                data['specie'] = Specie.objects.get(specie_name=data['specie'])
                 return Genome.objects.create(**data)
             else:
                 if 'metadata' in data:
@@ -107,4 +107,4 @@ class Genome(models.Model):
         ordering = ['specie', 'version']
 
     def __str__(self):
-        return self.specie.organism_name
+        return self.specie.specie_name

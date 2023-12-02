@@ -7,9 +7,9 @@ import sys
 from rna_seq.models import *
 from process.process_raw_data import ProcessRawData
 from process.process_genome import ProcessGenome
-from process.process_mirna import ProcessMiRNA
 
-enter = 1
+
+enter = 12
 run = False
 print('\n\n###Begin to refresh/update database###\n\n')
 
@@ -88,7 +88,11 @@ if enter == 11 or run:
     run=True
 
 if enter == 12 or run:
-    print('Refresh NonCodingRNA...')
-    ProcessMiRNA().load_mirbase(False)
+    from process.process_ncrna import ProcessNCRNA
+    # print('load miRNA...')
+    # ProcessNCRNA().load_mirbase(False)
+    print('Process long non-coding RNA...')
+    ProcessNCRNA().load_lncrnadb(False)
+    print('Process piwiRNA...')
+    ProcessNCRNA().load_pirbase(False)
     run=True
-
