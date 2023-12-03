@@ -101,7 +101,7 @@ tasks_data = [
     },
     {
         'task_id': 'T06',
-        'method_name': 'count_reads',
+        'method_name': 'merge_read_counts',
     },
     {
         'task_id': 'T07',

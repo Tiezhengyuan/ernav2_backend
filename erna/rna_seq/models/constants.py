@@ -46,16 +46,22 @@ METHODS = [
     "exe_name": ["stringtie"],
   },
   {
+    "method_name": "count_reads",
+    "description": "count reads and collect unaligned reads",
+    "child_method": ["merge_read_counts",],
+    "exe_name": [],
+  },
+  {
+    "method_name": "merge_read_counts",
+    "description": "count reads for differential expression",
+    "child_method": [],
+    "exe_name": [],
+  },
+  {
     "method_name": "merge_transcripts",
     "description": "merge transcripts into a non-redundant set of transcripts",
     "child_method": ["count_reads",],
     "exe_name": ["stringtie"],
-  },
-  {
-    "method_name": "count_reads",
-    "description": "count reads for differential expression",
-    "child_method": [],
-    "exe_name": [],
   },
   {
     "method_name": "trim_sequences",

@@ -41,25 +41,17 @@ res = SampleProject.objects.load_project_sample_files(
 print(res)
 
 print('Add tasks...')
+specie_name = "Homo_sapiens"
 tasks_data = [
     {
         'task_id': 'T01',
-        'method_name': 'quality_control',
-        'tool': {
-            "tool_name": "fastqc",
-            "exe_name": "fastqc",
-            'version': '0.12.1'
-        }
-    },
-    {
-        'task_id': 'T02',
         'method_name': 'trim_sequences',
         'params': {
             'adapter_3end': 'TGGAATTCTCGGGTGCCAAGG',
         },
     },
     {
-        'task_id': 'T03',
+        'task_id': 'T02',
         'method_name': 'build_index',
         'tool': {
             'tool_name': 'bowtie',
@@ -69,19 +61,24 @@ tasks_data = [
         'params': {
             'model': 'NonCodingRNA',
             'query': {
-                'specie': "Homo_sapiens",
-                'rna_type': 'mature',
+                'specie': specie_name,
+                'rna_type': 'miRNA_mature',
+                'database': 'miRBase',
             }
         },
     },
     {
-        'task_id': 'T04',
+        'task_id': 'T03',
         'method_name': 'align_short_reads',
         'tool': {
             'tool_name': 'bowtie',
             'exe_name': 'bowtie2',
             'version': '2.5.2',
         },
+    },
+    {
+        'task_id': 'T04',
+        'method_name': 'count_reads',
     },
     {
         'task_id': 'T05',
@@ -94,8 +91,8 @@ tasks_data = [
         'params': {
             'model': 'NonCodingRNA',
             'query': {
-                'specie': "Homo_sapiens",
-                'rna_type': 'mature',
+                'specie': specie_name,
+                'rna_type': 'piwiRNA',
             }
         },
     },
@@ -110,6 +107,10 @@ tasks_data = [
     },
     {
         'task_id': 'T07',
+        'method_name': 'count_reads',
+    },
+    {
+        'task_id': 'T08',
         'method_name': 'build_index',
         'tool': {
             'tool_name': 'bowtie',
@@ -119,13 +120,13 @@ tasks_data = [
         'params': {
             'model': 'NonCodingRNA',
             'query': {
-                'specie': "Homo_sapiens",
-                'rna_type': 'mature',
+                'specie': specie_name,
+                'rna_type': 'lncRNA',
             }
         },
     },
     {
-        'task_id': 'T08',
+        'task_id': 'T09',
         'method_name': 'align_short_reads',
         'tool': {
             'tool_name': 'bowtie',
@@ -133,12 +134,14 @@ tasks_data = [
             'version': '2.5.2',
         },
     },
-
     {
-        'task_id': 'T09',
+        'task_id': 'T10',
         'method_name': 'count_reads',
     },
-
+    {
+        'task_id': 'T11',
+        'method_name': 'merge_read_counts',
+    },
 ]
 Task.objects.filter(project_id=project_id).delete()
 tasks = Task.objects.load_tasks(project_id, tasks_data)
@@ -146,25 +149,34 @@ print(tasks)
 
 
 '''
-         T00
-  /   /   |   \    \
-T01  T02  T03 T05  T07
-      \   /    /   /
-       T04    /   /
-        |\   /   /
-        | T06   /
-        |  |\  /
-        |  | T08
-         \ | /
-          T09
+        T00
+   /   /   \     \
+T01  T02   T05    T08
+  \  /      /      /
+   T03     /      /
+    |     /      /
+   T04   /      /
+    |\  /      /
+    | T06     /
+    |  |     /
+    | T07   /
+    |  |\  /
+    |  | T09
+    |  |  |
+    |  | T10
+    \  | /
+      T11
 '''
 print('Add Task Tree...')
 task_pair = [
-    ('T00', 'T01'), ('T00', 'T02'), ('T00', 'T03'), ('T00', 'T05'), ('T00', 'T07'),
-    ('T02', 'T04'), ('T03', 'T04'),
+    ('T00', 'T01'), ('T00', 'T02'), ('T00', 'T05'), ('T00', 'T08'),
+    ('T01', 'T03'), ('T02', 'T03'),
+    ('T03', 'T04'),
     ('T04', 'T06'), ('T05', 'T06'),
-    ('T06', 'T08'), ('T07', 'T08'),
-    ('T04', 'T09'), ('T06', 'T09'), ('T08', 'T09'),
+    ('T06', 'T07'),
+    ('T07', 'T09'), ('T08', 'T09'),
+    ('T09', 'T10'),
+    ('T04', 'T11'), ('T07', 'T11'), ('T10', 'T11'),
 ]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
 print(tasks_tree)

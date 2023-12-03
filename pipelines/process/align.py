@@ -91,8 +91,9 @@ class Align:
     # secondly check its parent TaskExecution
     if self.params.get('parent_params'):
       parent_output = self.params['parent_params']['output']
-      if parent_output and 'index_path' in parent_output[0]:
-        return parent_output[0]['index_path']
+      for item in parent_output:
+        if 'index_path' in item:
+          return item['index_path']
 
     # Finally check its execution of parent Task
     for parent_output in self.params['parent_outputs']:
@@ -199,10 +200,12 @@ class Align:
       ]
     elif input_data.get('bam'):
       cmd += ['-b', input_data['bam']]
+    elif input_data.get('unaligned'):
+      cmd += ['-f', input_data['unaligned']]
     else:
       raw_data = input_data.get('R1', []) + input_data.get('R2', [])
       cmd += ['-U', ','.join(raw_data)]
-    
+
     sample_name = input_data['sample_name']
     output_prefix = os.path.join(self.params['output_dir'], sample_name)
     sam_file = f"{output_prefix}.sam"

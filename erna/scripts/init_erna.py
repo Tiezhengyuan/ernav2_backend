@@ -90,7 +90,7 @@ if enter == 11 or run:
 if enter == 12 or run:
     from process.process_ncrna import ProcessNCRNA
     # print('load miRNA...')
-    # ProcessNCRNA().load_mirbase(False)
+    ProcessNCRNA().load_mirbase(False)
     print('Process long non-coding RNA...')
     ProcessNCRNA().load_lncrnadb(False)
     print('Process piwiRNA...')

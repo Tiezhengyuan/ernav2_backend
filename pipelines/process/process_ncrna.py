@@ -84,6 +84,7 @@ class ProcessNCRNA:
         '''
         res = {}
         for record in SeqIO.parse(local_file, 'fasta'):
+            record.seq = record.seq.back_transcribe()
             key = func(record)
             if key not in res:
                 res[key] = []

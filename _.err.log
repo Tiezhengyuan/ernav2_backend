@@ -1,33 +1,7 @@
-Option d is ambiguous (delete, dir, dup_length)
-Failed to process /home/yuan/bio/results/P00002/T06_quality_control
-Started analysis of LW_AN_1_GCCAAT_L004_R1.fastq
-java.io.FileNotFoundException: /home/yuan/bio/results/P00002/T06_quality_control (Is a directory)
-	at java.base/java.io.FileInputStream.open0(Native Method)
-	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
-	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
-	at uk.ac.babraham.FastQC.Sequence.FastQFile.<init>(FastQFile.java:77)
-	at uk.ac.babraham.FastQC.Sequence.SequenceFactory.getSequenceFile(SequenceFactory.java:106)
-	at uk.ac.babraham.FastQC.Sequence.SequenceFactory.getSequenceFile(SequenceFactory.java:62)
-	at uk.ac.babraham.FastQC.Analysis.OfflineRunner.processFile(OfflineRunner.java:163)
-	at uk.ac.babraham.FastQC.Analysis.OfflineRunner.<init>(OfflineRunner.java:125)
-	at uk.ac.babraham.FastQC.FastQCApplication.main(FastQCApplication.java:316)
-Approx 5% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 10% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 15% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 20% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 25% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 30% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 35% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 40% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 45% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 50% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 55% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 60% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 65% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 70% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 75% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 80% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 85% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 90% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 95% complete for LW_AN_1_GCCAAT_L004_R1.fastq
-Approx 100% complete for LW_AN_1_GCCAAT_L004_R1.fastq
+Building a SMALL index
+Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.3.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.3.bt2
+Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.4.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.4.bt2
+Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.1.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.1.bt2
+Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.2.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.2.bt2
+Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.rev.1.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.rev.1.bt2
+Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.rev.2.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.rev.2.bt2

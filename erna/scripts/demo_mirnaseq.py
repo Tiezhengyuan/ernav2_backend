@@ -61,7 +61,8 @@ tasks_data = [
             'model': 'NonCodingRNA',
             'query': {
                 'specie': "Homo_sapiens",
-                'rna_type': 'mature',
+                'database': 'miRBase',
+                'rna_type': 'miRNA_mature',
             }
         },
     },
@@ -89,6 +90,10 @@ tasks_data = [
     },
     {
         'task_id': 'T06',
+        'method_name': 'merge_read_counts',
+    },
+    {
+        'task_id': 'T07',
         'method_name': 'quality_control',
         'tool': {
             "tool_name": "fastqc",
@@ -104,20 +109,20 @@ print(tasks)
 
 '''
      T00
-  /   |   \
-T01  T02  T06
+   /  |  \
+T01  T02  T07
  \   /
   T03
-   |
-  T04
-   |
-  T05
+ /   \
+T04  T05
+      |
+     T06
 '''
 print('Add Task Tree...')
 task_pair = [
-    ('T00', 'T01'),('T00', 'T02'),('T00', 'T06'),
-    ('T01', 'T03'),('T02', 'T03'),
-    ('T03', 'T04'),('T03', 'T05'),
+    ('T00', 'T01'), ('T00', 'T02'), ('T00', 'T07'),
+    ('T01', 'T03'), ('T02', 'T03'),
+    ('T03', 'T04'), ('T03', 'T05'), ('T05', 'T06'),
 ]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
 print(tasks_tree)

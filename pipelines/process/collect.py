@@ -5,6 +5,7 @@ from copy import deepcopy
 import os
 import pandas as pd
 import pysam
+from .process import Process
 
 from rna_seq.models import SampleProject
 from utils.utils import Utils
@@ -31,66 +32,37 @@ class Collect:
       v['sample_name'] = k 
       self.params['output'].append(v) 
 
+  def merge_transcripts(self):
+    '''
+    run method: merge transcripts
+    '''
+    if self.params['tool'].tool_name == 'stringtie':
+      self.cmd_stringtie_merge_transcripts()
+    return Process.run_subprocess(self.params)
 
-  
+  def cmd_stringtie_merge_transcripts(self):
+    '''
+    stringtie --merge [Options] { gtf_list | strg1.gtf ...}
+    '''
+    outputs = self.params['parent_outputs']
+    annotation_file = outputs[0]['annotation_file']
+    merged_gtf_file = os.path.join(self.params['output_dir'], 'merged_transcripts.gtf')
+    self.params['cmd'] = [
+      self.params['tool'].exe_path, '--merge',
+      '-G', annotation_file,
+      '-o', merged_gtf_file,
+      ' '.join([i['gtf_file'] for i in outputs]),
+    ]
+    self.params['force_run'] = False if os.path.isfile(merged_gtf_file) else True
 
-  def stringtie_counting(self, parent_output:dict):
-    first = parent_output[0]
-    df_tpm, df_fpkm = self.read_abund(first['abundance_file'], first['sample_name'])
-    for item in parent_output[1:]:
-      df1, df2 = self.read_abund(item['abundance_file'], item['sample_name'])
-      df_tpm = pd.merge(df_tpm, df1, how='outer').fillna(0)
-      df_fpkm = pd.merge(df_fpkm, df2, how='outer').fillna(0)
-    #
-    tpm_file = os.path.join(self.params['output_dir'], 'TPM.txt')
-    df_tpm.to_csv(tpm_file, index=False, sep='\t')
-    fpkm_file = os.path.join(self.params['output_dir'], 'FPKM.txt')
-    df_fpkm.to_csv(fpkm_file, index=False, sep='\t')
+    # update output
     self.params['output'].append({
-      'TPM': tpm_file,
-      'FPKM': fpkm_file,
+      'cmd': ' '.join(self.params['cmd']),
+      'annotation_file': annotation_file,
+      'merged_transcripts': merged_gtf_file,
     })
 
-  def read_abund(self, infile, sample_name):
-    df=pd.read_csv(infile, sep='\t')
-    # FPKM
-    df1=df.loc[:, df.columns != 'TPM']
-    df1.columns = df1.columns.str.replace('FPKM', sample_name)
-    # TPM
-    df2=df.loc[:, df.columns != 'FPKM']
-    df2.columns = df2.columns.str.replace('TPM', sample_name)
-    return df1, df2
 
 
 
-  def count_reads(self):
-    '''
-    reads counting
-    '''
-    for parent in self.params['parents']:
-      output = parent.task_execution.get_output()
-      if parent.method_tool.tool.tool_name == 'stringtie':
-        self.stringtie_counting(output)
-      else:
-        res = {}
-        for item in output:
-          sample_name = item['sample_name']
-          if 'sam_file' in item:
-            res[sample_name] = self.count_reads_from_samfile(item['sam_file'])
-        df = pd.DataFrame.from_dict(res).fillna(0).astype('i8')
-        # print(df)
-        outfile = os.path.join(self.params['output_dir'], 'RC.txt')
-        df.to_csv(outfile, sep='\t')
-        self.params['output'].append({'RC': outfile,})
-
-  def count_reads_from_samfile(self, sam_file):
-    rc = {}
-    samfile = pysam.AlignmentFile(sam_file, 'r')
-    for rec in samfile.fetch():
-      if rec.reference_name:
-        if rec.reference_name not in rc:
-          rc[rec.reference_name] = 1
-        else:
-          rc[rec.reference_name] += 1
-    return rc
       

@@ -13,20 +13,22 @@ from rna_seq.models.constants import METHODS
 from utils.dir import Dir
 from .align import Align
 from .assemble import Assemble
-
-
+from .collect import Collect
+from .count import Count
 
 class ExecuteTasks:
     def __init__(self, project_id:str, task_id:str=None, chain:bool=None, force:bool=None):
         self.pool = []
-        self.chain = True
-        self.pool = [(project_id, task_id, None),]
         self.chain = True if (chain or task_id is None) else False
+        if not task_id:
+            task_id = 'T00'
+        self.pool = [(project_id, task_id, None),]
         self.force = force if force else True
 
     def __call__(self) -> bool:
-        while self.pool:
-            project_id, task_id, parent_params = self.pool.pop(0)
+        i = 0
+        while i < len(self.pool):
+            project_id, task_id, parent_params = self.pool[i]
             params = self.retreive_metadata(project_id, task_id)
             params['parent_params'] = parent_params
             
@@ -34,6 +36,12 @@ class ExecuteTasks:
             if self.skip_task(params):
                 return False
             
+            # print('\n\n\n@@@@@@@@@', i, [index[1] for index in self.pool])
+            # postpone the task if parent tasks are not ready
+            if 0 < i < len(self.pool) - 1:
+                if self.postpone_task(params, i):
+                    continue
+
             # try to run the task
             self.init_task(params)
             self.run_task(params)
@@ -42,38 +50,64 @@ class ExecuteTasks:
             # add the next task into self.pool
             if self.chain and params.get('children'):
                 for child in params['children']:
-                    self.pool.append(
-                        (child.project.project_id, child.task_id, params)
-                    ) 
+                    tag = 1
+                    for item in self.pool:
+                        if item[1] == child.task_id:
+                            tag = 0
+                    if tag == 1:
+                        next_task = (project_id, child.task_id, params)
+                        self.pool.append(next_task)
+            i += 1
         return True
+
+    def postpone_task(self, params:dict, i:int) -> bool:
+        parent_tasks = [item[1] for item in self.pool[:i+1]]
+        # if no parent is detected, just run the task
+        if not parent_tasks:
+            return False
+        # parents exist
+        for parent in params['parents']:
+            # at least one parent is not finished, then postpone the task
+            if parent.task_id not in parent_tasks:
+                if i < len(self.pool) -1:
+                    self.pool[i:] = self.pool[i+1:] + [self.pool[i],]
+                return True
+        return False
 
     def run_task(self, params:dict)->None:
         match params['method'].method_name:
-            case 'import_data':
-                # task T00
-                from .collect import Collect
-                return Collect(params).import_data()
             case 'trim_sequences':
                 from .trim_adapter import TrimAdapter
                 return TrimAdapter(params)()
+
             case 'build_index':
                 return Align(params).build_index()
             case 'build_genome_index':
                 return Align(params).build_genome_index()
+
             case 'align_transcriptome':
                 return Align(params).align()
             case 'align_short_reads':
                 return Align(params).align()
+
             case 'assemble_transcripts':
                 return Assemble(params).assemble_transcripts()
+
+            case 'import_data':
+                # task T00
+                return Collect(params).import_data()
             case 'merge_transcripts':
-                return Assemble(params).merge_transcripts()
+                return Collect(params).merge_transcripts()
+            
             case 'count_reads':
-                from .collect import Collect
-                return Collect(params).count_reads()
+                return Count(params).count_reads()
+            case 'merge_read_counts':
+                return Count(params).merge_read_counts()
+
             case 'quality_control':
                 from .quality_control import QualityControl
                 return QualityControl(params)()
+
             case 'convert_format':
                 from .convert_format import ConvertFormat
                 return ConvertFormat(params).sam_to_bam()
@@ -112,8 +146,7 @@ class ExecuteTasks:
         params['project'] = project
 
         # Task
-        task = Task.objects.get(project=project, task_id=task_id) if \
-            task_id else Task.objects.get_head_task(project=project)
+        task = Task.objects.get(project=project, task_id=task_id)
         params['task'] = task
 
         # parent/children
@@ -121,8 +154,6 @@ class ExecuteTasks:
         parents = [t.task for t in parents]
         params['parents'] = parents
         params['parent_outputs'] = self.combine_parents_output(parents)
-        print(params['parents'])
-        print('###', params['parent_outputs'])
         children = TaskTree.objects.filter(task=task)
         params['children'] = [t.child for t in children]
 
@@ -156,6 +187,7 @@ class ExecuteTasks:
     def init_task(self, params:dict) -> None:
         '''
         '''
+        print(f"Try to run task={params['task'].task_id}")
         # variables
         params['cmd'] = None
         params['force_run'] = True
@@ -183,7 +215,9 @@ class ExecuteTasks:
 
     
     def end_task(self, params:dict) -> None:
-        print('#end task:', params['task_execution'].id)
+        task_id = params['task'].task_id
+        exec_id = params['task_execution'].id
+        print(f"\nThe task {task_id} ends. execution={exec_id}\n\n")
         params['task_execution'].end_execution(params.get('output'))
         return None
 
