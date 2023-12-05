@@ -3,28 +3,40 @@ process raw data namely fastq
 '''
 import os
 from typing import Iterable
-
-from rna_seq.models import RawData, Sample, SampleFile, SampleProject
+from django.conf import settings
 from django.core import serializers
 
+from rna_seq.models import RawData, Sample, SampleFile, SampleProject
+from .process import Process
+
 class ProcessRawData:
-  def __init__(self):
-    self.dir_raw_data = os.environ.get('RAW_DATA_DIR')
+
+  def uncompress_raw_data(self):
+    '''
+    uncompress *.gz
+    '''
+    for rawdata_dir in settings.RAW_DATA_DIRS:
+      for root, dirs, files in os.walk(rawdata_dir):
+        for file in files:
+          if file.endswith('.gz'):
+            gz_file = os.path.join(root, file)
+            Process.uncompress_gz(gz_file)
 
   def scan_raw_data(self):
     '''
     batch_name ~ (path, filename)
     '''
     raw_data = {'UN': []}
-    for batch in os.listdir(self.dir_raw_data):
-      path = os.path.join(self.dir_raw_data, batch)
-      if os.path.isdir(path):
-        raw_data[batch] = []
-        for root, dirs, files in os.walk(path, topdown=False):
-          for file in files:
-            raw_data[batch].append((root, file))
-      else:
-        raw_data['UN'].append((self.dir_raw_data, batch))
+    for rawdata_dir in settings.RAW_DATA_DIRS:
+      for batch in os.listdir(rawdata_dir):
+        path = os.path.join(rawdata_dir, batch)
+        if os.path.isdir(path):
+          raw_data[batch] = []
+          for root, dirs, files in os.walk(path, topdown=False):
+            for file in files:
+              raw_data[batch].append((root, file))
+        else:
+          raw_data['UN'].append((rawdata_dir, batch))
     # for k, v in raw_data.items():
     #   print(f"{k}:\t{v}\n\n")
     return raw_data

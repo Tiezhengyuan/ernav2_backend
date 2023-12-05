@@ -27,16 +27,16 @@ class RawDataManager(models.Manager):
     file_type = split_tup[1][1:].upper() if len(split_tup) > 1 else ''
     return STANDER_FORMAT.get(file_type, "UN")
   
-  def detect_file_type(self, file_name:str):
-    if 'R1' in file_name:
+  def detect_file_type(self, file_name:str, file_format:str=None):
+    if file_format == 'FASTQ':
+      if 'R2' in file_name:
+        return 'R2'
       return 'R1'
-    elif 'R2' in file_name:
-      return 'R2'
     return 'UN'
   
   def add_data(self, batch_name:str, file_path:str, file_name:str):
     file_format = self.detect_file_format(file_name)
-    file_type = self.detect_file_type(file_name)
+    file_type = self.detect_file_type(file_name, file_format)
     res = self.create(batch_name=batch_name, file_path=file_path, \
       file_name=file_name, file_type=file_type, file_format=file_format)
     return res

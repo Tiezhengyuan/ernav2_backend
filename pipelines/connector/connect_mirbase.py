@@ -6,9 +6,9 @@ from Bio import SeqIO
 from io import StringIO
 import lxml.html as html
 from urllib.request import urlopen
-
 from django.conf import settings
-from utils.dir import Dir
+
+from pipelines.utils.dir import Dir
 
 
 class ConnectMirbase:

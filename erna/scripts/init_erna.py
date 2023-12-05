@@ -3,10 +3,9 @@ initialize models
 example:
     python3 erna/manage.py shell < erna/scripts/init_erna.py
 '''
-import sys
-from rna_seq.models import *
-from process.process_genome import ProcessGenome
-
+# import sys
+# print(sys.path)
+from rna_seq.models import Method, Tool, MethodTool, MethodRelation, Pipeline
 
 enter = 1
 run = False
@@ -45,9 +44,7 @@ if enter == 5 or run:
     ]
     Pipeline.objects.filter(pipeline_name='mRNA-Seq').delete()
     steps = Pipeline.objects.load_pipeline('mRNA-Seq', mrna_seq)
-    run=True
 
-if enter == 6 or run:
     print('import default pipelines of miRNA-Seq...')
     mirna_seq = [
         ("build_index", 'bowtie2-build', None),
@@ -59,40 +56,3 @@ if enter == 6 or run:
     steps = Pipeline.objects.load_pipeline('miRNA-Seq', mirna_seq)
     run=True
 
-if enter == 7 or run:
-    print('refresh RawData...')
-    from process.process_raw_data import ProcessRawData
-    # Delete all data in RawData, Sample, SampleFile, SampleProject
-    res = ProcessRawData().reset_sample()
-    run=True
-
-if enter == 8 or run:
-    print('refresh Specie and Genome...')
-    species = ProcessGenome('NCBI').retrieve_assembly_summary()
-    run=True
-
-if enter == 9 or run:
-    print('refresh Genome...')
-    genomes = Genome.objects.refresh()
-    run=True
-
-if enter == 10 or run:
-    print("Download default genome...")
-    ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_000001405.40').download_genome()
-    ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').download_genome()
-    run=True
-
-if enter == 11 or run:
-    print('refresh Reference...')
-    Reference.objects.refresh()
-    run=True
-
-if enter == 12 or run:
-    from process.process_ncrna import ProcessNCRNA
-    # print('load miRNA...')
-    ProcessNCRNA().load_mirbase(False)
-    print('Process long non-coding RNA...')
-    ProcessNCRNA().load_lncrnadb(False)
-    print('Process piwiRNA...')
-    ProcessNCRNA().load_pirbase(False)
-    run=True

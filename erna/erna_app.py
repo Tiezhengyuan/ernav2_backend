@@ -12,6 +12,11 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'erna.settings')
 django.setup()
 
+from pipelines.process.process_raw_data import ProcessRawData
+from pipelines.process.process_genome import ProcessGenome
+from pipelines.process.process_ncrna import ProcessNCRNA
+from pipelines.process.execute_tasks import ExecuteTasks
+
 def main(args):
   if len(args) < 1:
     print("method should be defined.")
@@ -24,7 +29,6 @@ def main(args):
       example:
       python3 erna_app.py scan_raw_data
       '''
-      from pipelines.process.process_raw_data import ProcessRawData
       return ProcessRawData().scan_raw_data()
 
     case 'refresh_raw_data':
@@ -33,7 +37,6 @@ def main(args):
       example:
       python3 erna_app.py scan_raw_data
       '''
-      from pipelines.process.process_raw_data import ProcessRawData
       return ProcessRawData().refresh_raw_data()
 
     case 'assembly_summary':
@@ -42,7 +45,6 @@ def main(args):
       example: python3 erna/erna_app.py assembly_summary NCBI
       '''
       if len(args) >= 2:
-        from pipelines.process.process_genome import ProcessGenome
         return ProcessGenome(args[1]).retrieve_assembly_summary()
 
     case 'download_genome':
@@ -52,7 +54,6 @@ def main(args):
       python3 erna_app.py download_genome NCBI "Homo sapiens" GCF_000001405.40
       '''
       if len(args)>=4:
-        from pipelines.process.process_genome import ProcessGenome
         data_source, specie, version = args[1:]
         p = ProcessGenome(data_source, specie, version)
         return p.download_genome()
@@ -62,9 +63,8 @@ def main(args):
       download data from miRBase and load them into eRNA
       example: python3 erna_app.py load_mirbase
       '''
-      from pipelines.process.process_mirna import ProcessMiRNA
       overwrite = eval(args[1]) if len(args)>1 and args[1] else False
-      return ProcessMiRNA().load_mirbase(overwrite)
+      return ProcessNCRNA().load_mirbase(overwrite)
       
     case 'execute_tasks':
       '''
@@ -72,7 +72,6 @@ def main(args):
       python3 erna/erna_app.py execute_tasks P00001 T01
       '''
       if len(args)>=2:
-        from pipelines.process.execute_tasks import ExecuteTasks
         project_id = args[1]
         task_id = args[2] if len(args)==3 else None
         chain = True if len(args)==4 else False

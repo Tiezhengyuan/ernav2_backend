@@ -2,11 +2,9 @@ import os
 import json
 from django.db import models
 from django.conf import settings
-from django.core.files import File
-from pathlib import Path
 
 from .specie import Specie
-from utils.dir import Dir
+
 
 class GenomeManager(models.Manager):
     def get_genome(self, specie_name:str, version:str=None):

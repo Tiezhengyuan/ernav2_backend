@@ -75,7 +75,7 @@ EXTERNALS_DIR = os.path.join(PROJECT_DIR, 'externals')
 # print(EXTERNALS_DIR)
 
 # raw data namely fastq
-RAW_DATA_DIR = os.environ['RAW_DATA_DIR']
+RAW_DATA_DIRS = os.environ['RAW_DATA_DIR'].split(' ')
 
 # analytic results
 RESULTS_DIR = os.environ['RESULTS_DIR']

@@ -6,7 +6,7 @@ import os
 from django.db import models
 from django.conf import settings
 
-from .constants.tool_exe import TOOL_EXE
+from .constants import TOOL_EXE
 
 
 class ToolManager(models.Manager):
@@ -17,7 +17,8 @@ class ToolManager(models.Manager):
             versions_path = os.path.join(externals_dir, tool_name)
             for version in os.listdir(versions_path):
                 tool_path = os.path.join(versions_path, version)
-                res.append((tool_name, version, tool_path))
+                for tool_exe in TOOL_EXE.get(tool_name, []):
+                    res.append((tool_name, version, tool_path, tool_exe))
         return res
 
     def refresh(self):
@@ -28,24 +29,22 @@ class ToolManager(models.Manager):
         self.all().delete()
         # add tools
         res = []
-        for tool_name, version, tool_path in self.scan_dir():
-            _tool_exe = TOOL_EXE.get(tool_name, [])
-            for exe_name in _tool_exe:
-                exe_path = os.path.join(tool_path, exe_name['name'])
-                params = exe_name.get('params')
-                if os.path.isfile(exe_path):
-                    defaults = {
-                        'tool_path': tool_path,
-                        'exe_path': exe_path,
-                        'default_params': json.dumps(params) if params else None,
-                    }
-                    tool = self.update_or_create(
-                        tool_name=tool_name,
-                        version=version,
-                        exe_name=exe_name['name'],
-                        defaults = defaults
-                    )
-                    res.append(tool)
+        for tool_name, version, tool_path, tool_exe in self.scan_dir():
+            exe_path = os.path.join(tool_path, tool_exe['name'])
+            params = tool_exe.get('params')
+            if os.path.isfile(exe_path):
+                defaults = {
+                    'tool_path': tool_path,
+                    'exe_path': exe_path,
+                    'default_params': json.dumps(params) if params else None,
+                }
+                tool = self.update_or_create(
+                    tool_name=tool_name,
+                    version=version,
+                    exe_name=tool_exe['name'],
+                    defaults = defaults
+                )
+                res.append(tool)
         return res
 
     def get_tool(self, exe_name:str, version:str=None):

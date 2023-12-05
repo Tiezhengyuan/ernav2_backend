@@ -5,9 +5,9 @@ from Bio import SeqIO
 import os
 
 from rna_seq.models import NonCodingRNA
-from connector.connect_mirbase import ConnectMirbase
-from connector.connect_rnacentral import ConnectRNACentral
-from utils.dir import Dir
+from pipelines.connector.connect_mirbase import ConnectMirbase
+from pipelines.connector.connect_rnacentral import ConnectRNACentral
+from pipelines.utils.dir import Dir
 
 
 class ProcessNCRNA:

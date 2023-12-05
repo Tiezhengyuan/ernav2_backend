@@ -1,7 +1,6 @@
 import json
 from django.db import models
 
-# Create your models here.
 from .project import Project
 from .method import Method
 from .method_tool import MethodTool

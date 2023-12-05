@@ -13,6 +13,7 @@ erna/*/migrations/
 erna/rna_seq/*/migrations/
 pipelines/*/__pycache__/
 pipelines/*/*/__pycache__/
+rna_seq/models/constants/__pycache__/
 
 # database
 erna/db.sqlite3

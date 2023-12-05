@@ -80,7 +80,7 @@ EXTERNALS_DIR = os.environ['EXTERNALS_DIR']
 DATA_DIR = os.environ['DATA_DIR']
 
 # raw data namely fastq
-RAW_DATA_DIR = os.environ['RAW_DATA_DIR']
+RAW_DATA_DIRS = os.environ['RAW_DATA_DIR'].split(' ')
 
 # analytic results
 RESULTS_DIR = os.environ['RESULTS_DIR']

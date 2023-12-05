@@ -2,6 +2,7 @@
 
 '''
 from django.db import models
+
 from .constants import METHODS
 
 

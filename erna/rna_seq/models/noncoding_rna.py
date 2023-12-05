@@ -4,6 +4,7 @@ non-coding RNA
 import os
 from django.db import models
 from typing import Iterable
+
 from .specie import Specie
 
 class NonCodingRNAManager(models.Manager):

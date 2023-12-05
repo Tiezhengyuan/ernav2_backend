@@ -31,6 +31,9 @@ class TrimAdapter:
       self.params['output'].append(output)
 
   def trim_3end_adapter(self, task_params, infile:str, outfile:str):
+    '''
+    trim adapter sequence at 3-end given adapter sequence
+    '''
     info = {'total_reads': 0, 'trimmed_reads': 0, 'short_trimmed_reads': 0}
     trimmer = TrimSeq(
       task_params['adapter_3end'],
@@ -56,7 +59,8 @@ class TrimAdapter:
           # not trimmed
           SeqIO.write(rec, out_handle, 'fastq')
 
-    info['trim_percentage'] = round(info['trimmed_reads']/info['total_reads'], 4)
+    total = info['total_reads'] if info['total_reads'] > 0 else 1
+    info['trim_percentage'] = round(info['trimmed_reads']/total, 4)
     print(info)
     return info
   
@@ -65,12 +69,19 @@ class TrimAdapter:
     trim fixed length from 3-end
     '''
     info = {'total_reads': 0, 'trimmed_reads': 0}
-    pos = int(task_params.get('keep_5end'))
+    pos = 12 # minimum kept length
+    try:
+      pos = int(task_params.get('keep_5end'))
+    except Exception as e:
+      pass
+      
+    # trim
     with open(outfile, 'w') as out_handle:
       fq_iter = FASTQ(infile).parse_records()
       for rec in fq_iter:
         info['total_reads'] += 1
-        rec = rec[:pos+1]
-        info['trimmed_reads'] += 1
+        if pos > 12:
+          rec = rec[:pos+1]
+          info['trimmed_reads'] += 1
         SeqIO.write(rec, out_handle, 'fastq')
     return info

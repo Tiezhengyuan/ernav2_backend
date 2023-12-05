@@ -2,10 +2,9 @@
 https://rnacentral.org
 '''
 import os
-from Bio import SeqIO
 from django.conf import settings
-from utils.dir import Dir
-from .connect_ftp import ConnectFTP
+from pipelines.utils.dir import Dir
+from pipelines.connector.connect_ftp import ConnectFTP
 
 
 class ConnectRNACentral:

@@ -2,9 +2,11 @@
 
 '''
 from django.db import models
+
 from .tool import Tool
-from .constants import METHODS
 from .method import Method
+from .constants import METHODS
+
 
 class MethodToolManager(models.Manager):
   def refresh(self):
