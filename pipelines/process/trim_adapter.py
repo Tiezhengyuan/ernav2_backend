@@ -14,16 +14,21 @@ class TrimAdapter:
   def __call__(self):
     task_params = self.params['task'].get_params()
     for item in self.params['parent_outputs']:
-      output = {'sample_name': item['sample_name']}
-      for type in [i for i in item if i in ('R1', 'R2')]:
-        output[type] = []
-        for infile in item[type]:
-          outfile = os.path.join(self.params['output_dir'], os.path.basename(infile))
-          if 'adapter_3end' in task_params:
-            self.trim_3end_adapter(task_params, infile, outfile)
-          output[type].append(outfile)
+      # R1
+      R1_files = []
+      for infile in item.get('R1', []):
+        outfile = os.path.join(self.params['output_dir'], os.path.basename(infile))
+        if 'adapter_3end' in task_params:
+          self.trim_3end_adapter(task_params, infile, outfile)
+        elif 'keep_5end' in task_params:
+          self.keep_5end(task_params, infile, outfile)
+        R1_files.append(outfile)
+
+      # output
+      output = {'sample_name': item['sample_name'],}
+      if R1_files:
+        output['R1'] = R1_files
       self.params['output'].append(output)
-    print('skipp adapter trimming.')
 
   def trim_3end_adapter(self, task_params, infile:str, outfile:str):
     info = {'total_reads': 0, 'trimmed_reads': 0, 'short_trimmed_reads': 0}
@@ -55,3 +60,17 @@ class TrimAdapter:
     print(info)
     return info
   
+  def keep_5end(self, task_params, infile, outfile):
+    '''
+    trim fixed length from 3-end
+    '''
+    info = {'total_reads': 0, 'trimmed_reads': 0}
+    pos = int(task_params.get('keep_5end'))
+    with open(outfile, 'w') as out_handle:
+      fq_iter = FASTQ(infile).parse_records()
+      for rec in fq_iter:
+        info['total_reads'] += 1
+        rec = rec[:pos+1]
+        info['trimmed_reads'] += 1
+        SeqIO.write(rec, out_handle, 'fastq')
+    return info

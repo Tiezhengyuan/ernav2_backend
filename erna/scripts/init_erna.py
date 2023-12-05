@@ -5,11 +5,10 @@ example:
 '''
 import sys
 from rna_seq.models import *
-from process.process_raw_data import ProcessRawData
 from process.process_genome import ProcessGenome
 
 
-enter = 12
+enter = 1
 run = False
 print('\n\n###Begin to refresh/update database###\n\n')
 
@@ -62,6 +61,7 @@ if enter == 6 or run:
 
 if enter == 7 or run:
     print('refresh RawData...')
+    from process.process_raw_data import ProcessRawData
     # Delete all data in RawData, Sample, SampleFile, SampleProject
     res = ProcessRawData().reset_sample()
     run=True

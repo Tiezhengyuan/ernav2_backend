@@ -36,7 +36,6 @@ class ExecuteTasks:
             if self.skip_task(params):
                 return False
             
-            # print('\n\n\n@@@@@@@@@', i, [index[1] for index in self.pool])
             # postpone the task if parent tasks are not ready
             if 0 < i < len(self.pool) - 1:
                 if self.postpone_task(params, i):
@@ -166,8 +165,10 @@ class ExecuteTasks:
 
         # Genome
         if project.genome:
-            params['genome'] = Genome.objects.get(pk=project.genome.pk)
-            params['annotations'] = Annotation.objects.filter(genome=params['genome'])
+            genome = Genome.objects.get(pk=project.genome.pk)
+            params['genome'] = genome
+            params['annot_genomic_dna'] = Annotation.objects.genome_annot(genome, 'fna')
+            params['annot_genomic_gtf'] = Annotation.objects.genome_annot(genome, 'gtf')
         return params
 
     def combine_parents_output(self, parents:list) -> list:

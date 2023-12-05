@@ -29,6 +29,18 @@ class AnnotationManager(models.Manager):
         file_name = file_name.replace(f"{genome.version}_", "")
         return file_name.split('_', 1)[-1]
 
+    def genome_annot(self, genome:Genome, file_format:str):
+        '''
+        retrieve annotation of genome DNA in FASTA
+        '''
+        annotations = self.filter(genome=genome)
+        for annot in annotations:
+            if annot.annot_type == 'genomic' and \
+                annot.file_format == file_format:
+                return annot
+        return None
+
+
 class Annotation(models.Model):
     genome = models.ForeignKey(
         'rna_seq.Genome',

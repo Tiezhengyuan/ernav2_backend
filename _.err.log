@@ -1,7 +1,5 @@
-Building a SMALL index
-Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.3.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.3.bt2
-Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.4.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.4.bt2
-Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.1.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.1.bt2
-Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.2.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.2.bt2
-Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.rev.1.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.rev.1.bt2
-Renaming /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.rev.2.bt2.tmp to /home/yuan/bio/references/RNACentral/lncrna/index/bowtie_2.5.2_Homo_sapiens.rev.2.bt2
+
+EXITING: FATAL INPUT ERROR: unrecognized parameter name "/home/yuan/bio/references/NCBI/genome/Homo_sapiens/GCF_000001405.40/GCF_000001405.40_GRCh38.p14_genomic.fna" in input "Command-Line-Initial"
+SOLUTION: use correct parameter name (check the manual)
+
+Dec 04 03:51:54 ...... FATAL ERROR, exiting

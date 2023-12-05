@@ -3,6 +3,7 @@ assembly genome or transcriptome
 '''
 import os
 from .process import Process
+from .process_cmd import ProcessCMD
 
 class Assemble:
   def __init__(self, params:dict):
@@ -14,56 +15,26 @@ class Assemble:
     '''
     for parent_output in self.params['parent_outputs']:
       # prepare commands
+      sample_name = parent_output.get('sample_name', '_')
+      output_prefix = os.path.join(self.params['output_dir'], sample_name)
+      input_data = {
+        'sample_name': sample_name,
+        'sorted_bam_file': parent_output['sorted_bam_file'],
+        'output_prefix': output_prefix,
+        'annotation_file': self.annotation_file(),
+      }
       if self.params['tool'].tool_name == 'stringtie':
-        self.cmd_stringtie(parent_output)
-      elif self.params['tool'].tool_name == 'cufflinks':
-        self.cmd_cufflinks(parent_output)
+        self.params['cmd'], output_data = ProcessCMD.stringtie_assemble(\
+          self.params['tool'], input_data)
+
+      # 
+      self.params['force_run'] = False if os.path.isfile(output_data['gtf_file']) else True
       Process.run_subprocess(self.params)
+
+      # update output
+      self.params['output'].append(output_data)
     return None
 
-  def cmd_stringtie(self, parent_output:dict):
-    '''
-    stringtie <in.bam ..>  [options]
-    '''
-    sample_name = parent_output.get('sample_name', '_')
-    output_prefix = os.path.join(self.params['output_dir'], sample_name)
-    gtf_file = output_prefix + '.gtf'
-    self.params['cmd'] = [
-      self.params['tool'].exe_path,
-      parent_output['sorted_bam_file'],
-      '-o', gtf_file,
-    ]
-    # append reference annotation file in gtf/gff
-    annot_file = self.annotation_file()
-    ballgown_file, abundance_file, covered_file = None, None, None
-    if annot_file:
-      ballgown_file = output_prefix + '.ctab'
-      abundance_file = output_prefix + '.abund'
-      covered_file = output_prefix + '.cov'
-      self.params['cmd'] += [
-        '-G', annot_file,
-        '-e', '-b', ballgown_file,
-        '-A', abundance_file,
-        '-C', covered_file,
-      ]
-    self.params['force_run'] = False if os.path.isfile(gtf_file) else True
-
-
-    # update output
-    self.params['output'].append({
-      'annotation_file': annot_file,
-      'cmd': ' '.join(self.params['cmd']),
-      'sample_name': sample_name,
-      'output_prefix': output_prefix,
-      'gtf_file': gtf_file,
-      'ballgown_file': ballgown_file,
-      'abundance_file': abundance_file,
-      'covered_file': covered_file,
-    })
-
-
-  def cmd_cufflinks(self, parent_output_item:dict):
-    pass
 
   def annotation_file(self):
     '''
@@ -76,12 +47,11 @@ class Assemble:
       return task_params['annotation_file']
     
     # secondly try Annotation with genome
-    for annot in self.params['annotations']:
-      if annot.annot_type == 'genomic' and annot.file_format in ('gff', 'gtf'):
-        self.params['task'].update_params({
-          'annotation_file': annot.file_path,
-        })
-        return annot.file_path
+    if self.params['annot_genomic_gtf']:
+      self.params['task'].update_params({
+        'annotation_file': self.params['annot_genomic_gtf'].file_path,
+      })
+      return self.params['annot_genomic_gtf'].file_path
     return None
 
 

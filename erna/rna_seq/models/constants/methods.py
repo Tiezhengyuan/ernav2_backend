@@ -7,7 +7,7 @@ METHODS = [
     "method_name": "align_transcriptome",
     "description": "RNA-seq",
     "child_method": ["assemble_transcripts",],
-    "exe_name": ["tophat2", "hisat2", "minimap2",],
+    "exe_name": ["tophat2", "hisat2", "minimap2", 'STAR'],
   },
   {
     "method_name": "align_genome",
@@ -18,20 +18,20 @@ METHODS = [
   {
     "method_name": "align_short_reads",
     "description": "",
-    "child_method": ["count_reads",],
+    "child_method": ["count_reads"],
     "exe_name": ["bowtie2",],
   },
   {
     "method_name": "align_long_reads",
     "description": "",
-    "child_method": ["count_reads",],
+    "child_method": ["count_reads"],
     "exe_name": ["minimap2",],
   },
   {
     "method_name": "build_genome_index",
     "description": "build index against genome DNA for sequencing alignment",
     "child_method": ["align_transcriptome", "align_genome",],
-    "exe_name": ["bowtie2-build", "hisat2-build",],
+    "exe_name": ["bowtie2-build", "hisat2-build", 'STAR'],
   },
   {
     "method_name": "build_index",
@@ -42,7 +42,7 @@ METHODS = [
   {
     "method_name": "assemble_transcripts",
     "description": "assemble transcripts after transcripts alignment",
-    "child_method": ["merge_transcripts",],
+    "child_method": ["merge_transcripts", 'count_reads'],
     "exe_name": ["stringtie"],
   },
   {
@@ -60,7 +60,7 @@ METHODS = [
   {
     "method_name": "merge_transcripts",
     "description": "merge transcripts into a non-redundant set of transcripts",
-    "child_method": ["count_reads",],
+    "child_method": [],
     "exe_name": ["stringtie"],
   },
   {
@@ -78,18 +78,8 @@ METHODS = [
   {
     "method_name": "convert_format",
     "description": "sam-bam",
-    "child_method": [],
+    "child_method": ['assemble_transcripts'],
     "exe_name": ["samtools"],
   },
 ]
 
-ADAPTERS = {
-  'NEB': {
-    'adapter_3end': 'AGATCGGAAGAGCACACGTCT',
-    'adapter_5end': 'GTTCAGAGTTCTACAGTCCGACGATC',    
-  },
-  'Illumina': {
-    'adapter_5end': 'GTTCAGAGTTCTACAGTCCGACGATC',
-    'adapter_3end': 'TGGAATTCTCGGGTGCCAAGG', 
-  },
-}

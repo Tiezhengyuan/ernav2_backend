@@ -1,24 +1,25 @@
 '''
 store external tools
 '''
+import json
 import os
-import sys
 from django.db import models
 from django.conf import settings
-from pipelines.utils.dir import Dir
 
-TOOL_EXE = {
-    'bowtie': ['bowtie2', 'bowtie2-build', 'bowtie2-inspect',
-        'bowtie', 'bowtie-build', 'bowtie-inspect'],
-    'fastqc': ['fastqc',],
-    'hisat2': ['hisat2', 'hisat2-build', 'hisat2-inspect'],
-    'minimap2': ['minimap2',],
-    'samtools': ['samtools',],
-    'stringtie': ['stringtie'],
-    'tophat': ['tophat'],
-}
+from .constants.tool_exe import TOOL_EXE
+
 
 class ToolManager(models.Manager):
+    def scan_dir(self):
+        res = []
+        externals_dir = settings.EXTERNALS_DIR
+        for tool_name in os.listdir(externals_dir):
+            versions_path = os.path.join(externals_dir, tool_name)
+            for version in os.listdir(versions_path):
+                tool_path = os.path.join(versions_path, version)
+                res.append((tool_name, version, tool_path))
+        return res
+
     def refresh(self):
         '''
         refresh table Tool
@@ -27,24 +28,24 @@ class ToolManager(models.Manager):
         self.all().delete()
         # add tools
         res = []
-        externals_dir = settings.EXTERNALS_DIR
-        for tool_name in os.listdir(externals_dir):
-            versions_path = os.path.join(externals_dir, tool_name)
-            for version in os.listdir(versions_path):
-                tool_path = os.path.join(versions_path, version)
-                for exe_name in TOOL_EXE.get(tool_name, []):
-                    exe_path = os.path.join(tool_path, exe_name)
-                    if os.path.isfile(exe_path):
-                        tool = self.update_or_create(
-                            tool_name=tool_name,
-                            version=version,
-                            exe_name=exe_name,
-                            defaults = {
-                                'tool_path': tool_path,
-                                'exe_path': exe_path,
-                            }
-                        )
-                        res.append(tool)
+        for tool_name, version, tool_path in self.scan_dir():
+            _tool_exe = TOOL_EXE.get(tool_name, [])
+            for exe_name in _tool_exe:
+                exe_path = os.path.join(tool_path, exe_name['name'])
+                params = exe_name.get('params')
+                if os.path.isfile(exe_path):
+                    defaults = {
+                        'tool_path': tool_path,
+                        'exe_path': exe_path,
+                        'default_params': json.dumps(params) if params else None,
+                    }
+                    tool = self.update_or_create(
+                        tool_name=tool_name,
+                        version=version,
+                        exe_name=exe_name['name'],
+                        defaults = defaults
+                    )
+                    res.append(tool)
         return res
 
     def get_tool(self, exe_name:str, version:str=None):
