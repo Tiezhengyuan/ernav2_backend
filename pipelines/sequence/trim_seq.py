@@ -2,8 +2,8 @@
 trim adapter, index, or polyA
 '''
 from .sequence import Sequence
-from match.shift import Shift
-from match.distance import Distance
+from pipelines.match.shift import Shift
+from pipelines.match.distance import Distance
 
 class TrimSeq:
     def __init__(

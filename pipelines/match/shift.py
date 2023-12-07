@@ -3,7 +3,7 @@ exact match pattern:
 shift-and:
 shift-or:
 '''
-from sequence.sequence import Sequence
+from pipelines.sequence.sequence import Sequence
 
 class Shift:
   def __init__(self, target_seq:str):

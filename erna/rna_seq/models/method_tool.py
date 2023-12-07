@@ -5,7 +5,7 @@ from django.db import models
 
 from .tool import Tool
 from .method import Method
-from .constants import METHODS
+from rna_seq.constants import METHODS
 
 
 class MethodToolManager(models.Manager):

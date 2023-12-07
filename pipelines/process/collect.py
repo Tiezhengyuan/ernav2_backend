@@ -8,7 +8,7 @@ import pysam
 from .process import Process
 
 from rna_seq.models import SampleProject
-from utils.utils import Utils
+from pipelines.utils.utils import Utils
 
 class Collect:
   def __init__(self, params:dict):

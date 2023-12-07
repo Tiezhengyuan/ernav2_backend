@@ -2,33 +2,47 @@
 trim adapter for miRNA-seq
 '''
 from Bio import SeqIO
+import json
 import os
 
-from sequence.trim_seq import TrimSeq
-from biofile.fastq import FASTQ
+from rna_seq.constants import TRIM
+from pipelines.sequence.trim_seq import TrimSeq
+from pipelines.biofile.fastq import FASTQ
 
 class TrimAdapter:
   def __init__(self, params:dict):
     self.params = params
 
   def __call__(self):
+    stat = []
     task_params = self.params['task'].get_params()
     for item in self.params['parent_outputs']:
       # R1
       R1_files = []
       for infile in item.get('R1', []):
         outfile = os.path.join(self.params['output_dir'], os.path.basename(infile))
-        if 'adapter_3end' in task_params:
-          self.trim_3end_adapter(task_params, infile, outfile)
-        elif 'keep_5end' in task_params:
-          self.keep_5end(task_params, infile, outfile)
         R1_files.append(outfile)
+        if os.path.isfile(outfile):
+          break
+        info = {
+          'sample_name': item['sample_name'],
+          'outfile': outfile,
+        }
+        res = {}
+        if 'adapter_3end' in task_params:
+          res = self.trim_3end_adapter(task_params, infile, outfile)
+        elif 'keep_5end' in task_params:
+          res = self.keep_5end(task_params, infile, outfile)
+        info.update(res)
+        stat.append(info)
 
       # output
       output = {'sample_name': item['sample_name'],}
       if R1_files:
         output['R1'] = R1_files
       self.params['output'].append(output)
+    with open(os.path.join(self.params['output_dir'], 'stat.json'), 'w') as f:
+      json.dump(stat, f, indent=4)
 
   def trim_3end_adapter(self, task_params, infile:str, outfile:str):
     '''
@@ -69,7 +83,7 @@ class TrimAdapter:
     trim fixed length from 3-end
     '''
     info = {'total_reads': 0, 'trimmed_reads': 0}
-    pos = 12 # minimum kept length
+    pos = TRIM['min_len'] # minimum kept length
     try:
       pos = int(task_params.get('keep_5end'))
     except Exception as e:
@@ -80,7 +94,7 @@ class TrimAdapter:
       fq_iter = FASTQ(infile).parse_records()
       for rec in fq_iter:
         info['total_reads'] += 1
-        if pos > 12:
+        if pos >= TRIM['min_len']:
           rec = rec[:pos+1]
           info['trimmed_reads'] += 1
         SeqIO.write(rec, out_handle, 'fastq')

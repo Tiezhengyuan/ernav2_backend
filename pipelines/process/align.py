@@ -6,7 +6,7 @@ from django.conf import settings
 
 import rna_seq.models
 from rna_seq.models import Genome, Reference, Tool
-from utils.dir import Dir
+from pipelines.utils.dir import Dir
 from .process import Process
 from .process_cmd import ProcessCMD
 
@@ -161,7 +161,7 @@ class Align:
       sample_name = input_data['sample_name']
       output_prefix = os.path.join(self.params['output_dir'], sample_name)
       input_data['index_path'] = self.get_index_path()
-      input_data['output_prefix'] = output_prefix,
+      input_data['output_prefix'] = output_prefix
 
       cmd, output_data = [], {}
       exe_name = self.params['tool'].exe_name

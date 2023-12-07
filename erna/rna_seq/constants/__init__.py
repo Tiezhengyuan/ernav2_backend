@@ -1,3 +1,3 @@
 from .methods import METHODS
-from .adapters import ADAPTERS
+from .trim import TRIM
 from .tool_exe import TOOL_EXE

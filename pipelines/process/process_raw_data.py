@@ -37,8 +37,6 @@ class ProcessRawData:
               raw_data[batch].append((root, file))
         else:
           raw_data['UN'].append((rawdata_dir, batch))
-    # for k, v in raw_data.items():
-    #   print(f"{k}:\t{v}\n\n")
     return raw_data
   
   def refresh_raw_data(self):

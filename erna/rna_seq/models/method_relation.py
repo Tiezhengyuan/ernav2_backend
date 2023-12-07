@@ -3,7 +3,7 @@
 '''
 from django.db import models
 from .method import Method
-from .constants import METHODS
+from rna_seq.constants import METHODS
 
 
 class MethodRelationManager(models.Manager):

@@ -10,7 +10,7 @@ from rna_seq.models import Genome, Reference
 from pipelines.process.process_genome import ProcessGenome
 from pipelines.process.process_ncrna import ProcessNCRNA
 
-enter = 11
+enter = 7
 run = False
 print('\n\n###Begin to refresh/update database###\n\n')
 
@@ -37,10 +37,20 @@ if enter == 4 or run:
     run=True
 
 if enter == 5 or run:
-    # print('load miRNA...')
-    ProcessNCRNA().load_mirbase(False)
-    print('Process long non-coding RNA...')
-    ProcessNCRNA().load_lncrnadb(False)
     print('Process piwiRNA...')
     ProcessNCRNA().load_pirbase(False)
     run=True
+
+if enter == 6 or run:
+    print('load miRNA...')
+    ProcessNCRNA().load_mirbase(False)
+    run=True
+
+if enter == 7 or run:
+    print('Process long non-coding RNA...')
+    ProcessNCRNA().load_lncrnadb(False)
+    run=True
+
+
+
+

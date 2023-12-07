@@ -14,9 +14,9 @@ class ProcessCMD:
         aligner: hisat2, bowtie2 etc.
         '''
         cmd = [
-          tool.exe_path,
-          input_data['index_path'],
-          input_data['fa_path'],
+            tool.exe_path,
+            input_data['fa_path'],
+            input_data['index_path'],
         ]
         output = {
             'cmd': ' '.join(cmd),
@@ -39,8 +39,8 @@ class ProcessCMD:
             if input_data.get('R2'):
                 cmd += ['-2', ','.join(input_data['R2'])]
 
-        sam_file = f"{input_data['output_prefix']}.sam"
-        cmd += ['-S', input_data['sam_file']]
+        sam_file = input_data['output_prefix'] + '.sam'
+        cmd += ['-S', sam_file]
         
         output_data = {
             'sample_name': input_data['sample_name'],
@@ -57,8 +57,8 @@ class ProcessCMD:
         ]
         if input_data.get('R1') and input_data.get('R2'):
             cmd += [
-            '-1', ','.join(input_data['R1']),
-            '-2', ','.join(input_data['R2']),
+                '-1', ','.join(input_data['R1']),
+                '-2', ','.join(input_data['R2']),
             ]
         elif input_data.get('bam'):
             cmd += ['-b', input_data['bam']]
@@ -68,8 +68,9 @@ class ProcessCMD:
             raw_data = input_data.get('R1', []) + input_data.get('R2', [])
             cmd += ['-U', ','.join(raw_data)]
 
-        sam_file = f"{input_data['output_prefix']}.sam"
-        cmd += ['-S', input_data['sam_file']]
+        sam_file = input_data['output_prefix'] + '.sam'
+        # suppress @SQ header
+        cmd += ['-S', sam_file]
         
         output_data = {
             'sample_name': input_data['sample_name'],

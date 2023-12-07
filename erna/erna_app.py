@@ -12,10 +12,8 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'erna.settings')
 django.setup()
 
-from pipelines.process.process_raw_data import ProcessRawData
-from pipelines.process.process_genome import ProcessGenome
-from pipelines.process.process_ncrna import ProcessNCRNA
-from pipelines.process.execute_tasks import ExecuteTasks
+from pipelines.process import ProcessRawData, ProcessGenome, \
+  ProcessNCRNA, ExecuteTasks
 
 def main(args):
   if len(args) < 1:

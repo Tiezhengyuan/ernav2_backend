@@ -122,7 +122,8 @@ print('Add Task Tree...')
 task_pair = [
     ('T00', 'T01'), ('T00', 'T02'), ('T00', 'T07'),
     ('T01', 'T03'), ('T02', 'T03'),
-    ('T03', 'T04'), ('T03', 'T05'), ('T05', 'T06'),
+    ('T03', 'T04'), ('T03', 'T05'),
+    ('T05', 'T06'),
 ]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
 print(tasks_tree)

@@ -5,7 +5,8 @@ from django.db import models
 from django.conf import settings
 import os
 
-STANDER_FORMAT = {
+# file extension ~ standard format
+STANDERD_FORMAT = {
   'FQ': 'FSTQ',
   'FASTQ': 'FASTQ',
   'FA': 'FASTA', 
@@ -15,7 +16,7 @@ STANDER_FORMAT = {
   'GBK': 'GBK',
   'GTF': 'GTF',
   'GFF': 'GFF',
-  'GFF3': 'GFF3',
+  'GFF3': 'GFF',
 }
 
 class RawDataManager(models.Manager):
@@ -25,7 +26,7 @@ class RawDataManager(models.Manager):
   def detect_file_format(self, file_name:str):
     split_tup = os.path.splitext(file_name)
     file_type = split_tup[1][1:].upper() if len(split_tup) > 1 else ''
-    return STANDER_FORMAT.get(file_type, "UN")
+    return STANDERD_FORMAT.get(file_type, "UN")
   
   def detect_file_type(self, file_name:str, file_format:str=None):
     if file_format == 'FASTQ':

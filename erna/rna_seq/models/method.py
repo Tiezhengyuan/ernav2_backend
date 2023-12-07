@@ -1,9 +1,9 @@
 '''
-
+model: Method
 '''
 from django.db import models
 
-from .constants import METHODS
+from rna_seq.constants import METHODS
 
 
 class MethodManager(models.Manager):

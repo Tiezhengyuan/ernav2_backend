@@ -6,7 +6,7 @@ import os
 from django.db import models
 from django.conf import settings
 
-from .constants import TOOL_EXE
+from rna_seq.constants import TOOL_EXE
 
 
 class ToolManager(models.Manager):
