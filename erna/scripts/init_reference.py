@@ -10,47 +10,43 @@ from rna_seq.models import Genome, Reference
 from pipelines.process.process_genome import ProcessGenome
 from pipelines.process.process_ncrna import ProcessNCRNA
 
-enter = 7
-run = False
+
 print('\n\n###Begin to refresh/update database###\n\n')
 
-
-if enter == 1 or run:
-    print('refresh Specie and Genome...')
-    species = ProcessGenome('NCBI').retrieve_assembly_summary()
-    run=True
-
-if enter == 2 or run:
-    print('refresh Genome...')
-    genomes = Genome.objects.refresh()
-    run=True
-
-if enter == 3 or run:
-    print("Download default genome...")
-    ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_000001405.40').download_genome()
-    ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').download_genome()
-    run=True
-
-if enter == 4 or run:
-    print('refresh Reference...')
-    Reference.objects.refresh()
-    run=True
-
-if enter == 5 or run:
-    print('Process piwiRNA...')
-    ProcessNCRNA().load_pirbase(False)
-    run=True
-
-if enter == 6 or run:
-    print('load miRNA...')
-    ProcessNCRNA().load_mirbase(False)
-    run=True
-
-if enter == 7 or run:
-    print('Process long non-coding RNA...')
-    ProcessNCRNA().load_lncrnadb(False)
-    run=True
-
-
+start_end = '10'.split('-')
+start, end = int(start_end[0]), int(start_end[-1])
+pool = range(start, end + 1)
+for enter in pool:
+    match enter:
+        case 1:
+            print('refresh Specie and Genome...')
+            species = ProcessGenome('NCBI').retrieve_assembly_summary()
+        case 2:
+            print('refresh Genome...')
+            genomes = Genome.objects.refresh()
+        case 3:
+            print("Download human genome from NCBI...")
+            ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_000001405.40').download_genome()
+        case 4:
+            print("Download human genome from NCBI...")
+            ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').download_genome()
+        case 5:
+            print('refresh Reference...')
+            Reference.objects.refresh()
+        case 6:
+            print('Process piwiRNA...')
+            ProcessNCRNA().load_piwirna()
+        case 7:
+            print('load miRNA...')
+            ProcessNCRNA().load_mirna()
+        case 8:
+            print('Process long non-coding RNA...')
+            ProcessNCRNA().load_lncrna()
+        case 9:
+            print('Process long rRNA...')
+            ProcessNCRNA().load_rrna()
+        case 10:
+            print('Process long tRNA...')
+            ProcessNCRNA().load_trna()
 
 

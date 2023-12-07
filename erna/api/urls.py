@@ -16,14 +16,13 @@ router.register('method', MethodViewSet, basename='method')
 router.register('method_relation', MethodRelationViewSet, basename='method_relation')
 router.register('method_tool', MethodToolViewSet, basename='method_tool')
 
-router.register('noncoding_rna', NonCodingRNAViewSet, basename='noncoding_rna')
-
 router.register('pipeline', PipelineViewSet, basename='pipeline')
 router.register('project', ProjectViewSet, basename='project')
 router.register('project_user', ProjectUserViewSet, basename='project_user')
 
 router.register('raw_data', RawDataViewSet, basename='raw_data')
 router.register('reference', ReferenceViewSet, basename='reference')
+router.register('rna', RNAViewSet, basename='rna')
 
 router.register('sample', SampleViewSet, basename='sample')
 router.register('sample_file', SampleFileViewSet, basename='sample_file')
