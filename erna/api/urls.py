@@ -7,9 +7,13 @@ from api.views import *
 
 router = routers.DefaultRouter(trailing_slash=True)
 
+router.register('aligner_index', AlignerIndexViewSet, basename='aligner_index')
 router.register('annotation', AnnotationViewSet, basename='annotation')
+
 router.register('celery_task_result', TaskResultViewSet, basename='celery_task_result')
+
 router.register('execution_tree', ExecutionTreeViewSet, basename='execution_tree')
+
 router.register('genome', GenomeViewSet, basename='genome')
 
 router.register('method', MethodViewSet, basename='method')
@@ -21,7 +25,6 @@ router.register('project', ProjectViewSet, basename='project')
 router.register('project_user', ProjectUserViewSet, basename='project_user')
 
 router.register('raw_data', RawDataViewSet, basename='raw_data')
-router.register('reference', ReferenceViewSet, basename='reference')
 router.register('rna', RNAViewSet, basename='rna')
 
 router.register('sample', SampleViewSet, basename='sample')
@@ -36,7 +39,6 @@ router.register('task_tree', TaskTreeViewSet, basename='task_tree')
 router.register('tool', ToolViewSet, basename='tool')
 
 router.register('user', CustomUserViewSet, basename='user')
-
 
 
 urlpatterns = [

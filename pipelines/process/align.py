@@ -5,7 +5,7 @@ import os
 from django.conf import settings
 
 import rna_seq.models
-from rna_seq.models import Genome, Reference, Tool
+from rna_seq.models import Genome, AlignerIndex, Tool
 from pipelines.utils.dir import Dir
 from .process import Process
 from .process_cmd import ProcessCMD
@@ -136,8 +136,8 @@ class Align:
       if self.no_index_files(index_dir_path):
         Process.run_subprocess(self.params)
 
-      # update annot.Reference
-      Reference.objects.load_reference(tool, self.params['annot_genomic_dna'], index_path)
+      # update annot.AlignerIndex
+      AlignerIndex.objects.load_reference(tool, self.params['annot_genomic_dna'], index_path)
       
       # update Task
       self.params['output'].append(output_data)

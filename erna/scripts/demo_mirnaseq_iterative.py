@@ -59,7 +59,7 @@ tasks_data = [
             'version': '2.5.2',
         },
         'params': {
-            'model': 'NonCodingRNA',
+            'model': 'RNA',
             'query': {
                 'specie': specie_name,
                 'rna_type': 'miRNA_mature',
@@ -89,7 +89,7 @@ tasks_data = [
             'version': '2.5.2',
         },
         'params': {
-            'model': 'NonCodingRNA',
+            'model': 'RNA',
             'query': {
                 'specie': specie_name,
                 'rna_type': 'piwiRNA',
@@ -118,7 +118,7 @@ tasks_data = [
             'version': '2.5.2',
         },
         'params': {
-            'model': 'NonCodingRNA',
+            'model': 'RNA',
             'query': {
                 'specie': specie_name,
                 'rna_type': 'lncRNA',

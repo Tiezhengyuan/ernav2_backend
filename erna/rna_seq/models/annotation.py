@@ -1,7 +1,11 @@
 import os
 from django.db import models
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
+
 from .genome import Genome
+from .aligner_index import AlignerIndex
+from .tool import Tool
 
 class AnnotationManager(models.Manager):
     def load_annotations(self, genome, local_files):
@@ -42,12 +46,12 @@ class AnnotationManager(models.Manager):
 
 
 class Annotation(models.Model):
+    file_path = models.CharField(max_length = 256)
     genome = models.ForeignKey(
         'rna_seq.Genome',
         related_name = 'annots',
         on_delete = models.CASCADE
     )
-    file_path = models.CharField(max_length = 256)
     file_format = models.CharField(
         max_length = 8,
         blank = True,
@@ -58,12 +62,21 @@ class Annotation(models.Model):
         null=True,
         blank=True
     )
+    indexes = GenericRelation(AlignerIndex)
 
     objects = AnnotationManager()
 
     class Meta:
         app_label = 'rna_seq'
-        unique_together = ('genome', 'file_path')
         ordering = ('genome', 'file_path')
     
-
+    def get_index_path(self, tool_query:dict):
+        '''
+        args: tool_query: {'exec_name':<>, 'version':<>}
+        '''
+        tool = Tool.objects.filter(**tool_query).first()
+        if tool:
+            for aligner_index in self.indexes.all():
+                if aligner_index.tool == tool:
+                    return aligner_index.index_path
+        return None

@@ -5,7 +5,7 @@ example:
 '''
 # import sys
 # print(sys.path)
-from rna_seq.models import Genome, Reference
+from rna_seq.models import Genome, AlignerIndex
 
 from pipelines.process.process_genome import ProcessGenome
 from pipelines.process.process_ncrna import ProcessNCRNA
@@ -13,7 +13,7 @@ from pipelines.process.process_ncrna import ProcessNCRNA
 
 print('\n\n###Begin to refresh/update database###\n\n')
 
-start_end = '10'.split('-')
+start_end = '5'.split('-')
 start, end = int(start_end[0]), int(start_end[-1])
 pool = range(start, end + 1)
 for enter in pool:
@@ -22,17 +22,17 @@ for enter in pool:
             print('refresh Specie and Genome...')
             species = ProcessGenome('NCBI').retrieve_assembly_summary()
         case 2:
-            print('refresh Genome...')
-            genomes = Genome.objects.refresh()
-        case 3:
             print("Download human genome from NCBI...")
             ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_000001405.40').download_genome()
-        case 4:
+        case 3:
             print("Download human genome from NCBI...")
             ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').download_genome()
+        case 4:
+            print('refresh Genome...')
+            genomes = Genome.objects.refresh()
         case 5:
-            print('refresh Reference...')
-            Reference.objects.refresh()
+            print('refresh index...')
+            AlignerIndex.objects.refresh()
         case 6:
             print('Process piwiRNA...')
             ProcessNCRNA().load_piwirna()

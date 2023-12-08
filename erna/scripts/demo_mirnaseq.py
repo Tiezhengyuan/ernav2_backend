@@ -58,7 +58,7 @@ tasks_data = [
             'version': '2.5.2',
         },
         'params': {
-            'model': 'NonCodingRNA',
+            'model': 'RNA',
             'query': {
                 'specie': "Homo_sapiens",
                 'database': 'miRBase',

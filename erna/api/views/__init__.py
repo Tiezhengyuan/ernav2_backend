@@ -13,7 +13,7 @@ from .task_tree_viewset import *
 from .specie_viewset import *
 from .annotation_viewset import *
 from .genome_viewset import *
-from .reference_viewset import *
+from .aligner_index_viewset import *
 from .rna_viewset import *
 
 from .sample_viewset import *

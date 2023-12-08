@@ -41,6 +41,16 @@ print(res)
 
 print('Add tasks...')
 specie_name = "Homo_sapiens"
+builder = {
+    'tool_name': 'bowtie',
+    'exe_name': 'bowtie2-build',
+    'version': '2.5.2',
+}
+aligner = {
+    'tool_name': 'bowtie',
+    'exe_name': 'bowtie2',
+    'version': '2.5.2',
+}
 tasks_data = [
     {
         'task_id': 'T01',
@@ -49,17 +59,13 @@ tasks_data = [
             'adapter_3end': 'AACTGTAGGCACCATCAAT',
         },
     },
-    # mature
+    # mature miRNA
     {
         'task_id': 'T02',
         'method_name': 'build_index',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2-build',
-            'version': '2.5.2',
-        },
+        'tool': builder,
         'params': {
-            'model': 'NonCodingRNA',
+            'model': 'RNA',
             'query': {
                 'specie': specie_name,
                 'rna_type': 'miRNA_mature',
@@ -70,11 +76,7 @@ tasks_data = [
     {
         'task_id': 'T03',
         'method_name': 'align_short_reads',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2',
-            'version': '2.5.2',
-        },
+        'tool': aligner,
     },
     {
         'task_id': 'T04',
@@ -84,13 +86,9 @@ tasks_data = [
     {
         'task_id': 'T05',
         'method_name': 'build_index',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2-build',
-            'version': '2.5.2',
-        },
+        'tool': builder,
         'params': {
-            'model': 'NonCodingRNA',
+            'model': 'RNA',
             'query': {
                 'specie': specie_name,
                 'rna_type': 'miRNA_hairpin',
@@ -100,11 +98,7 @@ tasks_data = [
     {
         'task_id': 'T06',
         'method_name': 'align_short_reads',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2',
-            'version': '2.5.2',
-        },
+        'tool': aligner,
     },
     {
         'task_id': 'T07',
@@ -114,13 +108,9 @@ tasks_data = [
     {
         'task_id': 'T08',
         'method_name': 'build_index',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2-build',
-            'version': '2.5.2',
-        },
+        'tool': builder,
         'params': {
-            'model': 'NonCodingRNA',
+            'model': 'RNA',
             'query': {
                 'specie': specie_name,
                 'rna_type': 'piwiRNA',
@@ -130,11 +120,7 @@ tasks_data = [
     {
         'task_id': 'T09',
         'method_name': 'align_short_reads',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2',
-            'version': '2.5.2',
-        },
+        'tool': aligner,
     },
     {
         'task_id': 'T10',
@@ -144,13 +130,9 @@ tasks_data = [
     {
         'task_id': 'T11',
         'method_name': 'build_index',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2-build',
-            'version': '2.5.2',
-        },
+        'tool': builder,
         'params': {
-            'model': 'NonCodingRNA',
+            'model': 'RNA',
             'query': {
                 'specie': specie_name,
                 'rna_type': 'lncRNA',
@@ -160,62 +142,134 @@ tasks_data = [
     {
         'task_id': 'T12',
         'method_name': 'align_short_reads',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2',
-            'version': '2.5.2',
-        },
+        'tool': aligner,
     },
     {
         'task_id': 'T13',
         'method_name': 'count_reads',
     },
-
+    # rRNA
     {
         'task_id': 'T14',
+        'method_name': 'build_index',
+        'tool': builder,
+        'params': {
+            'model': 'RNA',
+            'query': {'rna_type': 'rRNA',}
+        },
+    },
+    {
+        'task_id': 'T15',
+        'method_name': 'align_short_reads',
+        'tool': aligner,
+    },
+    {
+        'task_id': 'T16',
+        'method_name': 'count_reads',
+    },
+    # tRNA
+    {
+        'task_id': 'T17',
+        'method_name': 'build_index',
+        'tool': builder,
+        'params': {
+            'model': 'RNA',
+            'query': {'rna_type': 'tRNA',}
+        },
+    },
+    {
+        'task_id': 'T18',
+        'method_name': 'align_short_reads',
+        'tool': aligner,
+    },
+    {
+        'task_id': 'T19',
+        'method_name': 'count_reads',
+    },
+    # mRNA
+    {
+        'task_id': 'T20',
+        'method_name': 'build_index',
+        'tool': builder,
+        'params': {
+            'model': 'Annotation',
+            'query': {
+                'specie': specie_name,
+                'annot_type': 'rna',
+                'file_format': 'fna',
+                'genome': '?????'
+            }
+        },
+    },
+    {
+        'task_id': 'T21',
+        'method_name': 'align_short_reads',
+        'tool': aligner,
+    },
+    {
+        'task_id': 'T22',
+        'method_name': 'count_reads',
+    },
+
+    # merge all read counts
+    {
+        'task_id': 'T30',
         'method_name': 'merge_read_counts',
     },
 ]
-Task.objects.filter(project_id=project_id).delete()
+# Task.objects.filter(project_id=project_id).delete()
 tasks = Task.objects.load_tasks(project_id, tasks_data)
 print(tasks)
 
 
 '''
-           T00
-   /   /    |     \     \
-T01  T02   T05    T08    T11
-  \  /      /      /      /
-   T03     /      /      /
-    |     /      /      /
-   T04   /      /      /
-    |\  /      /      /
-    | T06     /      / 
-    |  |     /      /
-    | T07   /      /
-    |  |\  /      /
-    |  | T09     /
-    |  |  |     /
-    |  | T10   /
-    |  |  | \ /
-    |  |  | T12
-    |  |  |  |
-    |  |  | T13
-     \ \  / /
-        T14
+                T00
+   /   /    /    |    \   \   \  \
+T01  T02   T05   T08  T11 T14 T17 T20
+  \  /      /     |    |   |   |   |
+   T03     /      /    |   |   |   |
+    |     /      /     |   |   |   |
+   T04   /      /      /   |   |   |
+    |\  /      /      /    |   |   |
+    | T06     /      /     |   |   |
+    |  |     /      /      /   |   |
+    | T07   /      /      /    |   |
+    |  |\  /      /      /     |   |
+    |  | T09     /      /      /   |
+    |  |  |     /      /      /    |
+    |  | T10   /      /      /     |
+    |  |  | \ /      /      /      /
+    |  |  | T12     /      /      /
+    |  |  |  |     /      /      /
+    |  |  | T13   /      /      /
+    |  |  |  | \ /      /      /
+    |  |  |  | T15     /      /
+    |  |  |  |  |     /      /
+    |  |  |  | T16   /      /
+    |  |  |  |  | \ /      /
+    |  |  |  |  | T18     /
+    |  |  |  |  |  |     /
+    |  |  |  |  | T19   /
+    |  |  |  |  |  | \ /
+    |  |  |  |  |  | T21
+    |  |  |  |  |  |  |
+    |  |  |  |  |  | T22
+     \ \  \  |  / / /
+            T30
 '''
 print('Add Task Tree...')
 task_pair = [
     ('T00', 'T01'), ('T00', 'T02'), ('T00', 'T05'), ('T00', 'T08'), ('T00', 'T11'),
-    ('T01', 'T03'), ('T02', 'T03'),
-    ('T03', 'T04'),
-    ('T04', 'T06'), ('T05', 'T06'),
-    ('T06', 'T07'),
-    ('T07', 'T09'), ('T08', 'T09'),
-    ('T09', 'T10'),
-    ('T10', 'T12'), ('T11', 'T12'),
-    ('T12', 'T13'),
-    ('T04', 'T14'), ('T07', 'T14'), ('T10', 'T14'), ('T13', 'T14'),
+    # iterative
+    ('T01', 'T03'), ('T02', 'T03'), ('T03', 'T04'),
+    ('T04', 'T06'), ('T05', 'T06'), ('T06', 'T07'),
+    ('T07', 'T09'), ('T08', 'T09'), ('T09', 'T10'),
+    ('T10', 'T12'), ('T11', 'T12'), ('T12', 'T13'),
+    ('T13', 'T15'), ('T14', 'T15'), ('T15', 'T16'),
+    ('T16', 'T18'), ('T17', 'T18'), ('T18', 'T19'),
+    # merge
+    ('T04', 'T30'), ('T07', 'T30'), ('T10', 'T30'), ('T13', 'T30'),
+    ('T16', 'T30'), ('T19', 'T30'), ('T22', 'T30'),
 ]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
 print(tasks_tree)
