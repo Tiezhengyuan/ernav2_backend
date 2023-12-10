@@ -26,8 +26,7 @@ print(project)
 print('Load samples...')
 study_name = 'test_mrnaseq'
 sample_names = ['197_L1', '1014_L1', '1073_L1']
-sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
-    for s in sample_names]
+sample_data = [{'study_name':study_name, 'sample_name':s,} for s in sample_names]
 samples = Sample.objects.load_samples(user, sample_data)
 print(samples)
 
@@ -113,25 +112,29 @@ tasks_data = [
         }
     },
 ]
-Task.objects.filter(project=project).delete()
+# Task.objects.filter(project=project).delete()
 tasks = Task.objects.load_tasks(project_id, tasks_data)
 print(tasks)
 
 '''
     T00
-  /  |  \
-T07  |  T01
-     |  /
-     T02
-      |
-     T03
-      |
-     T04
-    /  \
-  T05  T06
+  /  | \
+T07  | T01
+     | /
+    T02
+     |
+    T03
+     |
+    T04
+    / \
+  T05 T06
 '''
-task_pair = [('T00','T02'), ('T00','T07'), ('T00','T01'), ('T01','T02'),
-    ('T02','T03'), ('T03','T04'), ('T04','T05'), ('T04','T06')]
+task_pair = [
+    ('T00','T02'), ('T00','T07'), ('T00','T01'),
+    ('T01','T02'), ('T02','T03'),
+    ('T03','T04'),
+    ('T04','T05'), ('T04','T06'),
+]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
 print(tasks_tree)
 

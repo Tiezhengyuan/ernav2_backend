@@ -5,6 +5,7 @@ from copy import deepcopy
 import os
 import pandas as pd
 import pysam
+from typing import Iterable
 from .process import Process
 
 from Bio import SeqIO
@@ -20,46 +21,89 @@ class Count:
 
     def merge_read_counts(self):
         '''
-        run method: merge read counts
+        method: merge_read_counts
         '''
-        if self.params['tool'].tool_name == 'stringtie':
-            self.stringtie_merge_read_counts()
+        rc_files = self.scan_rc_files()
+        # merge RC.txt if they exist
+        if rc_files.get('rc'):
+            self.merge_rc_files(rc_files['rc'])
+        if rc_files.get('stringtie'):
+            self.stringtie_merge(rc_files['stringtie'], 'TPM')
+            self.stringtie_merge(rc_files['stringtie'], 'FPKM')
         return None
-
-    def stringtie_merge_read_counts(self):
+    
+    def scan_rc_files(self) -> Iterable:
+        rc_files = {'rc': [], 'stringtie': []}
         for parent in self.params['parents']:
-            parent_output = parent.task_execution.get_output()
-            first = parent_output[0]
-            df_tpm, df_fpkm = self.read_abund(first['abundance_file'], first['sample_name'])
-        for item in parent_output[1:]:
-            df1, df2 = self.read_abund(item['abundance_file'], item['sample_name'])
-            df_tpm = pd.merge(df_tpm, df1, how='outer').fillna(0)
-            df_fpkm = pd.merge(df_fpkm, df2, how='outer').fillna(0)
-        #
-        tpm_file = os.path.join(self.params['output_dir'], 'TPM.txt')
-        df_tpm.to_csv(tpm_file, index=False, sep='\t')
-        fpkm_file = os.path.join(self.params['output_dir'], 'FPKM.txt')
-        df_fpkm.to_csv(fpkm_file, index=False, sep='\t')
-        self.params['output'].append({
-            'TPM': tpm_file,
-            'FPKM': fpkm_file,
-        })
+            outputs = parent.task_execution.get_output()
+            for output in outputs:
+                if 'abundance_file' in output:
+                    item = (output['sample_name'], output['abundance_file'])
+                    rc_files['stringtie'].append(item)
+                elif 'RC' in output:
+                    rc_files['rc'].append(output['RC'])
+        return rc_files
+                    
+   
+    def merge_rc_files(self, rc_files:list):
+        '''
+        merge multiple RC files into RC.txt
+        '''
+        df = pd.read_csv(rc_files[0], sep='\t', header=0)
+        if len(rc_files) > 1:
+            for rc_file in rc_files[1:]:
+                tmp = pd.read_csv(rc_file, sep='\t', header=0)
+                df = pd.merge(df, tmp, how='outer').fillna(0)
+        df = df.convert_dtypes()
+        outfile = os.path.join(self.params['output_dir'], 'RC.txt')
+        df.to_csv(outfile, sep='\t', index=False)
+        meta = {
+            'count': 'RC',
+            'outfile': outfile,
+        }
+        self.params['output'].append(meta)
+        return df
 
 
-    def read_abund(self, infile, sample_name):
-        df=pd.read_csv(infile, sep='\t')
-        # FPKM
-        df1=df.loc[:, df.columns != 'TPM']
-        df1.columns = df1.columns.str.replace('FPKM', sample_name)
-        # TPM
-        df2=df.loc[:, df.columns != 'FPKM']
-        df2.columns = df2.columns.str.replace('TPM', sample_name)
-        return df1, df2
+    def stringtie_merge(self, rc_files:list, rc_type:str):
+        '''
+        stringtie
+        rc_type: 'TPM' or 'FPKM'
+        '''
+        outfile = os.path.join(self.params['output_dir'], f'{rc_type}.txt')
+        meta = {
+            'count': rc_type,
+            'outfile': outfile,
+            'samples': [i[0] for i in rc_files],
+        }
+
+        sample_name, abund_file = rc_files.pop(0)
+        df = self.read_abund(sample_name, abund_file, rc_type)
+        for sample_name, abund_file in rc_files:
+            tmp = self.read_abund(sample_name, abund_file, rc_type)
+            df = pd.merge(df, tmp, how='outer').fillna(0)
+        # 
+        df = df.convert_dtypes()
+        df.to_csv(outfile, index=False, sep='\t')
+        meta['total'] = df[meta['samples']].sum().to_dict()
+        self.params['output'].append(meta)
+        return df
+
+    def read_abund(self, sample_name, abund_file, rc_type):
+        '''
+        stringtie
+        '''
+        col_names = ['Gene ID', 'Gene Name', 'Reference', 'Strand',	'Start', 'End', 'Coverage']
+        col_names.append(rc_type)
+        df = pd.read_csv(abund_file, sep='\t')
+        df = df[col_names]
+        df.columns = df.columns.str.replace(rc_type, sample_name)
+        return df
 
 
     def count_reads(self):
         '''
-        reads counting
+        reads counting from *.sam
         '''
         for parent in self.params['parents']:
             output = parent.task_execution.get_output()
@@ -84,7 +128,7 @@ class Count:
         collect unaligned files
         '''
         rc = {}
-        with open(unaligned_file, 'w') as outfile:
+        with open(unaligned_file, 'w') as f:
             infile = pysam.AlignmentFile(sam_file, 'r')
             for rec in infile.fetch():
                 if rec.reference_name:
@@ -99,38 +143,9 @@ class Count:
                             id=rec.qname,
                             description='',
                         )
-                        SeqIO.write(record, outfile, 'fasta')
+                        SeqIO.write(record, f, 'fasta')
         return rc
 
 
-    def merge_read_counts(self):
-        '''
-        reads counting
-        '''
-        rc_files, meta = [], {}
-        for parent in self.params['parents']:
-            output = parent.task_execution.get_output()
-            rc_files += [i['RC'] for i in output if 'RC' in i]
-        # merge RC files
-        if rc_files:
-            df = self.merge_rc_files(rc_files)
-            outfile = os.path.join(self.params['output_dir'], 'RC.txt')
-            df.to_csv(outfile, sep='\t', index=False)
-            meta['RC_file'] = outfile
-            # TODO: normalization
-
-        self.params['output'].append(meta)
-    
-    def merge_rc_files(self, rc_files):
-        '''
-        merge multiple RC files into RC.txt
-        '''
-        df = pd.read_csv(rc_files[0], sep='\t', header=0)
-        if len(rc_files) > 1:
-            for rc_file in rc_files[1:]:
-                tmp = pd.read_csv(rc_file, sep='\t', header=0)
-                df = pd.merge(df, tmp, how='outer').fillna(0)
-        df = df.convert_dtypes()
-        return df
 
   

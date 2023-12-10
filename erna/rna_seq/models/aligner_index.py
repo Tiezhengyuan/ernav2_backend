@@ -14,28 +14,14 @@ from .tool import Tool
 # from .annotation import Annotation
 from pipelines.utils.dir import Dir
 
+INFO_FILE = 'info.json'
 
 class AlignerIndexManager(models.Manager):
-  # def refresh_annotation(self):
-  #   res = []
-  #   annotations = Annotation.objects.filter(file_format='fna', annot_type='genomic')
-  #   tools = Tool.objects.filter(exe_name__contains='-build')
-  #   for annot in annotations:
-  #     fa_path = annot.file_path
-  #     index_dir_path = os.path.join(os.path.dirname(fa_path), 'index')
-  #     if os.path.isdir(index_dir_path):
-  #       for tool in tools:
-  #         index_path = os.path.join(index_dir_path, \
-  #           f"{tool.tool_name}_{tool.version}_")
-  #         if len(os.listdir(index_dir_path)) > 0:
-  #           obj = self.load_reference(tool, annot, index_path)
-  #           res.append(obj)
-  #   return res
   
   def scan_index_dir(self) -> Iterable:
     index_dir = settings.INDEX_DIR
     for name in os.listdir(index_dir):
-      infile = os.path.join(index_dir, name, 'info.json')
+      infile = os.path.join(index_dir, name, INFO_FILE)
       if os.path.isfile(infile):
         with open(infile, 'r') as f:
           yield (int(name), json.load(f))
@@ -54,11 +40,24 @@ class AlignerIndexManager(models.Manager):
       defaults = {
         'tool': Tool.objects.get(**info['tool']),
         'index_path': info['index_path'],
-        'content_object': this_model.objects.get(**info['model']),
+        'content_object': this_model.objects.get(**info['model_query']),
       }
       obj = self.update_or_create(id=digit_name, defaults=defaults)
       res.append(obj)
     return res
+
+  def new_index(self, tool, related_obj):
+    '''
+    Note: index_path is not defined in record when that is created
+    '''
+    obj = self.create(tool=tool, content_object=related_obj)
+    index_dir_path = os.path.join(settings.INDEX_DIR, str(obj.id))
+    Dir(index_dir_path).init_dir()
+    fa_path = related_obj.file_path
+    file_name, _ = os.path.splitext(os.path.basename(fa_path))
+    index_path = os.path.join(index_dir_path, file_name)
+    return obj, index_dir_path, index_path
+
 
 class AlignerIndex(models.Model):
   tool = models.ForeignKey(
@@ -67,6 +66,8 @@ class AlignerIndex(models.Model):
   )
   index_path = models.CharField(
     max_length=256,
+    null=True,
+    blank=True,
     verbose_name= 'index path used by aligner',
   )
   # related models: Annotation, RNA
@@ -82,5 +83,13 @@ class AlignerIndex(models.Model):
 
   class Meta:
     app_label = "rna_seq"
+    unique_together = ['tool', 'object_id']
     ordering = ["tool", "index_path"]
 
+  def update_index(self, meta_data:dict) -> None:
+    self.index_path = meta_data['index_path']
+    self.save()
+    # save info.json
+    outfile = os.path.join(meta_data['index_dir_path'], INFO_FILE)
+    with open(outfile, 'w') as f:
+      json.dump(meta_data, f, indent=4)

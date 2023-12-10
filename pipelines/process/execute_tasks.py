@@ -3,6 +3,7 @@ scheduled tasks:
 search table Task and detect tasks with 'is_ready'=True
 '''
 from copy import deepcopy
+import json
 import os
 from django.conf import settings
 
@@ -115,7 +116,8 @@ class ExecuteTasks:
             genome = Genome.objects.get(pk=params['project'].genome.pk)
             params['genome'] = genome
             params['annot_genomic_dna'] = Annotation.objects.genome_annot(genome, 'fna')
-            params['annot_genomic_gtf'] = Annotation.objects.genome_annot(genome, 'gtf')
+            #Note: GFF works, but GTF doesn't work  ???
+            params['annot_genomic_gtf'] = Annotation.objects.genome_annot(genome, 'gff')
         return params
 
     def combine_parents_output(self, parents:list) -> list:
@@ -210,6 +212,8 @@ class ExecuteTasks:
                 return Count(params).count_reads()
             case 'merge_read_counts':
                 return Count(params).merge_read_counts()
+            case 'merge_stringtie_read_counts':
+                return Count(params).merge_stringtie_read_counts()
 
             case 'quality_control':
                 from .quality_control import QualityControl
@@ -224,6 +228,11 @@ class ExecuteTasks:
         task_id = params['task'].task_id
         exec_id = params['task_execution'].id
         print(f"\nThe task {task_id} ends. execution={exec_id}\n\n")
+        # update db.TaskExecution
         params['task_execution'].end_execution(params.get('output'))
+        # save meta data into json
+        outfile = os.path.join(params['output_dir'], 'output.json')
+        with open(outfile, 'w') as f:
+            json.dump(params['output'], f, indent=4)
         return None
   

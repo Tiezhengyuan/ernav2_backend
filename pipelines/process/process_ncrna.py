@@ -25,18 +25,18 @@ class ProcessNCRNA:
         # download data
         local_path, local_files = ConnectMirbase().download_data(self.overwrite)
         # split data by specie and Update
-        for rna_type, fa_path in local_files:
+        for annot_type, fa_path in local_files:
             self.split_fasta(fa_path, self.desc_mirbase)
             # export to fasta
-            output_dir = os.path.join(local_path, rna_type)
+            output_dir = os.path.join(local_path, annot_type)
             Dir(output_dir).init_dir()
             meta = {
-                'rna_type': rna_type,
+                'annot_type': annot_type,
                 'database': 'miRBase'
             }
             metadata = self.save_split(output_dir, meta)
             # update db.RNA
-            RNA.objects.filter(database='miRBase', rna_type=rna_type).delete()
+            RNA.objects.filter(database='miRBase', annot_type=annot_type).delete()
             RNA.objects.load_data(metadata)
 
     def load_lncrna(self):
@@ -53,12 +53,12 @@ class ProcessNCRNA:
         
         # split local fasta
         meta = {
-            'rna_type': 'lncRNA',
+            'annot_type': 'lncRNA',
             'database': 'RNACentral'
         }
         metadata = self.save_split(output_dir, meta)
         # update db.RNA
-        RNA.objects.filter(database='RNACentral', rna_type='lncRNA').delete()
+        RNA.objects.filter(database='RNACentral', annot_type='lncRNA').delete()
         RNA.objects.load_data(metadata)
 
     def load_piwirna(self):
@@ -76,7 +76,7 @@ class ProcessNCRNA:
 
         # split local fasta
         meta = {
-            'rna_type': 'piwiRNA',
+            'annot_type': 'piwiRNA',
             'database': 'RNACentral'
         }
         metadata = self.save_split(output_dir, meta)
@@ -92,7 +92,7 @@ class ProcessNCRNA:
         conn = ConnectRNACentral()
         local_file = conn.download_data('5srrnadb.fasta', self.overwrite)
         meta = {
-            'rna_type': '5SrRNA',
+            'annot_type': '5SrRNA',
             'database': 'RNACentral',
         }
         RNA.objects.filter(**meta).delete()
@@ -107,7 +107,7 @@ class ProcessNCRNA:
         conn = ConnectRNACentral()
         local_file = conn.download_data('gtrnadb.fasta', self.overwrite)
         meta = {
-            'rna_type': 'tRNA',
+            'annot_type': 'tRNA',
             'database': 'RNACentral',
         }
         RNA.objects.filter(**meta).delete()

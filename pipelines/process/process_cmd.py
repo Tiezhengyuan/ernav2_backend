@@ -18,11 +18,8 @@ class ProcessCMD:
             input_data['fa_path'],
             input_data['index_path'],
         ]
-        output = {
-            'cmd': ' '.join(cmd),
-            'index_path': input_data['index_path'],
-        }
-        return cmd, output
+        input_data['cmd'] = ' '.join(cmd)
+        return cmd
 
    
     @staticmethod
@@ -41,13 +38,12 @@ class ProcessCMD:
 
         sam_file = input_data['output_prefix'] + '.sam'
         cmd += ['-S', sam_file]
-        
-        output_data = {
-            'sample_name': input_data['sample_name'],
+
+        input_data.update({
             'cmd': ' '.join(cmd),
             'sam_file': sam_file,
-        }
-        return cmd, output_data
+        })
+        return cmd
 
     @staticmethod
     def bowtie2_align(tool, input_data:dict):
@@ -69,46 +65,38 @@ class ProcessCMD:
             cmd += ['-U', ','.join(raw_data)]
 
         sam_file = input_data['output_prefix'] + '.sam'
-        # suppress @SQ header
         cmd += ['-S', sam_file]
         
-        output_data = {
-            'sample_name': input_data['sample_name'],
+        input_data.update({
             'cmd': ' '.join(cmd),
             'sam_file': sam_file,
-        }
-        return cmd, output_data
+        })
+        return cmd
 
     @staticmethod
     def stringtie_assemble(tool, input_data:dict):
-        gtf_file = input_data['output_prefix'] + '.gtf'
-        output = {
-            'sample_name': input_data['sample_name'],
-            'gtf_file': gtf_file,
-        }
         cmd = [
             tool.exe_path,
             input_data['sorted_bam_file'],
-            '-o', input_data['gtf_file'],
+            '-o', input_data['stringtie_gtf_file'],
         ]
-        if 'annot_file' in input_data:
+        if 'annotation_file' in input_data:
             ballgown_file = input_data['output_prefix'] + '.ctab'
             abundance_file = input_data['output_prefix'] + '.abund'
             covered_file = input_data['output_prefix'] + '.cov'
             cmd += [
-                '-G', input_data['annot_file'],
+                '-G', input_data['annotation_file'],
                 '-e', '-b', ballgown_file,
                 '-A', abundance_file,
                 '-C', covered_file,
             ]            
-            output.update({
-                'annotation_file': input_data['annotation_file'],
+            input_data.update({
                 'ballgown_file': ballgown_file,
                 'abundance_file': abundance_file,
                 'covered_file': covered_file,
+                'cmd': ' '.join(cmd),
             })
-        output['cmd'] = ' '.join(cmd)
-        return cmd, output
+        return cmd
 
     @staticmethod
     def star_build_index(tool, input_data:dict):

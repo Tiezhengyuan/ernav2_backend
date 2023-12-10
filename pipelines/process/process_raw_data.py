@@ -39,6 +39,7 @@ class ProcessRawData:
           raw_data['UN'].append((rawdata_dir, batch))
     return raw_data
   
+  # TODO: deprecated in the future
   def refresh_raw_data(self):
     '''
     refresh table RawDATA

@@ -51,7 +51,7 @@ class Collect:
       self.params['tool'].exe_path, '--merge',
       '-G', annotation_file,
       '-o', merged_gtf_file,
-      ' '.join([i['gtf_file'] for i in outputs]),
+      ' '.join([i['stringtie_gtf_file'] for i in outputs]),
     ]
     self.params['force_run'] = False if os.path.isfile(merged_gtf_file) else True
 

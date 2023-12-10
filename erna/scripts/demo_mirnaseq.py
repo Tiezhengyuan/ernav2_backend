@@ -62,7 +62,7 @@ tasks_data = [
             'query': {
                 'specie': "Homo_sapiens",
                 'database': 'miRBase',
-                'rna_type': 'miRNA_mature',
+                'annot_type': 'miRNA_mature',
             }
         },
     },

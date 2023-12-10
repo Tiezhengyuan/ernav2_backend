@@ -36,7 +36,7 @@ class RNAManager(models.Manager):
                 file_path = item['fa_path'],
                 defaults = {
                     'specie': specie,
-                    'annot_type': item['rna_type'],
+                    'annot_type': item['annot_type'],
                     'database': item['database'],
                     'file_format': 'FASTA',
                 }
@@ -68,18 +68,17 @@ class RNA(models.Model):
         null=True,
         blank=True,
     )
-    indexes = GenericRelation(AlignerIndex)
 
+    indexes = GenericRelation(AlignerIndex)
     objects = RNAManager()
 
     class Meta:
         app_label = 'rna_seq'
     
-    def get_index_path(self, tool_query:dict):
+    def get_index_path(self, tool=None):
         '''
         args: tool_query: {'exec_name':<>, 'version':<>}
         '''
-        tool = Tool.objects.filter(**tool_query).first()
         if tool:
             for aligner_index in self.indexes.all():
                 if aligner_index.tool == tool:

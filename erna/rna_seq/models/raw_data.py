@@ -7,7 +7,7 @@ import os
 
 # file extension ~ standard format
 STANDERD_FORMAT = {
-  'FQ': 'FSTQ',
+  'FQ': 'FASTQ',
   'FASTQ': 'FASTQ',
   'FA': 'FASTA', 
   'FASTA': 'FASTA',
@@ -35,19 +35,20 @@ class RawDataManager(models.Manager):
       return 'R1'
     return 'UN'
   
-  def add_data(self, batch_name:str, file_path:str, file_name:str):
-    file_format = self.detect_file_format(file_name)
-    file_type = self.detect_file_type(file_name, file_format)
-    res = self.create(batch_name=batch_name, file_path=file_path, \
-      file_name=file_name, file_type=file_type, file_format=file_format)
-    return res
-
   def load_data(self, raw_data:dict):
     res = []
     for batch_name in raw_data:
       for file_path, file_name in raw_data[batch_name]:
-        obj = self.add_data(batch_name, file_path, file_name)
-        res.append(obj)
+        file_format = self.detect_file_format(file_name)
+        file_type = self.detect_file_type(file_name, file_format)
+        if file_type:
+          obj = self.update_or_create(
+            batch_name=batch_name,
+            file_path=file_path,
+            file_name=file_name,
+            defaults = {'file_type': file_type, 'file_format': file_format}
+          )
+          res.append(obj)
     return res
 
 

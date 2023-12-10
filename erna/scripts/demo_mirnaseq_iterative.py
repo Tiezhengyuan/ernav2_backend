@@ -42,6 +42,16 @@ print(res)
 
 print('Add tasks...')
 specie_name = "Homo_sapiens"
+builder = {
+    'tool_name': 'bowtie',
+    'exe_name': 'bowtie2-build',
+    'version': '2.5.2',
+}
+aligner = {
+    'tool_name': 'bowtie',
+    'exe_name': 'bowtie2',
+    'version': '2.5.2',
+}
 tasks_data = [
     {
         'task_id': 'T01',
@@ -53,16 +63,12 @@ tasks_data = [
     {
         'task_id': 'T02',
         'method_name': 'build_index',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2-build',
-            'version': '2.5.2',
-        },
+        'tool': builder,
         'params': {
             'model': 'RNA',
             'query': {
                 'specie': specie_name,
-                'rna_type': 'miRNA_mature',
+                'annot_type': 'miRNA_mature',
                 'database': 'miRBase',
             }
         },
@@ -70,11 +76,7 @@ tasks_data = [
     {
         'task_id': 'T03',
         'method_name': 'align_short_reads',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2',
-            'version': '2.5.2',
-        },
+        'tool': aligner,
     },
     {
         'task_id': 'T04',
@@ -83,27 +85,19 @@ tasks_data = [
     {
         'task_id': 'T05',
         'method_name': 'build_index',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2-build',
-            'version': '2.5.2',
-        },
+        'tool': builder,
         'params': {
             'model': 'RNA',
             'query': {
                 'specie': specie_name,
-                'rna_type': 'piwiRNA',
+                'annot_type': 'piwiRNA',
             }
         },
     },
     {
         'task_id': 'T06',
         'method_name': 'align_short_reads',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2',
-            'version': '2.5.2',
-        },
+        'tool': aligner,
     },
     {
         'task_id': 'T07',
@@ -112,27 +106,19 @@ tasks_data = [
     {
         'task_id': 'T08',
         'method_name': 'build_index',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2-build',
-            'version': '2.5.2',
-        },
+        'tool': builder,
         'params': {
             'model': 'RNA',
             'query': {
                 'specie': specie_name,
-                'rna_type': 'lncRNA',
+                'annot_type': 'lncRNA',
             }
         },
     },
     {
         'task_id': 'T09',
         'method_name': 'align_short_reads',
-        'tool': {
-            'tool_name': 'bowtie',
-            'exe_name': 'bowtie2',
-            'version': '2.5.2',
-        },
+        'tool': aligner,
     },
     {
         'task_id': 'T10',
@@ -150,12 +136,12 @@ print(tasks)
 
 '''
         T00
-   /   /   \     \
-T01  T02   T05    T08
-  \  /      /      /
-   T03     /      /
-    |     /      /
-   T04   /      /
+   /   /  \    \
+T01  T02  T05  T08
+  \  /     |    |
+   T03     |    |
+    |     /     |
+   T04   /      |
     |\  /      /
     | T06     /
     |  |     /
@@ -170,12 +156,9 @@ T01  T02   T05    T08
 print('Add Task Tree...')
 task_pair = [
     ('T00', 'T01'), ('T00', 'T02'), ('T00', 'T05'), ('T00', 'T08'),
-    ('T01', 'T03'), ('T02', 'T03'),
-    ('T03', 'T04'),
-    ('T04', 'T06'), ('T05', 'T06'),
-    ('T06', 'T07'),
-    ('T07', 'T09'), ('T08', 'T09'),
-    ('T09', 'T10'),
+    ('T01', 'T03'), ('T02', 'T03'), ('T03', 'T04'),
+    ('T04', 'T06'), ('T05', 'T06'), ('T06', 'T07'),
+    ('T07', 'T09'), ('T08', 'T09'), ('T09', 'T10'),
     ('T04', 'T11'), ('T07', 'T11'), ('T10', 'T11'),
 ]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
