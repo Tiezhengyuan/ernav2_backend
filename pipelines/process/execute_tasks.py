@@ -116,7 +116,7 @@ class ExecuteTasks:
             genome = Genome.objects.get(pk=params['project'].genome.pk)
             params['genome'] = genome
             params['annot_genomic_dna'] = Annotation.objects.genome_annot(genome, 'fna')
-            #Note: GFF works, but GTF doesn't work  ???
+            #Note: GFF works, but GTF doesn't work in StringTie (bug)
             params['annot_genomic_gtf'] = Annotation.objects.genome_annot(genome, 'gff')
         return params
 

@@ -1,19 +1,23 @@
 '''
 retrieve data for further analysis
 '''
+import anndata as ad
 from copy import deepcopy
 import os
+import anndata as ad
 import pandas as pd
 import pysam
 from typing import Iterable
-from .process import Process
+
 
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 from rna_seq.models import SampleProject
+from pipelines.biofile.annot import Annot
 from pipelines.utils.utils import Utils
+from .process import Process
 
 class Count:
     def __init__(self, params:dict):
@@ -30,8 +34,33 @@ class Count:
         if rc_files.get('stringtie'):
             self.stringtie_merge(rc_files['stringtie'], 'TPM')
             self.stringtie_merge(rc_files['stringtie'], 'FPKM')
+            # self.stringtie_anndata(rc_files['stringtie'])
         return None
+
+    # def stringtie_anndata(self, rc_files):
+    #     annot_gene = Annot(self.params['annot_genomic_gtf'].file_path).get_feature('gene')
+    #     var = list(annot_gene)
+    #     data = ad.AnnData(pd.DataFrame(None, dtype='float', columns=var))
+    #     self.iter_stringtie(data, rc_files)
+    #     print(data)
     
+    # def iter_stringtie(self, data, rc_files):
+    #     if not rc_files:
+    #        return None
+    #     sample_name, abund_file = rc_files[0]
+    #     print(abund_file)
+    #     df = pd.read_csv(abund_file, sep='\t', index_col='Gene ID')
+    #     df2 = ad.AnnData(
+    #         df['TPM'].transpose(),
+    #         # var = pd.DataFrame(index=),
+    #         obs=pd.DataFrame(index=[sample_name,])
+    #     )
+    #     print(df2)
+    #     data = ad.concat([data, df2], join='outer', fill_value=0)
+    #     print(data)
+    #     # return self.iter_stringtie(data, rc_files[1:])
+
+
     def scan_rc_files(self) -> Iterable:
         rc_files = {'rc': [], 'stringtie': []}
         for parent in self.params['parents']:
@@ -59,7 +88,7 @@ class Count:
         df.to_csv(outfile, sep='\t', index=False)
         meta = {
             'count': 'RC',
-            'outfile': outfile,
+            'RC': outfile,
         }
         self.params['output'].append(meta)
         return df
@@ -73,7 +102,7 @@ class Count:
         outfile = os.path.join(self.params['output_dir'], f'{rc_type}.txt')
         meta = {
             'count': rc_type,
-            'outfile': outfile,
+            rc_type: outfile,
             'samples': [i[0] for i in rc_files],
         }
 
@@ -99,6 +128,7 @@ class Count:
         df = df[col_names]
         df.columns = df.columns.str.replace(rc_type, sample_name)
         return df
+
 
 
     def count_reads(self):

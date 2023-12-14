@@ -2,6 +2,8 @@
 quality control
 '''
 import os
+import scanpy
+
 from .process import Process
 
 

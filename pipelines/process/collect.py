@@ -5,16 +5,32 @@ from copy import deepcopy
 import os
 import pandas as pd
 import pysam
-from .process import Process
+
 
 from rna_seq.models import SampleProject
 from pipelines.utils.utils import Utils
+from .process import Process
+from pipelines.biofile.annot import Annot
+from pipelines.utils.dir import Dir
 
 class Collect:
   def __init__(self, params:dict):
     self.params = params
 
   def import_data(self):
+    '''
+    launched by task T00
+    '''
+    # get same ~ raw data
+    self.import_sample_data()
+    # get annotations
+    if self.params.get('annot_genomic_gtf'):
+      annot_file = self.params['annot_genomic_gtf'].file_path
+      if os.path.isfile(annot_file):
+        feature_files = Annot(annot_file)()
+        self.params['annot_features'] = feature_files
+
+  def import_sample_data(self):
     # Samples
     project_samples = SampleProject.objects.filter(
       project=self.params['project']

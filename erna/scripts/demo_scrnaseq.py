@@ -119,21 +119,22 @@ print(tasks)
 
 '''
     T00
-  /  |  \
-T07  |  T01
-     |  /
-     T02
-      |
-     T03
-      |
-     T04
-    /  \
-  T05  T06
+  /  | \
+T07  | T01
+     | /
+    T02
+     |
+    T03
+     |
+    T04
+    / \
+  T05 T06
 '''
 task_pair = [
     ('T00','T07'), ('T00','T01'),
     ('T00','T02'), ('T01','T02'),
-    ('T02','T03'), ('T03','T04'),
+    ('T02','T03'),
+    ('T03','T04'),
     ('T04','T05'), ('T04','T06')
 ]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
