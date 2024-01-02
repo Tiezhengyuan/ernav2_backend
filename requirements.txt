@@ -14,9 +14,12 @@ xml
 
 biopython
 pysam
+rnaseqdata
+biofile
 
 numpy
 pandas
 scipy
 anndata
 scanpy
+

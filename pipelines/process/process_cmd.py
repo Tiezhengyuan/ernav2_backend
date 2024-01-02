@@ -75,6 +75,7 @@ class ProcessCMD:
 
     @staticmethod
     def stringtie_assemble(tool, input_data:dict):
+        input_data['stringtie_gtf_file'] = input_data['output_prefix'] + '.gtf'
         cmd = [
             tool.exe_path,
             input_data['sorted_bam_file'],

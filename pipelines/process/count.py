@@ -13,6 +13,7 @@ from typing import Iterable
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+from rnaseqdata import RootData, SeqData, NodeData
 
 from rna_seq.models import SampleProject
 from pipelines.biofile.annot import Annot
@@ -28,38 +29,14 @@ class Count:
         method: merge_read_counts
         '''
         rc_files = self.scan_rc_files()
+        print(rc_files)
         # merge RC.txt if they exist
         if rc_files.get('rc'):
             self.merge_rc_files(rc_files['rc'])
         if rc_files.get('stringtie'):
             self.stringtie_merge(rc_files['stringtie'], 'TPM')
             self.stringtie_merge(rc_files['stringtie'], 'FPKM')
-            # self.stringtie_anndata(rc_files['stringtie'])
         return None
-
-    # def stringtie_anndata(self, rc_files):
-    #     annot_gene = Annot(self.params['annot_genomic_gtf'].file_path).get_feature('gene')
-    #     var = list(annot_gene)
-    #     data = ad.AnnData(pd.DataFrame(None, dtype='float', columns=var))
-    #     self.iter_stringtie(data, rc_files)
-    #     print(data)
-    
-    # def iter_stringtie(self, data, rc_files):
-    #     if not rc_files:
-    #        return None
-    #     sample_name, abund_file = rc_files[0]
-    #     print(abund_file)
-    #     df = pd.read_csv(abund_file, sep='\t', index_col='Gene ID')
-    #     df2 = ad.AnnData(
-    #         df['TPM'].transpose(),
-    #         # var = pd.DataFrame(index=),
-    #         obs=pd.DataFrame(index=[sample_name,])
-    #     )
-    #     print(df2)
-    #     data = ad.concat([data, df2], join='outer', fill_value=0)
-    #     print(data)
-    #     # return self.iter_stringtie(data, rc_files[1:])
-
 
     def scan_rc_files(self) -> Iterable:
         rc_files = {'rc': [], 'stringtie': []}
@@ -70,7 +47,9 @@ class Count:
                     item = (output['sample_name'], output['abundance_file'])
                     rc_files['stringtie'].append(item)
                 elif 'RC' in output:
-                    rc_files['rc'].append(output['RC'])
+                    rc_files['rc'].append(
+                        (output['sample_name'], output['RC'])
+                    )
         return rc_files
                     
    
@@ -78,20 +57,34 @@ class Count:
         '''
         merge multiple RC files into RC.txt
         '''
-        df = pd.read_csv(rc_files[0], sep='\t', header=0)
-        if len(rc_files) > 1:
-            for rc_file in rc_files[1:]:
-                tmp = pd.read_csv(rc_file, sep='\t', header=0)
-                df = pd.merge(df, tmp, how='outer').fillna(0)
-        df = df.convert_dtypes()
+        root = RootData()
+        rc_node = NodeData(root, 'RC')
+        for sample_name, rc_file in rc_files:
+            rc = pd.read_csv(rc_file, sep='\t', index_col=0, header=0)
+            print(sample_name, rc.shape)
+            rc.name = sample_name
+            rc_node.put_data(rc.iloc[:,0])
+
+        # export
+        df = rc_node.X.fillna(0)
         outfile = os.path.join(self.params['output_dir'], 'RC.txt')
-        df.to_csv(outfile, sep='\t', index=False)
+        df.to_csv(outfile, sep='\t', index=True, header=True)
         meta = {
             'count': 'RC',
             'RC': outfile,
+            'shape': df.shape,
+        }
+        df = df.T
+        self.params['output'].append(meta)
+        outfile = os.path.join(self.params['output_dir'], 'RC_T.txt')
+        df.to_csv(outfile, sep='\t', index=True, header=True)
+        meta = {
+            'count': 'RC',
+            'RC': outfile,
+            'shape': df.shape,
         }
         self.params['output'].append(meta)
-        return df
+        return rc_node
 
 
     def stringtie_merge(self, rc_files:list, rc_type:str):
@@ -106,18 +99,22 @@ class Count:
             'samples': [i[0] for i in rc_files],
         }
 
-        sample_name, abund_file = rc_files.pop(0)
-        df = self.read_abund(sample_name, abund_file, rc_type)
+        node = NodeData(RootData(), rc_type)
         for sample_name, abund_file in rc_files:
-            tmp = self.read_abund(sample_name, abund_file, rc_type)
-            df = pd.merge(df, tmp, how='outer').fillna(0)
-        # 
+            df = pd.read_csv(abund_file, sep='\t', index_col=0, header=0)
+            node.put_data(pd.Series(df[rc_type], name=sample_name))
+        # sample in columns
+        df = node.X.T
+        # remove zeros
+        df = df.loc[df.sum(axis=1)>0]
         df = df.convert_dtypes()
-        df.to_csv(outfile, index=False, sep='\t')
+        df.to_csv(outfile, index=True, header=True, sep='\t')
+
         meta['total'] = df[meta['samples']].sum().to_dict()
         self.params['output'].append(meta)
         return df
 
+    # TODO: depreciated in the future
     def read_abund(self, sample_name, abund_file, rc_type):
         '''
         stringtie
@@ -177,5 +174,21 @@ class Count:
         return rc
 
 
+    
+    # def iter_stringtie(self, data, rc_files):
+    #     if not rc_files:
+    #        return None
+    #     sample_name, abund_file = rc_files[0]
+    #     print(abund_file)
+    #     df = pd.read_csv(abund_file, sep='\t', index_col='Gene ID')
+    #     df2 = ad.AnnData(
+    #         df['TPM'].transpose(),
+    #         # var = pd.DataFrame(index=),
+    #         obs=pd.DataFrame(index=[sample_name,])
+    #     )
+    #     print(df2)
+    #     data = ad.concat([data, df2], join='outer', fill_value=0)
+    #     print(data)
+    #     # return self.iter_stringtie(data, rc_files[1:])
 
   

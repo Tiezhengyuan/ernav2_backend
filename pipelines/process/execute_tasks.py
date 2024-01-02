@@ -158,7 +158,7 @@ class ExecuteTasks:
     def init_task(self, params:dict) -> None:
         '''
         '''
-        print(f"Try to run task={params['task'].task_id}")
+        print(f"Try to run task={params['task'].task_id}.")
         # variables
         params['cmd'] = None
         params['force_run'] = True

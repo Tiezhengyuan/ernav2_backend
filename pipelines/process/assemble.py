@@ -29,9 +29,9 @@ class Assemble:
       }
       # assemble transcripts
       if self.params['tool'].tool_name == 'stringtie':
-        input_data['stringtie_gtf_file'] = output_prefix + '.gtf'
+        cmd = ProcessCMD.stringtie_assemble(tool, input_data)
         if not os.path.isfile(input_data['stringtie_gtf_file']):
-          self.params['cmd'] = ProcessCMD.stringtie_assemble(tool, input_data)
+          self.params['cmd'] = cmd
           Process.run_subprocess(self.params)
       # update output
       self.params['output'].append(input_data)

@@ -1,15 +1,33 @@
-25000 reads; of these:
-  25000 (100.00%) were paired; of these:
-    1883 (7.53%) aligned concordantly 0 times
-    18508 (74.03%) aligned concordantly exactly 1 time
-    4609 (18.44%) aligned concordantly >1 times
-    ----
-    1883 pairs aligned concordantly 0 times; of these:
-      101 (5.36%) aligned discordantly 1 time
-    ----
-    1782 pairs aligned 0 times concordantly or discordantly; of these:
-      3564 mates make up the pairs; of these:
-        1980 (55.56%) aligned 0 times
-        1129 (31.68%) aligned exactly 1 time
-        455 (12.77%) aligned >1 times
-96.04% overall alignment rate
+Option d is ambiguous (delete, dir, dup_length)
+Failed to process /home/yuan/bio/results/P00001/T07_quality_control
+java.io.FileNotFoundException: /home/yuan/bio/results/P00001/T07_quality_control (Is a directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at uk.ac.babraham.FastQC.Sequence.FastQFile.<init>(FastQFile.java:77)
+	at uk.ac.babraham.FastQC.Sequence.SequenceFactory.getSequenceFile(SequenceFactory.java:106)
+	at uk.ac.babraham.FastQC.Sequence.SequenceFactory.getSequenceFile(SequenceFactory.java:62)
+	at uk.ac.babraham.FastQC.Analysis.OfflineRunner.processFile(OfflineRunner.java:163)
+	at uk.ac.babraham.FastQC.Analysis.OfflineRunner.<init>(OfflineRunner.java:125)
+	at uk.ac.babraham.FastQC.FastQCApplication.main(FastQCApplication.java:316)
+Started analysis of 197_L1_R2.fq
+Approx 5% complete for 197_L1_R2.fq
+Approx 10% complete for 197_L1_R2.fq
+Approx 15% complete for 197_L1_R2.fq
+Approx 20% complete for 197_L1_R2.fq
+Approx 25% complete for 197_L1_R2.fq
+Approx 30% complete for 197_L1_R2.fq
+Approx 35% complete for 197_L1_R2.fq
+Approx 40% complete for 197_L1_R2.fq
+Approx 45% complete for 197_L1_R2.fq
+Approx 50% complete for 197_L1_R2.fq
+Approx 55% complete for 197_L1_R2.fq
+Approx 60% complete for 197_L1_R2.fq
+Approx 65% complete for 197_L1_R2.fq
+Approx 70% complete for 197_L1_R2.fq
+Approx 75% complete for 197_L1_R2.fq
+Approx 80% complete for 197_L1_R2.fq
+Approx 85% complete for 197_L1_R2.fq
+Approx 90% complete for 197_L1_R2.fq
+Approx 95% complete for 197_L1_R2.fq
+Approx 100% complete for 197_L1_R2.fq
