@@ -4,10 +4,12 @@ trim adapter for miRNA-seq
 from Bio import SeqIO
 import json
 import os
+from biofile import FASTQ
+
 
 from rna_seq.constants import TRIM
 from pipelines.sequence.trim_seq import TrimSeq
-from pipelines.biofile.fastq import FASTQ
+
 
 class TrimAdapter:
   def __init__(self, params:dict):
@@ -57,7 +59,7 @@ class TrimAdapter:
     )
     # read fastq
     with open(outfile, 'w') as out_handle:
-      fq_iter = FASTQ(infile).parse_records()
+      fq_iter = FASTQ().parse_records(infile)
       for rec in fq_iter:
         info['total_reads'] += 1
         trimmed_seq, pos = trimmer.trim_3end(rec.seq)
@@ -91,7 +93,7 @@ class TrimAdapter:
       
     # trim
     with open(outfile, 'w') as out_handle:
-      fq_iter = FASTQ(infile).parse_records()
+      fq_iter = FASTQ().parse_records(infile)
       for rec in fq_iter:
         info['total_reads'] += 1
         if pos >= TRIM['min_len']:
