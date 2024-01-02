@@ -13,11 +13,9 @@ from typing import Iterable
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from rnaseqdata import RootData, SeqData, NodeData
+from rnaseqdata import RootData, NodeData
 
 from rna_seq.models import SampleProject
-from pipelines.biofile.annot import Annot
-from pipelines.utils.utils import Utils
 from .process import Process
 
 class Count:
