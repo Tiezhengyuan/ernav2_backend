@@ -5,10 +5,10 @@ from Bio import SeqIO
 import json
 import os
 from biofile import FASTQ
-
+from eseq import TrimSeq
 
 from rna_seq.constants import TRIM
-from pipelines.sequence.trim_seq import TrimSeq
+
 
 
 class TrimAdapter:

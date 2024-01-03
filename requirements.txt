@@ -16,6 +16,7 @@ biopython
 pysam
 rnaseqdata
 biofile
+eseq
 
 numpy
 pandas
