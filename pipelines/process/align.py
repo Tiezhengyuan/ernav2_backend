@@ -6,7 +6,7 @@ from django.conf import settings
 
 import rna_seq.models
 from rna_seq.models import Genome, AlignerIndex, Tool
-from rnaseqdata import load_seqdata, dump_seqdata
+from rnaseqdata import dump_seqdata
 from pipelines.utils.dir import Dir
 from .process import Process
 from .process_cmd import ProcessCMD
@@ -111,19 +111,18 @@ class Align:
     tool = self.params.get('tool')
     if tool is None:
       return None
-    # genome DNA annotation in fasta and gtf format
-    if not self.params.get('annot_genomic_dna') or not self.params.get('annot_genomic_gtf'):
+    if not self.params['genonme_annot']['dna']:
       return None
 
     meta_data = {
-      'fa_path': self.params['annot_genomic_dna'].file_path,
-      'gtf_path': self.params['annot_genomic_gtf'].file_path,
-      'index_path': self.params['annot_genomic_dna'].get_index_path(tool),
+      'fa_path': self.params['genonme_annot']['dna'].file_path,
+      'gtf_path': self.params['genonme_annot']['gff'].file_path,
+      'index_path': self.params['genonme_annot']['dna'].get_index_path(tool),
     }
     # build index
     if not meta_data['index_path']:
       new_index, index_dir_path, index_path = AlignerIndex.objects.new_index(
-        tool, self.params['annot_genomic_dna']
+        tool, self.params['genome_annot']['dna']
       )
       meta_data['index_dir_path'] = index_dir_path
       meta_data['index_path'] = index_path

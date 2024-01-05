@@ -21,18 +21,6 @@ class Collect:
     # get same ~ raw data
     self.import_sample_data()
 
-    # get annotations from GTF
-    if self.params.get('annot_genomic_gtf'):
-      annot_file = self.params['annot_genomic_gtf'].file_path
-      if os.path.isfile(annot_file):
-        self.import_gtf_annotations(annot_file)
-    # get annotations from GFF
-    if self.params.get('annot_genomic_gff'):
-      annot_file = self.params['annot_genomic_gff'].file_path
-      if os.path.isfile(annot_file):
-        self.import_gff_annotations(annot_file)
-
-
   def import_sample_data(self):
     # Samples
     project_samples = SampleProject.objects.filter(
@@ -50,37 +38,6 @@ class Collect:
     for k,v in res.items():
       v['sample_name'] = k 
       self.params['output'].append(v) 
-
-  def import_gtf_annotations(self, annot_file):
-    res = {}
-    file_type = annot_file[-3:]
-    outdir =  os.path.join(os.path.dirname(annot_file), f'{file_type}_features')
-    if os.path.isdir(outdir):
-      for file_name in os.listdir(outdir):
-        if file_name.endswith('json'):
-          feature, _ = os.path.splitext(file_name)
-          res[feature] = os.path.join(outdir, file_name)
-    else:
-      Dir(outdir).init_dir()
-      res = GTF(annot_file, outdir).split_by_feature()
-    if res:
-      self.params['annot_features'] = res
-
-  def import_gff_annotations(self, annot_file):
-    res = {}
-    file_type = annot_file[-3:]
-    outdir =  os.path.join(os.path.dirname(annot_file), f'{file_type}_features')
-    if os.path.isdir(outdir):
-      for file_name in os.listdir(outdir):
-        if file_name.endswith('json'):
-          feature, _ = os.path.splitext(file_name)
-          res[feature] = os.path.join(outdir, file_name)
-    else:
-      Dir(outdir).init_dir()
-      res = GFF(annot_file, outdir).split_by_feature()
-    if res:
-      self.params['annot_features'] = res
-
 
   def merge_transcripts(self):
     '''
@@ -113,6 +70,35 @@ class Collect:
     })
 
 
+  @staticmethod
+  def import_gtf_annotations(annot_file):
+    res = {}
+    file_type = annot_file[-3:]
+    outdir =  os.path.join(os.path.dirname(annot_file), f'{file_type}_features')
+    if os.path.isdir(outdir):
+      for file_name in os.listdir(outdir):
+        if file_name.endswith('json'):
+          feature, _ = os.path.splitext(file_name)
+          res[feature] = os.path.join(outdir, file_name)
+    else:
+      Dir(outdir).init_dir()
+      res = GTF(annot_file, outdir).split_by_feature()
+    return res
+  
+  @staticmethod
+  def import_gff_annotations(annot_file):
+    res = {}
+    file_type = annot_file[-3:]
+    outdir =  os.path.join(os.path.dirname(annot_file), f'{file_type}_features')
+    if os.path.isdir(outdir):
+      for file_name in os.listdir(outdir):
+        if file_name.endswith('json'):
+          feature, _ = os.path.splitext(file_name)
+          res[feature] = os.path.join(outdir, file_name)
+    else:
+      Dir(outdir).init_dir()
+      res = GFF(annot_file, outdir).split_by_feature()
+    return res
 
 
       

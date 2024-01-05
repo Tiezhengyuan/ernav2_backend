@@ -125,9 +125,25 @@ class ExecuteTasks:
         if params['project'].genome:
             genome = Genome.objects.get(pk=params['project'].genome.pk)
             params['genome'] = genome
-            params['annot_genomic_dna'] = Annotation.objects.genome_annot(genome, 'fna')
+            # genome DNA
+            annot = {
+                'dna': Annotation.objects.genome_annot(genome, 'fna').file_path,
+                'gtf': None,
+                'gff': None,
+                'gtf_json': {},
+                'gff_json': {},
+            }
+            # TODO: the best approach on how to connect annotations
             #Note: GFF works, but GTF doesn't work in StringTie (bug)
-            params['annot_genomic_gtf'] = Annotation.objects.genome_annot(genome, 'gff')
+            gtf_annot = Annotation.objects.genome_annot(genome, 'gtf')
+            if gtf_annot:
+                annot['gtf'] = gtf_annot.file_path
+                annot['gtf_json'] = Collect.import_gtf_annotations(annot['gtf'])
+            gff_annot = Annotation.objects.genome_annot(genome, 'gff')
+            if gff_annot:
+                annot['gff'] = gff_annot.file_path
+                annot['gff_json'] = Collect.import_gff_annotations(annot['gff'])
+            params['genome_annot'] = annot
         return params
 
     def combine_parents_output(self, parents:list) -> list:
