@@ -6,6 +6,8 @@ from copy import deepcopy
 import json
 import os
 from django.conf import settings
+from rnaseqdata import load_seqdata
+
 
 from rna_seq.models import Project, Task, TaskTree, TaskExecution,\
     ExecutionTree, MethodTool, Tool, Method, Genome, Annotation
@@ -67,10 +69,18 @@ class ExecuteTasks:
         project = Project.objects.get(project_id=project_id)
         task = Task.objects.get(project=project, task_id=task_id)
         parents = TaskTree.objects.filter(child=task)
+        # load seqdata
+        seqdata_file = os.path.join(settings.RESULTS_DIR,
+            project.project_id, "T00_import_data", "seqdata.obj")
+        # load seqdata
+        seqdata_file = os.path.join(settings.RESULTS_DIR,
+            project.project_id, "T00_import_data", "seqdata.obj")
         params = {
             'project': project,
             'task': task,
             'parents': [t.task for t in parents],
+            'seqdata': load_seqdata(seqdata_file),
+            'seqdata_path': seqdata_file,
         }
         return params
 
@@ -169,7 +179,7 @@ class ExecuteTasks:
             f"{params['task'].task_id}_{params['method'].method_name}",
         )
         Dir(params['output_dir']).init_dir()
-        
+
         #update TaskExecution
         params['task_execution'] = TaskExecution.objects.run(params['task'])
         # update Task

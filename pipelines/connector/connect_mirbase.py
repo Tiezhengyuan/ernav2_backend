@@ -19,18 +19,18 @@ class ConnectMirbase:
         self.dir_local = os.path.join(ref_dir, "miRBase")
         Dir(self.dir_local).init_dir()
     
-    def download_data(self, overwrite:bool):
-        local_files = []
-        meta = [
-            ('hairpin.fa', 'miRNA_hairpin'),
-            ('mature.fa', 'miRNA_mature')
-        ]
-        for file_name, rna_type in meta:
+    def download_data(self, name:str, overwrite:bool):
+        meta = {
+            'hairpin': ('hairpin.fa', 'miRNA_hairpin'),
+            'mature': ('mature.fa', 'miRNA_mature'),
+        }
+        file_name, rna_type = meta.get(name, (None, None))
+        # download
+        if file_name and rna_type:
             local_file = os.path.join(self.dir_local, file_name)
             if overwrite or not os.path.isfile(local_file):
-                self.parse_fasta(f"{self.url}/{file_name}",local_file)
-            local_files.append((rna_type, local_file))
-        return self.dir_local, local_files
+                self.parse_fasta(f"{self.url}/{file_name}", local_file)
+        return rna_type, self.dir_local, local_file
 
     def parse_fasta(self, url_path, local_file):
         # parse xml

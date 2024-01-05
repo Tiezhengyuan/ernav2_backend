@@ -2,14 +2,12 @@
 trim adapter for miRNA-seq
 '''
 from Bio import SeqIO
-import json
-import os
 from biofile import FASTQ
 from eseq import TrimSeq
+import json
+import os
 
 from rna_seq.constants import TRIM
-
-
 
 class TrimAdapter:
   def __init__(self, params:dict):

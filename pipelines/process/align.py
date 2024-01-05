@@ -6,6 +6,7 @@ from django.conf import settings
 
 import rna_seq.models
 from rna_seq.models import Genome, AlignerIndex, Tool
+from rnaseqdata import load_seqdata, dump_seqdata
 from pipelines.utils.dir import Dir
 from .process import Process
 from .process_cmd import ProcessCMD
@@ -57,6 +58,11 @@ class Align:
     task_params = self.params['task'].get_params()
     this_model = getattr(rna_seq.models, task_params['model'])
     obj = this_model.objects.get(**task_params['query'])
+    # update seqdata
+    self.params['seqdata'].put_variables(obj.annot_json)
+    dump_seqdata(self.params['seqdata'], self.params['seqdata_path'])
+
+    # build index
     index_path = obj.get_index_path(tool)
     meta_data = {
       'fa_path': obj.file_path,

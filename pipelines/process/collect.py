@@ -20,6 +20,7 @@ class Collect:
     '''
     # get same ~ raw data
     self.import_sample_data()
+
     # get annotations from GTF
     if self.params.get('annot_genomic_gtf'):
       annot_file = self.params['annot_genomic_gtf'].file_path

@@ -36,9 +36,9 @@ class RNAManager(models.Manager):
                 file_path = item['fa_path'],
                 defaults = {
                     'specie': specie,
-                    'annot_type': item['annot_type'],
                     'database': item['database'],
-                    'file_format': 'FASTA',
+                    'annot_type': item['annot_type'],
+                    'annot_json': item.get('annot_json'),
                 }
             )
 
@@ -51,11 +51,11 @@ class RNA(models.Model):
         null=True,
         blank=True,
     )
-    # FASTA
-    file_format = models.CharField(
-        max_length = 8,
-        blank = True,
-        null = True
+    # path of json file
+    annot_json = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True
     )
     # miRNA, tRNA, rRNA, mRNA etc
     annot_type = models.CharField(

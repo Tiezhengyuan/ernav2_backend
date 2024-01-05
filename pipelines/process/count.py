@@ -13,7 +13,7 @@ from typing import Iterable
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from rnaseqdata import RootData, NodeData
+from rnaseqdata import RootData, NodeData, load_seqdata, dump_seqdata
 
 from rna_seq.models import SampleProject
 from .process import Process
@@ -55,16 +55,18 @@ class Count:
         '''
         merge multiple RC files into RC.txt
         '''
-        root = RootData()
-        rc_node = NodeData(root, 'RC')
+        # update SeqData
+        seqdata = self.params['seqdata']
+        rc_node = NodeData(seqdata.root, 'RC')
         for sample_name, rc_file in rc_files:
             rc = pd.read_csv(rc_file, sep='\t', index_col=0, header=0)
-            print(sample_name, rc.shape)
             rc.name = sample_name
             rc_node.put_data(rc.iloc[:,0])
+        seqdata.nodes['RC'] = rc_node
+        dump_seqdata(seqdata, self.params['seqdata_path'])
 
         # export
-        df = rc_node.X.fillna(0)
+        df = seqdata.to_df('RC', 1)
         outfile = os.path.join(self.params['output_dir'], 'RC.txt')
         df.to_csv(outfile, sep='\t', index=True, header=True)
         meta = {
@@ -75,7 +77,7 @@ class Count:
         df = df.T
         self.params['output'].append(meta)
         outfile = os.path.join(self.params['output_dir'], 'RC_T.txt')
-        df.to_csv(outfile, sep='\t', index=True, header=True)
+        df.to_csv(outfile, sep='\t', index=False, header=True)
         meta = {
             'count': 'RC',
             'RC': outfile,

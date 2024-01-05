@@ -1,5 +1,6 @@
 '''
 '''
+import json
 from copy import deepcopy
 from Bio import SeqIO
 import os
@@ -16,27 +17,27 @@ class ProcessNCRNA:
         self.overwrite = True if overwrite else False
         # records indexed by specie
         self.data = {}
+        self.annot = {}
+        self.database = None
+        self.annot_type = None
 
-    def load_mirna(self):
+    def load_mirna(self, name:str):
         '''
         download data from miRBase
         load data into eRNA
         '''
+        self.database = 'miRBase'
         # download data
-        local_path, local_files = ConnectMirbase().download_data(self.overwrite)
+        rna_type, local_path, fa_path = ConnectMirbase().download_data(name, self.overwrite)
         # split data by specie and Update
-        for annot_type, fa_path in local_files:
+        if fa_path:
+            self.annot_type = rna_type
             self.split_fasta(fa_path, self.desc_mirbase)
             # export to fasta
-            output_dir = os.path.join(local_path, annot_type)
-            Dir(output_dir).init_dir()
-            meta = {
-                'annot_type': annot_type,
-                'database': 'miRBase'
-            }
-            metadata = self.save_split(output_dir, meta)
+            output_dir = os.path.join(local_path, rna_type)
+            metadata = self.save_split(output_dir)
             # update db.RNA
-            RNA.objects.filter(database='miRBase', annot_type=annot_type).delete()
+            RNA.objects.filter(database=self.database, annot_type=rna_type).delete()
             RNA.objects.load_data(metadata)
 
     def load_lncrna(self):
@@ -44,21 +45,20 @@ class ProcessNCRNA:
         download data from https://rnacentral.org/
         load data into eRNA
         '''
+        self.annot_type = 'lncRNA'
+        self.database = 'RNACentral'
+
         conn = ConnectRNACentral()
         output_dir = os.path.join(conn.dir_local, 'lncrna')
         Dir(output_dir).init_dir()
         # download data: lncbook
         local_file = conn.download_data('lncbook.fasta', self.overwrite)
-        self.split_fasta(local_file, self.desc_rna_central)
+        self.split_fasta(local_file, self.desc_lncrna)
         
         # split local fasta
-        meta = {
-            'annot_type': 'lncRNA',
-            'database': 'RNACentral'
-        }
-        metadata = self.save_split(output_dir, meta)
+        metadata = self.save_split(output_dir)
         # update db.RNA
-        RNA.objects.filter(database='RNACentral', annot_type='lncRNA').delete()
+        RNA.objects.filter(database=self.database, annot_type=self.annot_type).delete()
         RNA.objects.load_data(metadata)
 
     def load_piwirna(self):
@@ -66,91 +66,88 @@ class ProcessNCRNA:
         download data from https://rnacentral.org/
         load data into eRNA
         '''
+        self.annot_type = 'piRNA'
+        self.database = 'RNACentral'
+
         conn = ConnectRNACentral()
-        output_dir = os.path.join(conn.dir_local, 'pirbase')
-        Dir(output_dir).init_dir()
 
         # download data: pirbase
+        output_dir = os.path.join(conn.dir_local, 'pirna')
+        Dir(output_dir).init_dir()
         local_file = conn.download_data('pirbase.fasta', self.overwrite)
         self.split_fasta(local_file, self.desc_pirbase)
 
         # split local fasta
-        meta = {
-            'annot_type': 'piwiRNA',
-            'database': 'RNACentral'
-        }
-        metadata = self.save_split(output_dir, meta)
+        metadata = self.save_split(output_dir)
         # update db.RNA
-        RNA.objects.filter(**meta).delete()
+        RNA.objects.filter(database=self.database, annot_type=self.annot_type).delete()
         RNA.objects.load_data(metadata)
-
-    def load_rrna(self):
-        '''
-        download data from https://rnacentral.org/
-        load data into eRNA
-        '''
-        conn = ConnectRNACentral()
-        local_file = conn.download_data('5srrnadb.fasta', self.overwrite)
-        meta = {
-            'annot_type': '5SrRNA',
-            'database': 'RNACentral',
-        }
-        RNA.objects.filter(**meta).delete()
-        meta['fa_path'] = local_file
-        RNA.objects.load_data([meta,])
-
-    def load_trna(self):
-        '''
-        download data from https://rnacentral.org/
-        load data into eRNA
-        '''
-        conn = ConnectRNACentral()
-        local_file = conn.download_data('gtrnadb.fasta', self.overwrite)
-        meta = {
-            'annot_type': 'tRNA',
-            'database': 'RNACentral',
-        }
-        RNA.objects.filter(**meta).delete()
-        meta['fa_path'] = local_file
-        RNA.objects.load_data([meta,])
 
 
     def split_fasta(self, local_file, func):
         '''
         split by specie
-        update self.data
+        update self.data, self.annot
         '''
         for record in SeqIO.parse(local_file, 'fasta'):
             record.seq = record.seq.back_transcribe()
             # update record if necessary
-            key = func(record)
-            if key not in self.data:
-                self.data[key] = []
-            self.data[key].append(record)
-
-    def save_split(self, output_dir, meta):
+            names, annot_rec = func(record)
+            if names not in self.data:
+                self.data[names] = []
+                self.annot[names] = {}
+            self.data[names].append(record)
+            self.annot[names][annot_rec['ID']] = annot_rec
+        
+    def save_split(self, output_dir):
         '''
         '''
+        Dir(output_dir).init_dir()
         metadata = []
         for key, records in self.data.items():
-            _meta = deepcopy(meta)
             specie_name, organism_name, other_names, abb = key
-            outfile = os.path.join(output_dir, f"{specie_name}.fa")
-            # export fasta
-            with open(outfile, 'w') as f:
+            # export sequences in fasta
+            fa_path = os.path.join(output_dir, f"{specie_name}.fa")
+            with open(fa_path, 'w') as f:
                 writer = SeqIO.FastaIO.FastaWriter(f, wrap=0)
                 writer.write_file(records)
+            # export annotations in json
+            annot_json = os.path.join(output_dir, f"{specie_name}.json")
+            with open(annot_json, 'w') as f:
+                json.dump(self.annot[key], f, indent=4)
             # update metadata
-            _meta.update({
-                'fa_path': outfile,
+            meta = {
+                'database': self.database,
+                'annot_type': self.annot_type,
+                'fa_path': fa_path,
+                'annot_json': annot_json,
                 'specie_name': specie_name,
                 'organism_name': organism_name,
                 'other_names': other_names,
                 'abb': abb,
-            })
-            metadata.append(_meta)
+            }
+            metadata.append(meta)
         return metadata
 
+
+    def desc_mirbase(self, record):
+        desc = record.description.split(' ')
+        organism_name = f"{desc[2]} {desc[3]}"
+        specie_name = f"{desc[2]}_{desc[3]}"
+        abb = f"{desc[2][0].lower()}{desc[3][:2].lower()}"
+        names = (specie_name, organism_name, None, abb)
+        # update record
+        record.description = ''
+        annot_rec = {
+            'ID': record.id,
+            'database': self.database,
+            'annot_type': self.annot_type,
+            'accession': desc[1],
+            'organism_name': organism_name,
+            'specie_name': specie_name,
+        }
+        return names, annot_rec
+    
     def desc_pirbase(self, record):
         desc = record.description.split(' ')
         organism_name = f"{desc[1]} {desc[2]}"
@@ -159,12 +156,19 @@ class ProcessNCRNA:
         abb = f"{desc[1][0].lower()}{desc[2][:2].lower()}"
         names = (specie_name, organism_name, other_names, abb)
         # update record
-        desc = record.description.split(' ')
-        record.id += f"|{desc[-1]}"
         record.description = ''
-        return names
+        annot_rec = {
+            'ID': record.id,
+            'database': self.database,
+            'annot_type': self.annot_type,
+            'accession': desc[-1],
+            'organism_name': organism_name,
+            'specie_name': specie_name,
+            'other_names': other_names,
+        }
+        return names, annot_rec
 
-    def desc_rna_central(self, record):
+    def desc_lncrna(self, record):
         desc = record.description.split(' ')
         organism_name = f"{desc[1]} {desc[2]}"
         specie_name = f"{desc[1]}_{desc[2]}"
@@ -172,19 +176,90 @@ class ProcessNCRNA:
         abb = f"{desc[1][0].lower()}{desc[2][:2].lower()}"
         names = (specie_name, organism_name, other_names, abb)
         # update record
-        record.id = record.description.replace(' ', '_')
         record.description = ''
-        return names
-    
-    def desc_mirbase(self, record):
+        annot_rec = {
+            'ID': record.id,
+            'database': self.database,
+            'annot_type': self.annot_type,
+            'name': ' '.join(desc[4:]),
+            'organism_name': organism_name,
+            'specie_name': specie_name,
+        }
+        return names, annot_rec
+
+    def load_rrna(self):
+        '''
+        download data from https://rnacentral.org/
+        load data into eRNA
+        '''
+        self.database = 'RNACentral'
+        self.annot_type = '5SrRNA'
+
+        conn = ConnectRNACentral()
+        local_file = conn.download_data('5srrnadb.fasta', self.overwrite)
+        output_dir = os.path.join(conn.dir_local, 'rrna')
+        meta = self.format_fasta(local_file, output_dir)
+
+        # updata db
+        RNA.objects.filter(database=self.database, annot_type=self.annot_type).delete()
+        RNA.objects.load_data([meta,])
+
+    def format_fasta(self, local_fa:str, output_dir:str):
+        res = {}
+        Dir(output_dir).init_dir()
+        file_name = os.path.basename(local_fa)
+        # to fasta
+        fa_file = os.path.join(output_dir, file_name)
+        with open(fa_file, 'w') as f:
+            for record in SeqIO.parse(local_fa, 'fasta'):
+                annot_rec = self.desc_rna(record)                
+                SeqIO.write(record, f, 'fasta-2line')
+                res[annot_rec['ID']] = annot_rec
+        # to json
+        annot_json = os.path.join(output_dir, f"{os.path.splitext(file_name)[0]}.json")
+        with open(annot_json, 'w') as f:
+            json.dump(res, f, indent=4)
+        # meta data
+        meta = {
+            'annot_type': self.annot_type,
+            'database': self.database,
+            'fa_path': fa_file,
+            'annot_json': annot_json,
+        }
+        return meta
+
+    def load_trna(self):
+        '''
+        download data from https://rnacentral.org/
+        load data into eRNA
+        '''
+        self.database = 'RNACentral'
+        self.annot_type = 'tRNA'
+
+        conn = ConnectRNACentral()
+        local_file = conn.download_data('gtrnadb.fasta', self.overwrite)
+        output_dir = os.path.join(conn.dir_local, 'trna')
+        meta = self.format_fasta(local_file, output_dir)
+
+        # updata db
+        RNA.objects.filter(database=self.database, annot_type=self.annot_type).delete()
+        RNA.objects.load_data([meta,])
+
+
+    def desc_rna(self, record):
         desc = record.description.split(' ')
-        organism_name = f"{desc[2]} {desc[3]}"
-        specie_name = f"{desc[2]}_{desc[3]}"
-        abb = f"{desc[2][0].lower()}{desc[3][:2].lower()}"
-        names = (specie_name, organism_name, None, abb)
+        organism_name = f"{desc[1]} {desc[2]}"
+        specie_name = f"{desc[1]}_{desc[2]}"
         # update record
-        desc = record.description.replace(' ', '_')
-        record.id += f"_{desc}"
         record.description = ''
-        return names
+        annot_rec = {
+            'ID': record.id,
+            'database': self.database,
+            'annot_type': self.annot_type,
+            'name': ' '.join(desc[3:]),
+            'organism_name': organism_name,
+            'specie_name': specie_name,
+        }
+        return annot_rec
+    
     

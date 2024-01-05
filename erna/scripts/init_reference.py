@@ -34,11 +34,12 @@ for enter in pool:
             print('refresh index...')
             AlignerIndex.objects.refresh()
         case 6:
+            print('load miRNA...')
+            ProcessNCRNA().load_mirna('hairpin')
+            ProcessNCRNA().load_mirna('mature')
+        case 7:
             print('Process piwiRNA...')
             ProcessNCRNA().load_piwirna()
-        case 7:
-            print('load miRNA...')
-            ProcessNCRNA().load_mirna()
         case 8:
             print('Process long non-coding RNA...')
             ProcessNCRNA().load_lncrna()
