@@ -114,7 +114,7 @@ tasks_data = [
     # piwiRNA
     {
         'task_id': 'T08',
-        'task_name': 'piwiRNA',
+        'task_name': 'piRNA',
         'method_name': 'build_index',
         'tool': builder,
         'params': {
@@ -300,10 +300,10 @@ T01  T02  T05  T08  T11 T14 T17 T20 T23
     |  |  |  |  |  | T22    /
     |  |  |  |  |  |  | \  /
     \  |  |  |  |  |  | T24
-     \ \  |  |  |  /  /  |
-      \ \ \  |  / /  /  T25
-       \ \ \ | / /  /  /
-        \ \ \|/ /  /  /
+     \ \  |  |  |  / /  |
+      \ \ \  |  / / /  T25
+       \ \ \ | / / /  /
+        \ \ \|/ / /  /
             T30
 '''
 print('Add Task Tree...')

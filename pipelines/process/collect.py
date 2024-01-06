@@ -4,7 +4,6 @@ retrieve data for further analysis
 import os
 from biofile import GTF, GFF
 
-
 from rna_seq.models import SampleProject
 from pipelines.utils.utils import Utils
 from .process import Process

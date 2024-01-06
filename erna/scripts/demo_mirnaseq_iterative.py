@@ -90,7 +90,7 @@ tasks_data = [
             'model': 'RNA',
             'query': {
                 'specie': specie_name,
-                'annot_type': 'piwiRNA',
+                'annot_type': 'piRNA',
             }
         },
     },

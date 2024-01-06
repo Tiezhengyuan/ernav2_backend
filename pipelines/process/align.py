@@ -3,11 +3,10 @@ sequence alignment
 '''
 import os
 from django.conf import settings
+from rnaseqdata import dump_seqdata
 
 import rna_seq.models
 from rna_seq.models import Genome, AlignerIndex, Tool
-from rnaseqdata import dump_seqdata
-from pipelines.utils.dir import Dir
 from .process import Process
 from .process_cmd import ProcessCMD
 
