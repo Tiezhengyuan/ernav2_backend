@@ -31,22 +31,23 @@ class ProcessGenome:
     '''
     genome DNA sequences
     '''
-    res = {}
+    local_files = None
     if self.data_source == "NCBI":
       # download data
       client = ConnectNCBI()
       local_path, local_files = client.download_genome(
         self.specie, self.version, overwrite
       )
-      
-      # update database
-      if local_files:
-        res['local_files'] = local_files
-        # update db.Genome 
-        obj = Genome.objects.filter(specie=self.specie, version=self.version)
-        obj.update(is_ready=True, local_path=local_path)
-        # update db.Annotation
-        Annotation.objects.load_annotations(obj[0], local_files)
+
+    res = {}      
+    # update database
+    if local_files:
+      res['local_files'] = local_files
+      # update db.Genome 
+      obj = Genome.objects.filter(specie=self.specie, version=self.version)
+      obj.update(is_ready=True, local_path=local_path)
+      # update db.Annotation
+      Annotation.objects.load_annotations(obj[0], local_files)
     return res
 
 

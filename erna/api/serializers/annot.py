@@ -16,7 +16,6 @@ class AlignerIndexSerializer(serializers.ModelSerializer):
 
 class GenomeSerializer(serializers.ModelSerializer):
     annots = AnnotationSerializer(many=True)
-    references = AlignerIndexSerializer(many=True)
 
     class Meta:
         model = Genome

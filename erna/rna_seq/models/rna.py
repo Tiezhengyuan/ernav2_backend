@@ -36,7 +36,7 @@ class RNAManager(models.Manager):
                 file_path = item['fa_path'],
                 defaults = {
                     'specie': specie,
-                    'database': item['database'],
+                    'data_source': item['data_source'],
                     'annot_type': item['annot_type'],
                     'annot_json': item.get('annot_json'),
                 }
@@ -63,7 +63,7 @@ class RNA(models.Model):
         null=True,
         blank=True
     )
-    database = models.CharField(
+    data_source = models.CharField(
         max_length=10,
         null=True,
         blank=True,

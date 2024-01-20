@@ -71,7 +71,7 @@ tasks_data = [
             'query': {
                 'specie': specie_name,
                 'annot_type': 'miRNA_mature',
-                'database': 'miRBase',
+                'data_source': 'miRBase',
             }
         },
     },
@@ -114,14 +114,14 @@ tasks_data = [
     # piwiRNA
     {
         'task_id': 'T08',
-        'task_name': 'piRNA',
+        'task_name': 'piwiRNA',
         'method_name': 'build_index',
         'tool': builder,
         'params': {
             'model': 'RNA',
             'query': {
                 'specie': specie_name,
-                'annot_type': 'piwiRNA',
+                'annot_type': 'piRNA',
             }
         },
     },

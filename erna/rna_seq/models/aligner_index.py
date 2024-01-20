@@ -19,6 +19,9 @@ INFO_FILE = 'info.json'
 class AlignerIndexManager(models.Manager):
   
   def scan_index_dir(self) -> Iterable:
+    '''
+    scan index dir
+    '''
     index_dir = settings.INDEX_DIR
     for name in os.listdir(index_dir):
       infile = os.path.join(index_dir, name, INFO_FILE)
@@ -36,9 +39,10 @@ class AlignerIndexManager(models.Manager):
     res = []
     indexes = self.scan_index_dir()
     for digit_name, info in indexes:
+      print(info)
       this_model = getattr(rna_seq.models, info['model_name'])
       defaults = {
-        'tool': Tool.objects.get(**info['tool']),
+        'tool': Tool.objects.get(pk=info['tool_id']),
         'index_path': info['index_path'],
         'content_object': this_model.objects.get(**info['model_query']),
       }

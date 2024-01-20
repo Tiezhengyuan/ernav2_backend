@@ -54,12 +54,15 @@ class Align:
     if tool is None:
       return None
     
+    # get annotations from RNA or other models
     task_params = self.params['task'].get_params()
     this_model = getattr(rna_seq.models, task_params['model'])
-    obj = this_model.objects.get(**task_params['query'])
+    obj = this_model.objects.get(pk=task_params['id']) if 'id' in task_params \
+      else this_model.objects.get(**task_params['query'])
     # update seqdata
-    self.params['seqdata'].put_variables(obj.annot_json)
-    dump_seqdata(self.params['seqdata'], self.params['seqdata_path'])
+    if hasattr(obj, 'annot_json') and obj.annot_json:
+      self.params['seqdata'].put_variables(obj.annot_json)
+      dump_seqdata(self.params['seqdata'], self.params['seqdata_path'])
 
     # build index
     index_path = obj.get_index_path(tool)
@@ -68,6 +71,7 @@ class Align:
       'index_path': index_path,
       'model_name': task_params['model'],
       'model_query': task_params['query'],
+      'tool_id': tool.id,
     } 
     if not index_path:
       new_index, index_dir_path, index_path = AlignerIndex.objects.new_index(tool, obj)

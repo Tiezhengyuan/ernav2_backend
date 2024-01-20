@@ -52,8 +52,8 @@ class Annotation(models.Model):
         related_name = 'annots',
         on_delete = models.CASCADE
     )
-    file_format = models.CharField(
-        max_length = 8,
+    annot_json = models.CharField(
+        max_length = 512,
         blank = True,
         null = True
     )

@@ -13,13 +13,13 @@ from pipelines.process.process_ncrna import ProcessNCRNA
 
 print('\n\n###Begin to refresh/update database###\n\n')
 
-start_end = '5'.split('-')
+start_end = '4'.split('-')
 start, end = int(start_end[0]), int(start_end[-1])
 pool = range(start, end + 1)
 for enter in pool:
     match enter:
         case 1:
-            print('refresh Specie and Genome...')
+            print('Initialize model Specie and Genome...')
             species = ProcessGenome('NCBI').retrieve_assembly_summary()
         case 2:
             print("Download human genome from NCBI...")
@@ -28,26 +28,26 @@ for enter in pool:
             print("Download human genome from NCBI...")
             ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').download_genome()
         case 4:
-            print('refresh Genome...')
+            print('Refresh model Genome...')
             genomes = Genome.objects.refresh()
         case 5:
-            print('refresh index...')
+            print('Refresh model AlignerIndex...')
             AlignerIndex.objects.refresh()
         case 6:
-            print('load miRNA...')
+            print('Process miRNA for model RNA...')
             ProcessNCRNA().load_mirna('hairpin')
             ProcessNCRNA().load_mirna('mature')
         case 7:
-            print('Process piwiRNA...')
+            print('Process piwiRNA for model RNA...')
             ProcessNCRNA().load_piwirna()
         case 8:
-            print('Process long non-coding RNA...')
+            print('Process long non-coding RNA for model RNA...')
             ProcessNCRNA().load_lncrna()
         case 9:
-            print('Process long rRNA...')
+            print('Process long rRNA for model RNA...')
             ProcessNCRNA().load_rrna()
         case 10:
-            print('Process long tRNA...')
+            print('Process long tRNA for model RNA...')
             ProcessNCRNA().load_trna()
 
 

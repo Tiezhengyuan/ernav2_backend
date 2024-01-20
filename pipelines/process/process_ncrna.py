@@ -117,7 +117,7 @@ class ProcessNCRNA:
                 json.dump(self.annot[key], f, indent=4)
             # update metadata
             meta = {
-                'database': self.database,
+                'datasource': self.database,
                 'annot_type': self.annot_type,
                 'fa_path': fa_path,
                 'annot_json': annot_json,
