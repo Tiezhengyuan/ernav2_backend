@@ -1,8 +1,12 @@
 '''
 process genome annotations before analysis
 '''
+from biofile import Wrap
+import os
+
 from pipelines.connector.connect_ncbi import ConnectNCBI
 from pipelines.utils.handle_json import HandleJson
+from pipelines.utils.dir import Dir
 
 from rna_seq.models import Specie, Genome, Annotation
 
@@ -50,6 +54,19 @@ class ProcessGenome:
       Annotation.objects.load_annotations(obj[0], local_files)
     return res
 
+  def retrieve_molecular_annotations(self):
+    genomes = Genome.objects.filter(local_path__isnull=False)
+    for genome in genomes:
+      local_files = [os.path.join(genome.local_path, name) for \
+        name in os.listdir(genome.local_path)]
+      print(local_files)
+      outdir = os.path.join(genome.local_path, 'features')
+      Dir(outdir).init_dir()
+      # 
+      meta = Wrap(local_files, outdir).ncbi_fa_gff()
+      for item in meta:
+        print(item)
+      
 
 
 

@@ -46,17 +46,13 @@ class AnnotationManager(models.Manager):
 
 
 class Annotation(models.Model):
-    file_path = models.CharField(max_length = 256)
     genome = models.ForeignKey(
         'rna_seq.Genome',
         related_name = 'annots',
         on_delete = models.CASCADE
     )
-    annot_json = models.CharField(
-        max_length = 512,
-        blank = True,
-        null = True
-    )
+    file_path = models.CharField(max_length = 512)
+    file_format = models.CharField(max_length = 24)
     annot_type = models.CharField(
         max_length = 48,
         null=True,
