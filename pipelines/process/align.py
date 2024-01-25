@@ -53,7 +53,7 @@ class Align:
     tool = self.params.get('tool')
     if tool is None:
       return None
-    
+
     # get annotations from RNA or other models
     task_params = self.params['task'].get_params()
     this_model = getattr(rna_seq.models, task_params['model'])
@@ -72,7 +72,7 @@ class Align:
       'model_name': task_params['model'],
       'model_query': task_params['query'],
       'tool_id': tool.id,
-    } 
+    }
     if not index_path:
       new_index, index_dir_path, index_path = AlignerIndex.objects.new_index(tool, obj)
       meta_data['index_dir_path'] = index_dir_path

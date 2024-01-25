@@ -1,3 +1,7 @@
+'''
+annotation files determined by NCBI or Ensemble
+file format could be fata, gtf/gff, gbk etc.
+'''
 import os
 from django.db import models
 from django.conf import settings

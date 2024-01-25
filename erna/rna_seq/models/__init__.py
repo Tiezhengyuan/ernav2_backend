@@ -20,5 +20,6 @@ from .sample_project import SampleProject
 from .specie import Specie
 from .genome import Genome
 from .annotation import Annotation
+from .molecular_annotation import MolecularAnnotation
 from .aligner_index import AlignerIndex
 from .rna import RNA

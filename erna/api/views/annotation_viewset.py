@@ -26,7 +26,7 @@ class AnnotationViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['delete'])
     def delete_all(self, request):
-        res = Project.objects.all()
+        res = Annotation.objects.all()
         count = res.count()
         res.delete()
         return Response({'deleted': count})

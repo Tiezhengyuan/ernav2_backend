@@ -18,7 +18,7 @@ class ProcessNCRNA:
         # records indexed by specie
         self.data = {}
         self.annot = {}
-        self.database = None
+        self.data_source = None
         self.annot_type = None
 
     def load_mirna(self, name:str):
@@ -26,7 +26,7 @@ class ProcessNCRNA:
         download data from miRBase
         load data into eRNA
         '''
-        self.database = 'miRBase'
+        self.data_source = 'miRBase'
         # download data
         rna_type, local_path, fa_path = ConnectMirbase().download_data(name, self.overwrite)
         # split data by specie and Update
@@ -37,7 +37,7 @@ class ProcessNCRNA:
             output_dir = os.path.join(local_path, rna_type)
             metadata = self.save_split(output_dir)
             # update db.RNA
-            RNA.objects.filter(database=self.database, annot_type=rna_type).delete()
+            RNA.objects.filter(data_source=self.data_source, annot_type=rna_type).delete()
             RNA.objects.load_data(metadata)
 
     def load_lncrna(self):
@@ -46,7 +46,7 @@ class ProcessNCRNA:
         load data into eRNA
         '''
         self.annot_type = 'lncRNA'
-        self.database = 'RNACentral'
+        self.data_source = 'RNACentral'
 
         conn = ConnectRNACentral()
         output_dir = os.path.join(conn.dir_local, 'lncrna')
@@ -58,7 +58,7 @@ class ProcessNCRNA:
         # split local fasta
         metadata = self.save_split(output_dir)
         # update db.RNA
-        RNA.objects.filter(database=self.database, annot_type=self.annot_type).delete()
+        RNA.objects.filter(data_source=self.data_source, annot_type=self.annot_type).delete()
         RNA.objects.load_data(metadata)
 
     def load_piwirna(self):
@@ -67,7 +67,7 @@ class ProcessNCRNA:
         load data into eRNA
         '''
         self.annot_type = 'piRNA'
-        self.database = 'RNACentral'
+        self.data_source = 'RNACentral'
 
         conn = ConnectRNACentral()
 
@@ -80,7 +80,7 @@ class ProcessNCRNA:
         # split local fasta
         metadata = self.save_split(output_dir)
         # update db.RNA
-        RNA.objects.filter(database=self.database, annot_type=self.annot_type).delete()
+        RNA.objects.filter(data_source=self.data_source, annot_type=self.annot_type).delete()
         RNA.objects.load_data(metadata)
 
 
@@ -117,7 +117,7 @@ class ProcessNCRNA:
                 json.dump(self.annot[key], f, indent=4)
             # update metadata
             meta = {
-                'datasource': self.database,
+                'data_source': self.data_source,
                 'annot_type': self.annot_type,
                 'fa_path': fa_path,
                 'annot_json': annot_json,
@@ -140,7 +140,7 @@ class ProcessNCRNA:
         record.description = ''
         annot_rec = {
             'ID': record.id,
-            'database': self.database,
+            'data_source': self.data_source,
             'annot_type': self.annot_type,
             'accession': desc[1],
             'organism_name': organism_name,
@@ -159,7 +159,7 @@ class ProcessNCRNA:
         record.description = ''
         annot_rec = {
             'ID': record.id,
-            'database': self.database,
+            'data_source': self.data_source,
             'annot_type': self.annot_type,
             'accession': desc[-1],
             'organism_name': organism_name,
@@ -179,7 +179,7 @@ class ProcessNCRNA:
         record.description = ''
         annot_rec = {
             'ID': record.id,
-            'database': self.database,
+            'data_source': self.data_source,
             'annot_type': self.annot_type,
             'name': ' '.join(desc[4:]),
             'organism_name': organism_name,
@@ -192,7 +192,7 @@ class ProcessNCRNA:
         download data from https://rnacentral.org/
         load data into eRNA
         '''
-        self.database = 'RNACentral'
+        self.data_source = 'RNACentral'
         self.annot_type = '5SrRNA'
 
         conn = ConnectRNACentral()
@@ -201,7 +201,7 @@ class ProcessNCRNA:
         meta = self.format_fasta(local_file, output_dir)
 
         # updata db
-        RNA.objects.filter(database=self.database, annot_type=self.annot_type).delete()
+        RNA.objects.filter(data_source=self.data_source, annot_type=self.annot_type).delete()
         RNA.objects.load_data([meta,])
 
     def format_fasta(self, local_fa:str, output_dir:str):
@@ -222,7 +222,7 @@ class ProcessNCRNA:
         # meta data
         meta = {
             'annot_type': self.annot_type,
-            'database': self.database,
+            'data_source': self.data_source,
             'fa_path': fa_file,
             'annot_json': annot_json,
         }
@@ -233,7 +233,7 @@ class ProcessNCRNA:
         download data from https://rnacentral.org/
         load data into eRNA
         '''
-        self.database = 'RNACentral'
+        self.data_source = 'RNACentral'
         self.annot_type = 'tRNA'
 
         conn = ConnectRNACentral()
@@ -242,7 +242,7 @@ class ProcessNCRNA:
         meta = self.format_fasta(local_file, output_dir)
 
         # updata db
-        RNA.objects.filter(database=self.database, annot_type=self.annot_type).delete()
+        RNA.objects.filter(data_source=self.data_source, annot_type=self.annot_type).delete()
         RNA.objects.load_data([meta,])
 
 
@@ -254,7 +254,7 @@ class ProcessNCRNA:
         record.description = ''
         annot_rec = {
             'ID': record.id,
-            'database': self.database,
+            'data_source': self.data_source,
             'annot_type': self.annot_type,
             'name': ' '.join(desc[3:]),
             'organism_name': organism_name,

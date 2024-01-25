@@ -212,9 +212,9 @@ tasks_data = [
         'method_name': 'build_index',
         'tool': builder,
         'params': {
-            'model': 'Annotation',
+            'model': 'MolecularAnnotation',
             'query': {
-                "file_path": "/home/yuan/bio/references/NCBI/genome/Homo_sapiens/GCF_000001405.40/GCF_000001405.40_GRCh38.p14_rna.fna",
+                "file_path": "/home/yuan/bio/references/NCBI/genome/Homo_sapiens/GCF_000001405.40/features/mRNA.fna",
             }
         },
     },
@@ -236,9 +236,9 @@ tasks_data = [
         'method_name': 'build_index',
         'tool': builder,
         'params': {
-            'model': 'Annotation',
+            'model': 'MolecularAnnotation',
             'query': {
-                "file_path": "/home/yuan/bio/references/NCBI/genome/Homo_sapiens/GCF_000001405.40/GCF_000001405.40_GRCh38.p14_pseudo_without_product.fna",
+                "file_path": "/home/yuan/bio/references/NCBI/genome/Homo_sapiens/GCF_000001405.40/features/pseudogene.fna",
             }
         },
     },

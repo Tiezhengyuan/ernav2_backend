@@ -19,6 +19,7 @@ router.register('genome', GenomeViewSet, basename='genome')
 router.register('method', MethodViewSet, basename='method')
 router.register('method_relation', MethodRelationViewSet, basename='method_relation')
 router.register('method_tool', MethodToolViewSet, basename='method_tool')
+router.register('molecular_annotation', MolecularAnnotationViewSet, basename='molecular_annotation')
 
 router.register('pipeline', PipelineViewSet, basename='pipeline')
 router.register('project', ProjectViewSet, basename='project')

@@ -13,7 +13,7 @@ from pipelines.process.process_ncrna import ProcessNCRNA
 
 print('\n\n###Begin to refresh/update database###\n\n')
 
-start_end = '4'.split('-')
+start_end = '6'.split('-')
 start, end = int(start_end[0]), int(start_end[-1])
 pool = range(start, end + 1)
 for enter in pool:
@@ -31,8 +31,9 @@ for enter in pool:
             # update db.Genome and db.Annotation
             ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').download_genome()
         case 4:
-            print('Retrieve annotations according to molecular type...')
-            ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').retrieve_molecular_annotations()
+            print('Retrieve and load annotations according to molecular type...')
+            ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_000001405.40').molecular_annotation(False)
+            # ProcessGenome('NCBI', 'Homo_sapiens', 'GCF_009914755.1').molecular_annotation(True)
         case 5:
             print('Refresh model Genome...')
             genomes = Genome.objects.refresh()

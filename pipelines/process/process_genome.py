@@ -8,7 +8,7 @@ from pipelines.connector.connect_ncbi import ConnectNCBI
 from pipelines.utils.handle_json import HandleJson
 from pipelines.utils.dir import Dir
 
-from rna_seq.models import Specie, Genome, Annotation
+from rna_seq.models import Genome, Annotation, MolecularAnnotation
 
 class ProcessGenome:
 
@@ -54,18 +54,29 @@ class ProcessGenome:
       Annotation.objects.load_annotations(obj[0], local_files)
     return res
 
-  def retrieve_molecular_annotations(self):
+  def molecular_annotation(self, overwrite:bool=None) -> list:
+    '''
+    retrieve annoations accordding to molecular type from fa and gtf/gff
+    Save metadata to MolecularAnnotation
+    '''
     genomes = Genome.objects.filter(local_path__isnull=False)
     for genome in genomes:
       local_files = [os.path.join(genome.local_path, name) for \
         name in os.listdir(genome.local_path)]
-      print(local_files)
       outdir = os.path.join(genome.local_path, 'features')
       Dir(outdir).init_dir()
-      # 
-      meta = Wrap(local_files, outdir).ncbi_fa_gff()
-      for item in meta:
-        print(item)
+
+      # process genome annotations
+      wrapper = Wrap(local_files, outdir)
+      meta = wrapper.load_output()
+      if overwrite or (not meta):
+        meta = wrapper.ncbi_fa_gff()
+        wrapper.save_output(meta, True)
+      # load meta into MolecularAnnotation
+      meta = wrapper.load_output()
+      res = MolecularAnnotation.objects.load(meta)
+      return res
+      
       
 
 

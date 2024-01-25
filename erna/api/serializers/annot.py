@@ -1,11 +1,16 @@
 from rest_framework import serializers
-from rna_seq.models import Annotation, AlignerIndex, Genome, \
-    Specie, RNA
+from rna_seq.models import Annotation, MolecularAnnotation, \
+    AlignerIndex, Genome, Specie, RNA
 
 
 class AnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Annotation
+        fields = '__all__'
+
+class MolecularAnnotationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MolecularAnnotation
         fields = '__all__'
 
 class AlignerIndexSerializer(serializers.ModelSerializer):

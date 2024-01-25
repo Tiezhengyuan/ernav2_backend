@@ -11,7 +11,6 @@ from django.contrib.contenttypes.models import ContentType
 
 import rna_seq.models
 from .tool import Tool
-# from .annotation import Annotation
 from pipelines.utils.dir import Dir
 
 INFO_FILE = 'info.json'
@@ -39,7 +38,6 @@ class AlignerIndexManager(models.Manager):
     res = []
     indexes = self.scan_index_dir()
     for digit_name, info in indexes:
-      print(info)
       this_model = getattr(rna_seq.models, info['model_name'])
       defaults = {
         'tool': Tool.objects.get(pk=info['tool_id']),
@@ -54,6 +52,7 @@ class AlignerIndexManager(models.Manager):
     '''
     Note: index_path is not defined in record when that is created
     '''
+    print(tool, related_obj)
     obj = self.create(tool=tool, content_object=related_obj)
     index_dir_path = os.path.join(settings.INDEX_DIR, str(obj.id))
     Dir(index_dir_path).init_dir()
@@ -74,12 +73,14 @@ class AlignerIndex(models.Model):
     blank=True,
     verbose_name= 'index path used by aligner',
   )
-  # related models: Annotation, RNA
+  # related models: Annotation, RNA, MolecularAnnotation
   # The model must define a certain fa_path
   content_type = models.ForeignKey(
     ContentType,
     on_delete=models.CASCADE,
   )
+  # id of the object of the related model
+  # ids could be identical but come from different models
   object_id = models.PositiveIntegerField()
   content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -87,8 +88,8 @@ class AlignerIndex(models.Model):
 
   class Meta:
     app_label = "rna_seq"
-    unique_together = ['tool', 'object_id']
-    ordering = ["tool", "index_path"]
+    unique_together = ('tool', 'content_type')
+    ordering = ("tool", "index_path")
 
   def update_index(self, meta_data:dict) -> None:
     self.index_path = meta_data['index_path']
