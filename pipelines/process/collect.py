@@ -3,11 +3,11 @@ retrieve data for further analysis
 '''
 import os
 from biofile import GTF, GFF
+from biosequtils import Dir, KeyValue
 
 from rna_seq.models import SampleProject
-from pipelines.utils.utils import Utils
 from .process import Process
-from pipelines.utils.dir import Dir
+
 
 class Collect:
   def __init__(self, params:dict):
@@ -32,7 +32,7 @@ class Collect:
       path = os.path.join(sf.raw_data.file_path, sf.raw_data.file_name)
       sample_name = sf.sample.sample_name
       file_type = sf.raw_data.file_type
-      Utils.init_dict(res, [sample_name, file_type], [])
+      KeyValue.init_dict(res, [sample_name, file_type], [])
       res[sample_name][file_type].append(path)
     for k,v in res.items():
       v['sample_name'] = k 

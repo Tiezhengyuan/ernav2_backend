@@ -2,6 +2,7 @@
 scheduled tasks:
 search table Task and detect tasks with 'is_ready'=True
 '''
+from biosequtils import Dir
 from copy import deepcopy
 import json
 import os
@@ -12,7 +13,6 @@ from rnaseqdata import load_seqdata
 from rna_seq.models import Project, Task, TaskTree, TaskExecution,\
     ExecutionTree, MethodTool, Tool, Method, Genome, Annotation
 from rna_seq.constants import METHODS
-from pipelines.utils.dir import Dir
 from .align import Align
 from .assemble import Assemble
 from .collect import Collect

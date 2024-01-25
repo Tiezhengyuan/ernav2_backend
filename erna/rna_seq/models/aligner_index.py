@@ -1,6 +1,7 @@
 '''
 reference index used by index
 '''
+from biosequtils import Dir
 import json
 import os
 from typing import Iterable
@@ -11,7 +12,6 @@ from django.contrib.contenttypes.models import ContentType
 
 import rna_seq.models
 from .tool import Tool
-from pipelines.utils.dir import Dir
 
 INFO_FILE = 'info.json'
 

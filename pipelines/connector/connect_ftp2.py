@@ -10,7 +10,7 @@ from typing import Callable
 import ftplib
 from django.conf import settings
 
-from pipelines.utils.dir import Dir
+from biosequtils import Dir
 
 class ConnectFTP2:
     ref_dir = getattr(settings, 'REFERENCES_DIR')

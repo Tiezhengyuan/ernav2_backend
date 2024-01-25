@@ -8,7 +8,7 @@ import lxml.html as html
 from urllib.request import urlopen
 from django.conf import settings
 
-from pipelines.utils.dir import Dir
+from biosequtils import Dir
 
 
 class ConnectMirbase:

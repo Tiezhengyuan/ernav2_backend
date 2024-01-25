@@ -1,5 +1,6 @@
 '''
 '''
+from biosequtils import Dir
 import json
 from copy import deepcopy
 from Bio import SeqIO
@@ -8,7 +9,7 @@ import os
 from rna_seq.models import RNA
 from pipelines.connector.connect_mirbase import ConnectMirbase
 from pipelines.connector.connect_rnacentral import ConnectRNACentral
-from pipelines.utils.dir import Dir
+
 
 
 class ProcessNCRNA:

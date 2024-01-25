@@ -14,8 +14,10 @@ xml
 
 biopython
 pysam
-rnaseqdata
 biofile
+biosequtils
+rnaseqdata
+
 eseq
 
 numpy

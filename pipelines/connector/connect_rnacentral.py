@@ -3,7 +3,7 @@ https://rnacentral.org
 '''
 import os
 from django.conf import settings
-from pipelines.utils.dir import Dir
+from biosequtils import Dir
 from pipelines.connector.connect_ftp import ConnectFTP
 
 

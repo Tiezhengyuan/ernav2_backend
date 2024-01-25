@@ -6,7 +6,7 @@ from ftplib import FTP
 from django.conf import settings
 
 from rna_seq.models import Specie, Genome
-from pipelines.utils import Dir, HandleJson
+from biosequtils import Dir, HandleJson
 from .connect_ftp import ConnectFTP
 from .connect_ftp2 import ConnectFTP2
 

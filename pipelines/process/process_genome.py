@@ -6,7 +6,7 @@ import os
 
 from pipelines.connector.connect_ncbi import ConnectNCBI
 from pipelines.utils.handle_json import HandleJson
-from pipelines.utils.dir import Dir
+from biosequtils import Dir
 
 from rna_seq.models import Genome, Annotation, MolecularAnnotation
 
