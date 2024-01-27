@@ -66,7 +66,7 @@ def main(args):
     case 'execute_tasks':
       '''
       example:
-      python3 erna/erna_app.py -m execute_tasks -p P00001 -t T01
+      python3 erna/erna_app.py -m execute_tasks -p P00005 -t T20
       '''
       project_id = args.get('project_id')
       task_id = args.get('task_id')

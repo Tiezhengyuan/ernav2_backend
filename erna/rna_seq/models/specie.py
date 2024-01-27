@@ -2,6 +2,7 @@ from typing import Iterable
 from django.db import models
 
 class SpecieManager(models.Manager):
+    # TODO: depcreated in the future
     def load_species(self, obj_iter:Iterable):
         res = []
         names = ['taxid', 'organism_name', 'group', 'other_names']
@@ -16,6 +17,18 @@ class SpecieManager(models.Manager):
             )
             res.append(obj)
         return res
+
+    def load_specie(self, summary:dict):
+        names = ['taxid', 'organism_name', 'group', 'other_names']
+        data = dict([(n, summary[n]) for n in names if n in summary])
+        name1, name2 = data['organism_name'].split(' ')[:2]
+        data['abbreviation'] = name1[0].lower() + name2[:2].lower()
+        data['specie_name'] = data['organism_name'].replace(' ', '_')
+        obj = self.update_or_create(
+            specie_name = data['specie_name'],
+            defaults = data
+        )
+        return obj
 
 
 class Specie(models.Model):

@@ -7,23 +7,24 @@ from .specie import Specie
 
 
 class GenomeManager(models.Manager):
-    def get_genome(self, specie_name:str, version:str=None):
+    def get_genome(self, data_source:str, specie_name:str, version:str=None):
         try:
             specie = Specie.objects.get(specie_name=specie_name)
             if version is None:
-                return self.filter(specie=specie).last()
-            return self.get(specie=specie, version=version)
+                return self.filter(data_source=data_source, specie=specie).last()
+            return self.get(data_source=data_source, specie=specie, version=version)
         except Exception as e:
             pass
         return None
     
-    def get_versions(self, specie_name:str):
+    def get_versions(self, data_source:str, specie_name:str):
             specie = Specie.objects.get(specie_name=specie_name)
-            query = self.filter(specie=specie)
+            query = self.filter(data_source=data_source, specie=specie)
             return [i.version for i in query]
 
-    def get_ftp_path(self, specie:str, version:str=None):
-        obj = self.get(specie=specie, version=version)
+    def get_ftp_path(self, data_source:str, specie:str, version:str=None):
+        obj = self.filter(data_source=data_source, specie=specie, \
+            version=version).first()
         return obj.ftp_path
 
     def load_genome(self, data:dict):
