@@ -13,7 +13,7 @@ from pipelines.process.process_ncrna import ProcessNCRNA
 
 print('\n\n###Begin to refresh/update database###\n\n')
 
-start_end = '6'.split('-')
+start_end = '11-15'.split('-')
 start, end = int(start_end[0]), int(start_end[-1])
 pool = range(start, end + 1)
 for enter in pool:
@@ -44,19 +44,19 @@ for enter in pool:
         # non-coding RNA
         case 11:
             print('Process miRNA for model RNA...')
-            ProcessNCRNA().load_mirna('hairpin')
-            ProcessNCRNA().load_mirna('mature')
+            ProcessNCRNA().load_mirna('miRNA_hairpin')
+            ProcessNCRNA().load_mirna('miRNA_mature')
         case 12:
-            print('Process piwiRNA for model RNA...')
-            ProcessNCRNA().load_piwirna()
-        case 13:
             print('Process long non-coding RNA for model RNA...')
             ProcessNCRNA().load_lncrna()
+        case 13:
+            print('Process piwiRNA for model RNA...')
+            ProcessNCRNA().load_piwirna()
         case 14:
-            print('Process long rRNA for model RNA...')
+            print('Process rRNA for model RNA...')
             ProcessNCRNA().load_rrna()
         case 15:
-            print('Process long tRNA for model RNA...')
+            print('Process tRNA for model RNA...')
             ProcessNCRNA().load_trna()
 
 

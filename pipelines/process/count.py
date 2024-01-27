@@ -56,7 +56,7 @@ class Count:
         # print(rc_files[-4:])
         # update SeqData
         rc_node = NodeData(self.params['seqdata'].root, 'RC')
-        for sample_name, rc_file in rc_files[-4:]:
+        for sample_name, rc_file in rc_files:
             rc = pd.read_csv(rc_file, sep='\t', index_col=0, header=0)
             rc.name = sample_name
             rc_node.put_data(rc.iloc[:,0])
@@ -74,7 +74,7 @@ class Count:
         df = df.T
         self.params['output'].append(meta)
         outfile = os.path.join(self.params['output_dir'], 'RC_T.txt')
-        df.to_csv(outfile, sep='\t', index=True, header=True)
+        df.to_csv(outfile, sep='\t', index=False, header=True)
         meta = {
             'count': 'RC',
             'RC': outfile,

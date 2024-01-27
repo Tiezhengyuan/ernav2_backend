@@ -2,12 +2,10 @@
 process genome annotations before analysis
 '''
 from biofile import Wrap
+from biosequtils import Dir, HandleJson
 import os
 
 from pipelines.connector.connect_ncbi import ConnectNCBI
-from pipelines.utils.handle_json import HandleJson
-from biosequtils import Dir
-
 from rna_seq.models import Genome, Annotation, MolecularAnnotation
 
 class ProcessGenome:
