@@ -2,6 +2,8 @@
 prepare commands used by external tools
 '''
 
+# Note: 
+# args: the object input_data would be updated.
 class ProcessCMD:
     
     @staticmethod
@@ -110,11 +112,8 @@ class ProcessCMD:
           '--sjdbGTFfile', input_data['gtf_path'],
           '--sjdbOverhang', '99',
         ]
-        output = {
-            'cmd': ' '.join(cmd),
-            'index_path': input_data['index_path'],
-        }
-        return cmd, output
+        input_data['cmd'] = ' '.join(cmd)
+        return cmd
     
     @staticmethod
     def star_align(tool, input_data:dict):
@@ -127,9 +126,7 @@ class ProcessCMD:
         if input_data.get('R1') or input_data.get('R2'):
             fq_files = input_data.get('R1', []) + input_data.get('R2', [])
             cmd += ['--readFilesIn', ','.join(fq_files),]
-        output_data = {
-            'sample_name': input_data['sample_name'],
+        input_data.update({
             'cmd': ' '.join(cmd),
-            'output_prefix': input_data['output_prefix'],
-        }
-        return cmd, output_data
+        })
+        return cmd

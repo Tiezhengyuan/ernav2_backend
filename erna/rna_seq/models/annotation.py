@@ -76,6 +76,6 @@ class Annotation(models.Model):
         '''
         if tool:
             for aligner_index in self.indexes.all():
-                if aligner_index.tool == tool:
+                if aligner_index.tool == tool and aligner_index.index_path:
                     return aligner_index.index_path
         return None

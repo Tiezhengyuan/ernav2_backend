@@ -127,7 +127,7 @@ class ExecuteTasks:
             params['genome'] = genome
             # genome DNA
             annot = {
-                'dna': Annotation.objects.genome_annot(genome, 'fna').file_path,
+                'dna': Annotation.objects.genome_annot(genome, 'fna'),
                 'gtf': None,
                 'gff': None,
                 'gtf_json': {},
@@ -137,12 +137,12 @@ class ExecuteTasks:
             #Note: GFF works, but GTF doesn't work in StringTie (bug)
             gtf_annot = Annotation.objects.genome_annot(genome, 'gtf')
             if gtf_annot:
-                annot['gtf'] = gtf_annot.file_path
-                annot['gtf_json'] = Collect.import_gtf_annotations(annot['gtf'])
+                annot['gtf'] = gtf_annot
+                annot['gtf_json'] = Collect.import_gtf_annotations(annot['gtf'].file_path)
             gff_annot = Annotation.objects.genome_annot(genome, 'gff')
             if gff_annot:
-                annot['gff'] = gff_annot.file_path
-                annot['gff_json'] = Collect.import_gff_annotations(annot['gff'])
+                annot['gff'] = gff_annot
+                annot['gff_json'] = Collect.import_gff_annotations(annot['gff'].file_path)
             params['genome_annot'] = annot
         return params
 

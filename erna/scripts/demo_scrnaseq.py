@@ -8,7 +8,7 @@ from commons.models import CustomUser
 print('Cretae project...')
 user = CustomUser.objects.get(pk=1)
 specie_name = 'Homo_sapiens'
-genome = Genome.objects.get_genome(specie_name, 'GCF_000001405.40')
+genome = Genome.objects.get_genome('NCBI', specie_name, 'GCF_000001405.40')
 project_id = "P00004"
 new_project = {
     "project_id": project_id,

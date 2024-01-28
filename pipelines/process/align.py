@@ -71,12 +71,13 @@ class Align:
       'index_path': index_path,
       'model_name': task_params['model'],
       'model_query': task_params['query'],
-      'tool_id': tool.id,
+      'tool_query': {
+        'exe_name': tool.exe_name,
+        'version': tool.version,
+      },
     }
     if not index_path:
-      new_index, index_dir_path, index_path = AlignerIndex.objects.new_index(tool, obj)
-      meta_data['index_dir_path'] = index_dir_path
-      meta_data['index_path'] = index_path
+      new_index = AlignerIndex.objects.new_index(tool, obj, meta_data)
       self.params['cmd'] = ProcessCMD.aligner_build_index(tool, meta_data)
       Process.run_subprocess(self.params)
       new_index.update_index(meta_data)
@@ -110,25 +111,30 @@ class Align:
   def build_genome_index(self):
     '''
     build index for genome alignment
+    annotations are stored in model Annotation
     '''
     tool = self.params.get('tool')
     if tool is None:
       return None
-    if not self.params['genonme_annot']['dna']:
+    genome_annot = self.params.get('genome_annot')
+    if genome_annot is None or not genome_annot.get('dna'):
       return None
 
     meta_data = {
-      'fa_path': self.params['genonme_annot']['dna'].file_path,
-      'gtf_path': self.params['genonme_annot']['gff'].file_path,
-      'index_path': self.params['genonme_annot']['dna'].get_index_path(tool),
+      'fa_path': genome_annot['dna'].file_path,
+      'gtf_path': genome_annot['gff'].file_path,
+      'index_path': genome_annot['dna'].get_index_path(tool),
+      'model_name': 'Annotation',
+      'model_query': {'file_path': genome_annot['dna'].file_path,},
+      'tool_query': {
+        'exe_name': tool.exe_name,
+        'version': tool.version,
+      },
     }
+    print(meta_data)
     # build index
     if not meta_data['index_path']:
-      new_index, index_dir_path, index_path = AlignerIndex.objects.new_index(
-        tool, self.params['genome_annot']['dna']
-      )
-      meta_data['index_dir_path'] = index_dir_path
-      meta_data['index_path'] = index_path
+      new_index = AlignerIndex.objects.new_index(tool, genome_annot['dna'], meta_data)
       if tool.tool_name == 'star':
         self.params['cmd'] = ProcessCMD.star_build_index(tool, meta_data)
       else:

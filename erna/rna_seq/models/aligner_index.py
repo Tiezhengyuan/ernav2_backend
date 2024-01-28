@@ -38,9 +38,10 @@ class AlignerIndexManager(models.Manager):
     res = []
     indexes = self.scan_index_dir()
     for digit_name, info in indexes:
+      print(info)
       this_model = getattr(rna_seq.models, info['model_name'])
       defaults = {
-        'tool': Tool.objects.get(pk=info['tool_id']),
+        'tool': Tool.objects.get(**info['tool_query']),
         'index_path': info['index_path'],
         'content_object': this_model.objects.get(**info['model_query']),
       }
@@ -48,18 +49,24 @@ class AlignerIndexManager(models.Manager):
       res.append(obj)
     return res
 
-  def new_index(self, tool, related_obj):
+  def new_index(self, tool, related_obj, meta_data:dict):
     '''
     Note: index_path is not defined in record when that is created
+    -args: meta would be updated.
     '''
-    print(tool, related_obj)
+    # create new record
     obj = self.create(tool=tool, content_object=related_obj)
+
+    # create index_dir
     index_dir_path = os.path.join(settings.INDEX_DIR, str(obj.id))
     Dir(index_dir_path).init_dir()
+    
+    # update meta_data
+    meta_data['index_dir_path'] = index_dir_path
     fa_path = related_obj.file_path
     file_name, _ = os.path.splitext(os.path.basename(fa_path))
-    index_path = os.path.join(index_dir_path, file_name)
-    return obj, index_dir_path, index_path
+    meta_data['index_path'] = os.path.join(index_dir_path, file_name)
+    return obj
 
 
 class AlignerIndex(models.Model):

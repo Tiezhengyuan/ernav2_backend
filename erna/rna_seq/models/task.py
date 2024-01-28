@@ -66,10 +66,8 @@ class TaskManager(models.Manager):
 
         annot = None
         if 'genome' in data:
-            genome = Genome.objects.get_genome(
-                data['genome']['specie'],
-                data['genome']['version']
-            )
+            genome = Genome.objects.get(**data['genome'])
+            print(genome, data['annotation'])
             annot = Annotation.objects.get(
                 genome=genome,
                 file_format=data['annotation']['file_format'],

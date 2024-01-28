@@ -13,7 +13,7 @@ from pipelines.process.process_ncrna import ProcessNCRNA
 
 print('\n\n###Begin to refresh/update database###\n\n')
 
-start_end = '1'.split('-')
+start_end = '6'.split('-')
 start, end = int(start_end[0]), int(start_end[-1])
 pool = range(start, end + 1)
 for enter in pool:

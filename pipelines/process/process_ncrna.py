@@ -145,7 +145,7 @@ class ProcessNCRNA:
         output_dir, local_file = conn.download_sequence('5srrnadb.fasta')
         metadata = self.format_fasta(local_file, output_dir)
         # update model RNA
-        self.load_db(metadata)
+        self.load_db([metadata,])
 
     def load_trna(self):
         '''
@@ -160,7 +160,7 @@ class ProcessNCRNA:
         output_dir, local_file = conn.download_sequence('gtrnadb.fasta')
         metadata = self.format_fasta(local_file, output_dir)
         # update model RNA
-        self.load_db(metadata)
+        self.load_db([metadata,])
 
     def desc_rna(self, record):
         desc = record.description.split(' ')
