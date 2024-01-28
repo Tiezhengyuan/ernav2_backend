@@ -1,6 +1,7 @@
 '''
 example:
     python3 erna/manage.py shell < erna/scripts/demo_scrnaseq.py
+    python3 erna/erna_app.py -m execute_tasks -p P00004 -t T00
 '''
 from rna_seq.models import *
 from commons.models import CustomUser

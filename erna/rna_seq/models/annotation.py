@@ -43,8 +43,7 @@ class AnnotationManager(models.Manager):
         '''
         annotations = self.filter(genome=genome)
         for annot in annotations:
-            if annot.annot_type == 'genomic' and \
-                annot.file_format == file_format:
+            if annot.annot_type == 'genomic' and annot.file_format == file_format:
                 return annot
         return None
 

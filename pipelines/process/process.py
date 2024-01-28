@@ -11,7 +11,6 @@ class Process:
         '''
         if params.get('cmd') and params['force_run']:
             cmd = ' '.join(params['cmd'])
-            # print(cmd)
             res = subprocess.run(cmd, capture_output=True, text=True, shell=True)
             if res.stdout:
                 log = f"{params.get('output_prefix', '_')}.out.log"

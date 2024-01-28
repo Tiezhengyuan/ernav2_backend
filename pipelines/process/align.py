@@ -131,7 +131,6 @@ class Align:
         'version': tool.version,
       },
     }
-    print(meta_data)
     # build index
     if not meta_data['index_path']:
       new_index = AlignerIndex.objects.new_index(tool, genome_annot['dna'], meta_data)
