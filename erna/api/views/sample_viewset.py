@@ -67,7 +67,7 @@ class SampleViewSet(viewsets.ModelViewSet):
         ]
         '''
         res = Sample.objects.load_samples(request.user, request.data)
-        return Response(res)
+        return Response({'loaded': len(res)})
 
     @action(detail=False, methods=['delete'])
     def delete_study_samples(self, request):
@@ -78,3 +78,10 @@ class SampleViewSet(viewsets.ModelViewSet):
         if study_name is not None:
             res = Sample.objects.delete_study_samples(study_name)
         return Response({'message': f"{res} are deleted."})
+
+    @action(detail=False, methods=['delete'])
+    def delete_all(self, request):
+        samples = Sample.objects.all()
+        res = {'deleted': len(samples)}
+        samples.delete()
+        return Response(res)

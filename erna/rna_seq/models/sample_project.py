@@ -92,8 +92,10 @@ class SampleProjectManager(models.Manager):
         return res
 
     def add_sample_file(self, project_sample):
+        '''
+        used by api sample_project/load_samle_files/
+        '''
         existing = self.filter(**project_sample)
-        print(existing[0].project, existing[0].sample_file)
         if not existing:
             obj = self.create(**project_sample)
             obj.save()

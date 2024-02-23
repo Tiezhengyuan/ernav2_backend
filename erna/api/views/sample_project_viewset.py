@@ -50,6 +50,7 @@ class SampleProjectViewSet(viewsets.ModelViewSet):
                 if tag == 0:
                     item = {
                         'study_name': study_name,
+                        'sample_file_id': sf['sample_file_id'],
                         'sample_name':sf['sample_name'],
                         'raw_data': [i['full_path'] for i in sf['raw_data']],
                     }

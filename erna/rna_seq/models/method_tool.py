@@ -7,7 +7,7 @@ from .tool import Tool
 from .method import Method
 from rna_seq.constants import METHODS
 
-
+# model manager
 class MethodToolManager(models.Manager):
   def refresh(self):
     self.all().delete()
@@ -27,13 +27,14 @@ class MethodToolManager(models.Manager):
 
   def get_method_tool(self, method_name:str, exe_name:str=None, version:str=None):
     method = Method.objects.get(method_name=method_name)
-    print(method_name, exe_name, version)
     if exe_name or version:
       tool = Tool.objects.get_tool(exe_name=exe_name, version=version)
       if tool:
         return self.get(method=method, tool=tool)
     return self.get(method=method)
 
+
+# model
 class MethodTool(models.Model):
   method = models.ForeignKey(
     Method,

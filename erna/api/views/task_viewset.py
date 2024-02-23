@@ -38,3 +38,10 @@ class TaskViewSet(viewsets.ModelViewSet):
     res = Task.objects.delete_tasks(project_id, task_id)
     return Response(res)
   
+  @action(detail=False, methods=['get'])
+  def next_task_id(self, request):
+      project_id = self.request.query_params.get('project_id')
+      if project_id is not None:
+        res = Task.objects.next_task_id(project_id)
+        return Response(res)
+      return Response({'error': f'project_id={project_id} is missing.'})

@@ -68,7 +68,7 @@ class SampleManager(models.Manager):
         res = []
         for sample in samples:
             metadata = json.dumps(sample['metadata']) if \
-                'metadata' in sample else None
+                sample.get('metadata') else None
             obj = self.update_or_create(
                 study_name = sample['study_name'],
                 sample_name=sample['sample_name'],
@@ -125,8 +125,11 @@ class Sample(models.Model):
     )
     # namely phenotype
     # string type converted from json format
-    metadata = models.CharField(max_length=3000, \
-        blank=True, null=True)
+    metadata = models.CharField(
+        max_length=3000,
+        blank=True,
+        null=True
+    )
 
     objects = SampleManager()
     unique_together = ('study_name', 'sample_name')

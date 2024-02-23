@@ -12,10 +12,24 @@ class MethodViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         method_name = self.request.query_params.get('method_name', None)
         if method_name is not None:
-            return Method.objects.get_method_tools(method_name)
+            return Method.objects.filter(method_name=method_name)
         return Method.objects.all()
     
     @action(detail=False, methods=['get'])
     def refresh(self, request):
         res = Method.objects.refresh()
         return Response({'created': len(res)})
+
+    @action(detail=False, methods=['get'])
+    def method_names(self, request):
+        res = []
+        methods = Method.objects.all()
+        for method in methods:
+            obj = {
+                'method_name': method.method_name,
+                'label': method.method_name.title().replace('_', ' '),
+                'component': method.method_name.title().replace('_', ''),
+            }
+            res.append(obj)
+        return Response(res)
+    
