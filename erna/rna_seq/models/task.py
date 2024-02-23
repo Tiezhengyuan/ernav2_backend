@@ -53,7 +53,9 @@ class TaskManager(models.Manager):
         '''
         method_tool = None
         if 'method_name' in data:
-            if 'tool' in data:
+            if 'tool_id' in data:
+                method_tool = MethodTool.objects.get(pk=data['tool_id'])
+            elif 'tool' in data:
                 method_tool = MethodTool.objects.get_method_tool(
                     data['method_name'],
                     data['tool']['exe_name'],
@@ -74,13 +76,13 @@ class TaskManager(models.Manager):
             )
 
         defaults = {
-            'method_tool': method_tool,
             'task_name': data.get('task_name'),
             'params': json.dumps(data.get('params', {})),
-            'is_ready': True if 'method_name' in data else False,
+            'is_ready': True if data.get('is_ready') else False,
+            'method_tool': method_tool,
+            'annotation': annot,
         }
-        if annot:
-            defaults['annotation'] = annot
+        print(defaults)
         task = self.update_or_create(project=project,
             task_id=task_id, defaults=defaults)
         return task
@@ -92,20 +94,18 @@ class TaskManager(models.Manager):
         # get Project
         project = Project.objects.get(project_id=project_id)
 
-        res = []
         # first add head task
-        task = self.add_head_task(project=project)
-        res.append(task)
+        self.add_head_task(project=project)
+
         # add tasks
         for data in tasks_data:
-            task_id = data.get('task_id') or self.next_task_id(project_id)
+            task_id = data.get('task_id')
             task = self.add_task(project, task_id, data)
-            res.append(task)
         else:
             # update Project
             project.status = 'ready'
             project.save()
-        return res
+        return self.filter(project=project_id)
 
     def delete_tasks(self, project_id:str=None, task_id:str=None):
         '''

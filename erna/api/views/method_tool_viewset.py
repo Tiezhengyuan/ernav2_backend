@@ -1,3 +1,4 @@
+import json
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -30,7 +31,10 @@ class MethodToolViewSet(viewsets.ModelViewSet):
             method_name = obj.method.method_name
             if method_name not in res:
                 res[method_name] = []
+            item = {}
             if obj.tool:
+                default_params = json.loads(obj.tool.default_params) if \
+                    obj.tool.default_params else {}
                 item = {
                     'text': f"{obj.tool.tool_name}_{obj.tool.version}",
                     'value': {
@@ -38,8 +42,19 @@ class MethodToolViewSet(viewsets.ModelViewSet):
                         'exe_name': obj.tool.exe_name,
                         'version': obj.tool.version,
                         'method_tool_id': obj.id,
-                    }
+                        'params': default_params,
+                    },
                 }
+            else:
+                if obj.method.default_params:
+                    item = {
+                        'text': 'built-in',
+                        'value': {
+                            'params': json.loads(obj.method.default_params) \
+                                if obj.method.default_params else {},
+                        },
+                    }
+            if item:
                 res[method_name].append(item)
         return Response(res)
             

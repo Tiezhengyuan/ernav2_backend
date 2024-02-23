@@ -30,7 +30,7 @@ class MethodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Method
-        fields = ['method_name', 'description', \
+        fields = ['method_name', 'description', 'default_params',\
             'children', 'tools']
 
 class PipelineSerializer(serializers.ModelSerializer):

@@ -26,9 +26,10 @@ class TaskViewSet(viewsets.ModelViewSet):
   @action(detail=False, methods=['post'])
   def load_tasks(self, request):
       project_id = request.data.get('project_id')
-      if project_id is not None:
-        res = Task.objects.load_tasks(project_id, request.data)
-        return Response(res)
+      tasks = request.data.get('tasks')
+      if project_id and tasks:
+        res = Task.objects.load_tasks(project_id, tasks)
+        return Response({'count': len(res)})
       return Response({'error': 'project_id is missing.'})
   
   @action(detail=False, methods=['delete'])
