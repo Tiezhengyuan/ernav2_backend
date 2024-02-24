@@ -24,6 +24,8 @@ class SpecieManager(models.Manager):
         name1, name2 = data['organism_name'].split(' ')[:2]
         data['abbreviation'] = name1[0].lower() + name2[:2].lower()
         data['specie_name'] = data['organism_name'].replace(' ', '_')
+        if 'group' not in data:
+            data['group'] = 'other'
         obj = self.update_or_create(
             specie_name = data['specie_name'],
             defaults = data

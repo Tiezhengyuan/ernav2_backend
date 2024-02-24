@@ -42,8 +42,9 @@ class SpecieViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def group_names(self, request):
-        res = Specie.objects.values_list('group', flat=True)
-        return Response({'names': list(set(res))})
+        groups = Specie.objects.values_list('group', flat=True)
+        res = [{'text': i.replace('_', ' '), 'value': i} for i in list(set(groups)) if i]
+        return Response(res)
 
     @action(detail=False, methods=['get'])
     def count_by_group(self, request):

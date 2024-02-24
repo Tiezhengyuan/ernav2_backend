@@ -22,9 +22,17 @@ class GenomeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def data_sources(self, request):
-        res = Genome.objects.values_list('data_source', flat=True)
-        return Response({'names': list(set(res))})
-    
+        sources = Genome.objects.values_list('data_source', flat=True)
+        res = [{'text': i, 'value': i} for i in list(set(sources))]
+        return Response(res)
+
+    @action(detail=False, methods=['get'])
+    def ready_genomes(self, request):
+        genomes = Genome.objects.filter(is_ready=True)
+        res = [{'value': i.id, 'text': f"{i.specie}_{i.data_source}_{i.version}"} for i in genomes]
+        return Response(res)
+
+
     @action(detail=False, methods=['post', 'update'])
     def load_genomes(self, request):
         res = {'created': 0, 'skipped': 0}
