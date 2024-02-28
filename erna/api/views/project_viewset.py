@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions
 
-from rna_seq.models import Project
+from rna_seq.models import Project, STATUS_OPTIONS, SEQUENCING_OPTIONS
 from api.serializers import ProjectSerializer
 
 
@@ -39,10 +39,24 @@ class ProjectViewSet(viewsets.ModelViewSet):
     return Response({'project_id': res})
 
   @action(detail=False, methods=['GET'])
-  def next_project_id(self, request):
-    res = Project.objects.get_next_project_id()
-    return Response({'project_id': res})
+  def new_project(self, request):
+    project_id = Project.objects.get_next_project_id()
+    res = {
+      'project_id': project_id,
+      'status': 'active',
+      'project_name': '',
+      'description': '',
+    }
+    return Response(res)
 
+  @action(detail=False, methods=['GET'])
+  def options(self, request):
+    res = {
+      'status': [{'value': i[0], 'label': i[1]} for i in STATUS_OPTIONS],
+      'sequencing': [{'value': i[0], 'label': i[1]} for i in SEQUENCING_OPTIONS],
+    }
+    return Response(res)
+  
   @action(detail=False, methods=['GET'])
   def count(self, request):
     res = Project.objects.all()

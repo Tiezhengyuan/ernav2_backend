@@ -7,27 +7,23 @@ from .project import Project
 class TaskTreeManager(models.Manager):
 
     def get_tasks(self, project_id:str, task_id:str):
-        task = Task.objects.get_task(project_id, task_id)
-        return task, self.model.objects.filter(task=task)
+        task = Task.objects.get(project_id=project_id, task_id=task_id)
+        return task, self.model.objects.filter(parent=task)
 
     def get_parents(self, project_id:str, task_id:str):
         '''
         one task may have multiple parents
         '''
-        parents = []
-        task, tasks = self.model.objects.get_tasks(project_id, task_id)
-        for t in tasks:
-            parents.append(t.parent)
+        task = Task.objects.get(project_id=project_id, task_id=task_id)
+        parents = self.filter(child=task)
         return task, parents
 
     def get_children(self, project_id:str, task_id:str):
         '''
         one task may have multiple children
         '''
-        children = []
-        task, tasks = self.model.objects.get_tasks(project_id, task_id)
-        for t in tasks:
-            children.append(t.child)
+        task = Task.objects.get(project_id=project_id, task_id=task_id)
+        children = self.filter(parent=task)
         return task, children
     
     def BFS(self, project_id:str, task_id:str)->Iterable:
@@ -57,7 +53,7 @@ class TaskTreeManager(models.Manager):
         for parent_id, child_id in tasks_data:
             parent = Task.objects.get(project=project, task_id=parent_id)
             child = Task.objects.get(project=project, task_id=child_id)
-            obj = self.update_or_create(task=parent, child=child)
+            obj = self.update_or_create(parent=parent, child=child)
             res.append(obj)
         return res
 
@@ -66,10 +62,11 @@ class TaskTree(models.Model):
     '''
     task, parent and child must belong to same project
     '''
-    task = models.ForeignKey(
+    parent = models.ForeignKey(
         Task,
         on_delete=models.CASCADE,
-        verbose_name='Task',
+        related_name='parent_tasks',
+        verbose_name='Parent Task',
     )
     child = models.ForeignKey(
         Task,
@@ -84,7 +81,5 @@ class TaskTree(models.Model):
 
     class Meta:
         app_label = 'rna_seq'
-        ordering = ('task', 'child')
-    
-    def __str__(self):
-        return self.task.task_id
+        ordering = ('parent', 'child')
+   

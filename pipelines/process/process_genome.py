@@ -131,7 +131,8 @@ class ProcessGenome:
         meta = wrapper.ncbi_fa_gff()
         wrapper.save_output(meta, True)
       # load meta into MolecularAnnotation
-      meta = wrapper.load_output()
+      # TODO: debuggging wrapper.load_output(): None is included sometimes
+      meta = [i for i in wrapper.load_output() if i]
       res = MolecularAnnotation.objects.load(meta)
       return res
       

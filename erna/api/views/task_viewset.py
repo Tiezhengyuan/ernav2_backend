@@ -46,3 +46,21 @@ class TaskViewSet(viewsets.ModelViewSet):
         res = Task.objects.next_task_id(project_id)
         return Response(res)
       return Response({'error': f'project_id={project_id} is missing.'})
+
+  @action(detail=False, methods=['get'])
+  def project_tasks(self, request):
+    project_id = self.request.query_params.get('project_id')
+    res = []
+    if project_id is not None:
+      for task in Task.objects.filter(project=project_id):
+        item = {
+          'project_id': task.project.project_id,
+          'task_id': task.task_id,
+          'params': task.params,
+          'method_tool_id': task.method_tool.id if task.method_tool else None,
+          'method_name': task.method_tool.method.method_name if task.method_tool else None,
+          'status': task.task_execution.status if task.task_execution else None,
+        }
+        res.append(item)
+    return Response(res)
+         

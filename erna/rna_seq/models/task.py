@@ -29,6 +29,7 @@ class TaskManager(models.Manager):
         ID of head task is always T00
         that is automatically created
         '''
+        print(Method.objects.head_method())
         method_tool = MethodTool.objects.get(
             method=Method.objects.head_method()
         )
@@ -52,10 +53,10 @@ class TaskManager(models.Manager):
         The task could be newly created or updated
         '''
         method_tool = None
-        if 'method_name' in data:
-            if 'tool_id' in data:
-                method_tool = MethodTool.objects.get(pk=data['tool_id'])
-            elif 'tool' in data:
+        if 'method_tool_id' in data:
+            method_tool = MethodTool.objects.get(pk=data['method_tool_id'])
+        elif 'method_name' in data:
+            if 'tool' in data:
                 method_tool = MethodTool.objects.get_method_tool(
                     data['method_name'],
                     data['tool']['exe_name'],

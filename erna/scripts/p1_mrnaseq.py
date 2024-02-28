@@ -1,7 +1,6 @@
 '''
 example:
-    python3 erna/manage.py shell < erna/scripts/demo_scrnaseq.py
-    python3 erna/erna_app.py -m execute_tasks -p P00004 -t T00
+    python3 erna/manage.py shell < erna/scripts/p1_mrnaseq.py
 '''
 from rna_seq.models import *
 from commons.models import CustomUser
@@ -9,14 +8,14 @@ from commons.models import CustomUser
 print('Cretae project...')
 user = CustomUser.objects.get(pk=1)
 specie_name = 'Homo_sapiens'
-genome = Genome.objects.get_genome('NCBI', specie_name, 'GCF_000001405.40')
-project_id = "P00004"
+genome = Genome.objects.get_genome(specie_name, 'GCF_000001405.40')
+project_id = "P00001"
 new_project = {
     "project_id": project_id,
-    "project_name": "test_scrna_seq",
-    "description": "for testing scRNA-seq",
+    "project_name": "test_mrna_seq",
+    "description": "for testing mRNA-seq",
     "status": "active",
-    "sequencing": "scRNA-Seq",
+    "sequencing": "mRNA-Seq",
     'owner': user,
     'genome': genome,
 }
@@ -27,8 +26,7 @@ print(project)
 print('Load samples...')
 study_name = 'test_mrnaseq'
 sample_names = ['197_L1', '1014_L1', '1073_L1']
-sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
-    for s in sample_names]
+sample_data = [{'study_name':study_name, 'sample_name':s,} for s in sample_names]
 samples = Sample.objects.load_samples(user, sample_data)
 print(samples)
 
@@ -48,9 +46,9 @@ tasks_data = [
         'task_id': 'T01',
         'method_name': 'build_genome_index',
         'tool': {
-            'tool_name': 'star',
-            'exe_name': 'STAR',
-            'version': '2.7.11a',
+            'tool_name': 'hisat2',
+            'exe_name': 'hisat2-build',
+            'version': '2.2.1',
         },
         'params': {},
         'genome':{
@@ -68,9 +66,9 @@ tasks_data = [
         'task_name': '',
         'method_name': 'align_transcriptome',
         'tool': {
-            'tool_name': 'star',
-            'exe_name': 'STAR',
-            'version': '2.7.11a',
+            'tool_name': 'hisat2',
+            'exe_name': 'hisat2',
+            'version': '2.2.1',
         },
     },
     {
@@ -114,7 +112,7 @@ tasks_data = [
         }
     },
 ]
-Task.objects.filter(project=project).delete()
+# Task.objects.filter(project=project).delete()
 tasks = Task.objects.load_tasks(project_id, tasks_data)
 print(tasks)
 
@@ -132,11 +130,10 @@ T07  | T01
   T05 T06
 '''
 task_pair = [
-    ('T00','T07'), ('T00','T01'),
-    ('T00','T02'), ('T01','T02'),
-    ('T02','T03'),
+    ('T00','T02'), ('T00','T07'), ('T00','T01'),
+    ('T01','T02'), ('T02','T03'),
     ('T03','T04'),
-    ('T04','T05'), ('T04','T06')
+    ('T04','T05'), ('T04','T06'),
 ]
 tasks_tree = TaskTree.objects.load_tasks_tree(project_id, task_pair)
 print(tasks_tree)

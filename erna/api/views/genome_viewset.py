@@ -39,7 +39,6 @@ class GenomeViewSet(viewsets.ModelViewSet):
         genomes = request.data
         if genomes:
             for genome in genomes:
-                print(genome)
                 obj = Genome.objects.load_genome(genome)
                 if obj:
                     res['created'] += 1

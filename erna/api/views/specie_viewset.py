@@ -39,13 +39,7 @@ class SpecieViewSet(viewsets.ModelViewSet):
     def count(self, request):
         count = Specie.objects.count()
         return Response({'count': count})
-
-    @action(detail=False, methods=['get'])
-    def group_names(self, request):
-        groups = Specie.objects.values_list('group', flat=True)
-        res = [{'text': i.replace('_', ' '), 'value': i} for i in list(set(groups)) if i]
-        return Response(res)
-
+    
     @action(detail=False, methods=['get'])
     def count_by_group(self, request):
         groups = {}
@@ -53,3 +47,11 @@ class SpecieViewSet(viewsets.ModelViewSet):
         for group in list(set(res)):
             groups[group] = Specie.objects.filter(group=group).count()
         return Response(groups)
+    
+    @action(detail=False, methods=['get'])
+    def group_names(self, request):
+        groups = Specie.objects.values_list('group', flat=True)
+        res = [{'text': i.replace('_', ' '), 'value': i} for i in list(set(groups)) if i]
+        return Response(res)
+
+

@@ -5,6 +5,23 @@ from django.conf import settings
 
 from commons.models import CustomUser
 
+STATUS_OPTIONS = [
+    # ready for edit/execution
+    ('active', 'active'),
+    # include ready tasks
+    ('ready', 'ready'),
+    # can't be executed because some tasks are launched
+    ('locked', 'locked'),
+    ('deleted', 'deleted'),
+]
+
+SEQUENCING_OPTIONS = [
+    ('mrna-seq', 'mRNA-Seq'),
+    ('mirna-seq', 'miRNA-Seq'),
+    ('scrna-seq', 'scRNA-Seq'),
+    ('other', 'other')
+]
+
 class ProjectManager(models.Manager):
 
     def get_last_project_id(self):
@@ -74,25 +91,12 @@ class Project(models.Model):
     status = models.CharField(
         max_length=10,
         default='active',
-        choices=[
-            # ready for edit/execution
-            ('active', 'active'),
-            # include ready tasks
-            ('ready', 'ready'),
-            # can't be executed because some tasks are launched
-            ('locked', 'locked'),
-            ('deleted', 'deleted'),
-        ],
+        choices=STATUS_OPTIONS,
     )
     sequencing = models.CharField(
         max_length=10,
         default='mrna-seq',
-        choices=[
-            ('mrna-seq', 'mRNA-Seq'),
-            ('mirna-seq', 'miRNA-Seq'),
-            ('scrna-seq', 'scRNA-Seq'),
-            ('other', 'other')
-        ],
+        choices=SEQUENCING_OPTIONS,
         verbose_name = "Sequencing technique",
     )
     create_time = models.DateTimeField(auto_now_add=True)

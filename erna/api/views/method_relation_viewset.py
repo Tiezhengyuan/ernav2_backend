@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from rna_seq.models import MethodRelation
+from rna_seq.models import Method, MethodRelation
 from api.serializers import MethodRelationSerializer
 
 class MethodRelationViewSet(viewsets.ModelViewSet):
@@ -19,3 +19,13 @@ class MethodRelationViewSet(viewsets.ModelViewSet):
     def refresh(self, request):
         res = MethodRelation.objects.refresh()
         return Response({'created': len(res)})
+
+    @action(detail=False, methods=['get'])
+    def children(self, request):
+        res = MethodRelation.objects.get_children()
+        return Response(res)
+        
+    @action(detail=False, methods=['get'])
+    def parents(self, request):
+        res = MethodRelation.objects.get_parents()
+        return Response(res)

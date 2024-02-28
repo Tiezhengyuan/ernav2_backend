@@ -1,3 +1,3 @@
-from .methods import METHODS
-from .trim import TRIM
-from .tool_exe import TOOL_EXE
+from .methods import *
+from .trim import *
+from .tool_exe import *

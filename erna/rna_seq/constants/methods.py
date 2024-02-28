@@ -1,8 +1,9 @@
-METHODS = [
-  {
-    "method_name": "import_data",
-    "description": "bound with task 00",
-  },
+ROOT_METHOD = {
+  "method_name": "import_data",
+  "description": "bound with task T00",
+}
+
+GENERAL_METHODS = [
   {
     "method_name": "align_transcriptome",
     "description": "RNA-seq",
@@ -102,3 +103,4 @@ METHODS = [
   },
 ]
 
+METHODS = [ROOT_METHOD, ] + GENERAL_METHODS

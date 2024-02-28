@@ -4,7 +4,7 @@ model: Method
 import json
 from django.db import models
 
-from rna_seq.constants import METHODS
+from rna_seq.constants import METHODS, ROOT_METHOD
 
 # manager
 class MethodManager(models.Manager):
@@ -27,7 +27,7 @@ class MethodManager(models.Manager):
     return res
 
   def head_method(self):
-    return self.get(method_name='import_data')
+    return self.get(method_name=ROOT_METHOD['method_name'])
 
 
 # model
@@ -54,3 +54,4 @@ class Method(models.Model):
   class Meta:
     app_label = 'rna_seq'
     ordering = ['method_name',]
+  

@@ -28,6 +28,7 @@ def download_genome(data_source, specie, version):
   p = ProcessGenome(data_source, specie, version)
   return p.download_genome()
 
+
 @shared_task
 def scan_raw_data():
   from pipelines.process.process_raw_data import ProcessRawData
