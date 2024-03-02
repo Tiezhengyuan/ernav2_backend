@@ -29,6 +29,16 @@ class MethodManager(models.Manager):
   def head_method(self):
     return self.get(method_name=ROOT_METHOD['method_name'])
 
+  def method_names(self):
+    res = []
+    for method in self.all():
+      obj = {
+        'method_name': method.method_name,
+        'label': method.method_name.title().replace('_', ' '),
+        'component': method.method_name.title().replace('_', ''),
+      }
+      res.append(obj)
+    return res
 
 # model
 class Method(models.Model):

@@ -1,6 +1,7 @@
 from typing import Iterable
 from django.db import models
 
+from .method_relation import MethodRelation
 from .task import Task
 from .project import Project
 
@@ -15,7 +16,7 @@ class TaskTreeManager(models.Manager):
         one task may have multiple parents
         '''
         task = Task.objects.get(project_id=project_id, task_id=task_id)
-        parents = self.filter(child=task)
+        parents = [task_tree.parent for task_tree in self.filter(child=task)]
         return task, parents
 
     def get_children(self, project_id:str, task_id:str):
@@ -23,9 +24,38 @@ class TaskTreeManager(models.Manager):
         one task may have multiple children
         '''
         task = Task.objects.get(project_id=project_id, task_id=task_id)
-        children = self.filter(parent=task)
+        children = [task_tree.child for task_tree in self.filter(parent=task)]
         return task, children
     
+    def task_tree(self, project_id:str):
+        res = {}
+        # possible paretns give a method name
+        method_parents = MethodRelation.objects.get_parents()
+        # all tasks given a project
+        project_tasks = Task.objects.filter(project=project_id)
+        for task in project_tasks:
+            parents = TaskTree.objects.filter(child=task)
+            parent_ids = [i.parent.task_id for i in parents]
+            if task.method_tool and task.method_tool.method:
+                possible_parents = method_parents[task.method_tool.method.method_name]
+                items = []
+                for task2 in project_tasks:
+                    if task2.method_tool:
+                        method_name = task2.method_tool.method.method_name
+                        if task2 != task and method_name in possible_parents:
+                            item = {
+                                'value': task2.task_id,
+                                'text': task2.task_id,
+                                'check': True if task2.task_id in parent_ids else False,
+                            }
+                            items.append(item)
+                    else:
+                        print('wrong task2: ', task2.task_id)
+            else:
+                print('wrong task', task.task_id)
+            res[task.task_id] = items
+        return res
+
     def BFS(self, project_id:str, task_id:str)->Iterable:
         '''
         task_id is root task. Given task_id,

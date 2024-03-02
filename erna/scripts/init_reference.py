@@ -3,20 +3,15 @@ initialize models
 example:
     python3 erna/manage.py shell < erna/scripts/init_reference.py
 '''
-# import sys
-# print(sys.path)
 from rna_seq.models import Genome, AlignerIndex
-
 from pipelines.process.process_genome import ProcessGenome
 from pipelines.process.process_ncrna import ProcessNCRNA
 
-
 print('\n\n###Begin to refresh/update database###\n\n')
 
-start_end = '4-15'.split('-')
+start_end = '1-20'.split('-')
 start, end = int(start_end[0]), int(start_end[-1])
-pool = range(start, end + 1)
-for enter in pool:
+for enter in range(start, end + 1):
     match enter:
         # genome
         case 1:

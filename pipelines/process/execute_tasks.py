@@ -10,9 +10,9 @@ from django.conf import settings
 from rnaseqdata import load_seqdata
 
 
-from rna_seq.models import Project, Task, TaskTree, TaskExecution,\
+from rna_seq.models import Project, TaskTree, TaskExecution,\
     ExecutionTree, MethodTool, Tool, Method, Genome, Annotation
-from rna_seq.constants import METHODS
+from rna_seq.constants import ROOT_METHOD, METHODS
 from .align import Align
 from .assemble import Assemble
 from .collect import Collect
@@ -67,23 +67,18 @@ class ExecuteTasks:
         get project and task instance 
         '''
         project = Project.objects.get(project_id=project_id)
-        task = Task.objects.get(project=project, task_id=task_id)
-        parents = TaskTree.objects.filter(child=task)
+        task, parents = TaskTree.objects.get_parents(project_id, task_id)
         # load seqdata
-        seqdata_file = os.path.join(settings.RESULTS_DIR,
-            project.project_id, "T00_import_data", "seqdata.obj")
-        # load seqdata
-        seqdata_file = os.path.join(settings.RESULTS_DIR,
-            project.project_id, "T00_import_data", "seqdata.obj")
+        seqdata_file = os.path.join(settings.RESULTS_DIR, project.project_id,
+            f"T00_{ROOT_METHOD['method_name']}", "seqdata.obj")
         params = {
             'project': project,
             'task': task,
-            'parents': [t.task for t in parents],
+            'parents': parents,
             'seqdata': load_seqdata(seqdata_file),
             'seqdata_path': seqdata_file,
         }
         return params
-
     
     def postpone_task(self, params:dict, i:int) -> bool:
         # Task T00 should be always executed
@@ -111,7 +106,7 @@ class ExecuteTasks:
         '''
         # parent/children
         params['parent_outputs'] = self.combine_parents_output(params['parents'])
-        children = TaskTree.objects.filter(task=params['task'])
+        children = TaskTree.objects.filter(parent=params['task'])
         params['children'] = [t.child for t in children]
 
         # Method and Tool
@@ -152,12 +147,14 @@ class ExecuteTasks:
         '''
         if not parents or not parents[0].task_execution:
             return []
+        
         parent_output = deepcopy(parents[0].task_execution.get_output())
         if len(parents) > 1:
             for parent in parents[1:]:
                 another = deepcopy(parent.task_execution.get_output())
-                for a,b in zip(parent_output, another):
-                    a.update(b)
+                if another:
+                    for a,b in zip(parent_output, another):
+                        a.update(b)
         return parent_output
 
     def skip_task(self, params:dict) -> bool:

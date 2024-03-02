@@ -19,17 +19,3 @@ class MethodViewSet(viewsets.ModelViewSet):
     def refresh(self, request):
         res = Method.objects.refresh()
         return Response({'created': len(res)})
-
-    @action(detail=False, methods=['get'])
-    def method_names(self, request):
-        res = []
-        methods = Method.objects.all()
-        for method in methods:
-            obj = {
-                'method_name': method.method_name,
-                'label': method.method_name.title().replace('_', ' '),
-                'component': method.method_name.title().replace('_', ''),
-            }
-            res.append(obj)
-        return Response(res)
-    

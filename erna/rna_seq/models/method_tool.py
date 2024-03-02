@@ -1,6 +1,7 @@
 '''
 
 '''
+import json
 from django.db import models
 
 from .tool import Tool
@@ -33,6 +34,44 @@ class MethodToolManager(models.Manager):
         return self.get(method=method, tool=tool)
     return self.get(method=method)
 
+  def get_method_tools(self):
+    '''
+    export method_tools
+    '''
+    res = {}
+    for obj in self.all():
+      method_name = obj.method.method_name
+      if method_name not in res:
+          res[method_name] = []
+      item = {}
+      value = {
+          'method_tool_id': obj.id,
+          'method_name': obj.method.method_name,
+      }
+      if obj.tool:
+          default_params = json.loads(obj.tool.default_params) if \
+              obj.tool.default_params else {}
+          value.update({
+              'tool_name': obj.tool.tool_name,
+              'exe_name': obj.tool.exe_name,
+              'version': obj.tool.version,
+              'params': default_params,
+          })
+          item = {
+              'text': f"{obj.tool.tool_name}_{obj.tool.version}",
+              'value': value,
+          }
+      else:
+          if obj.method.default_params:
+              value['params'] = json.loads(obj.method.default_params) \
+                  if obj.method.default_params else {}
+          item = {
+              'text': 'built-in',
+              'value': value,
+          }
+      # include empty methods of which no tools are defined.
+      res[method_name].append(item)
+    return res
 
 # model
 class MethodTool(models.Model):
@@ -54,4 +93,3 @@ class MethodTool(models.Model):
   class Meta:
     app_label = 'rna_seq'
     unique_together = ['method', 'tool']
-    ordering = ['method', 'tool']

@@ -23,6 +23,11 @@ def schedule_task():
 celery tasks
 '''
 @shared_task
+def execute_tasks(project_id):
+  from pipelines.process.execute_tasks import ExecuteTasks
+  return ExecuteTasks(project_id, None, True)()
+
+@shared_task
 def download_genome(data_source, specie, version):
   from pipelines.process.process_genome import ProcessGenome
   p = ProcessGenome(data_source, specie, version)

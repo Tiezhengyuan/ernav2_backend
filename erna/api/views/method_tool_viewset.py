@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from rna_seq.models import MethodTool
+from rna_seq.models import Method, MethodTool, MethodRelation
 from api.serializers import MethodToolSerializer
 
 class MethodToolViewSet(viewsets.ModelViewSet):
@@ -22,42 +22,14 @@ class MethodToolViewSet(viewsets.ModelViewSet):
         return Response({'created': len(res)})
 
     @action(detail=False, methods=['get'])
-    def method_tools(self, request):
+    def front_methods(self, request):
         '''
-        used by Vue
+        responsed is used by SelectMethod.Vue
         '''
-        res = {}
-        for obj in MethodTool.objects.all():
-            method_name = obj.method.method_name
-            if method_name not in res:
-                res[method_name] = []
-            item = {}
-            value = {
-                'method_tool_id': obj.id,
-                'method_name': obj.method.method_name,
-            }
-            if obj.tool:
-                default_params = json.loads(obj.tool.default_params) if \
-                    obj.tool.default_params else {}
-                value.update({
-                    'tool_name': obj.tool.tool_name,
-                    'exe_name': obj.tool.exe_name,
-                    'version': obj.tool.version,
-                    'params': default_params,
-                })
-                item = {
-                    'text': f"{obj.tool.tool_name}_{obj.tool.version}",
-                    'value': value,
-                }
-            else:
-                if obj.method.default_params:
-                    value['params'] = json.loads(obj.method.default_params) \
-                        if obj.method.default_params else {},
-                item = {
-                    'text': 'built-in',
-                    'value': value,
-                }
-            # include empty methods of which no tools are defined.
-            res[method_name].append(item)
+        res = {
+            'method_names': Method.objects.method_names(),
+            'method_tools': MethodTool.objects.get_method_tools(),
+            'method_parents': MethodRelation.objects.get_parents(),
+        }
         return Response(res)
             

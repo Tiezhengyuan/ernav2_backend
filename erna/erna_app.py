@@ -63,17 +63,6 @@ def main(args):
       '''
       return ProcessNCRNA().load_mirbase()
       
-    case 'execute_tasks':
-      '''
-      example:
-      python3 erna/erna_app.py -m execute_tasks -p P00005 -t T20
-      '''
-      project_id = args.get('project_id')
-      task_id = args.get('task_id')
-      chain = args.get('chain')
-      if project_id:
-        return ExecuteTasks(project_id, task_id, chain)()
-
     case 'build_genome_index':
       '''
       build index for aligner namely bowtie
@@ -108,7 +97,20 @@ def main(args):
         }
         return TrimAdapter(params)()
 
-  print('wrong arguments')
+    case 'execute_tasks':
+      '''
+      example:
+      python3 erna/erna_app.py -m execute_tasks -p P00002 -c
+      '''
+      project_id = args.get('project_id')
+      task_id = args.get('task_id')
+      chain = args.get('chain')
+      if project_id:
+        return ExecuteTasks(project_id, task_id, chain)()
+    case _:
+      print('wrong arguments')
+
+
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='eRNAv2: Analyze RNA-Seq data.')
@@ -120,28 +122,25 @@ if __name__ == '__main__':
   # optional relatd to method
   parser.add_argument('-d', '--data_source',
     help="Data source of annotations namely NCBI")
-  parser.add_argument('-s', '--specie',
-    help="Specie name defined in data source")
+  parser.add_argument('-s', '--specie', help="Specie name defined in data source")
   parser.add_argument('-g', '--genome_version',
     help="Genome version or accession given a genome defined in data source")
-  parser.add_argument('--tool_name',
-    help="third-party tool or built-in tool")
-  parser.add_argument('--tool_version',
-    help="tool version given a tool")
+  parser.add_argument('--tool_name', help="third-party tool or built-in tool")
+  parser.add_argument('--tool_version', help="tool version given a tool")
   parser.add_argument('-p', '--project_id', help="Project ID")
-  parser.add_argument('-t', '--task_id', default='T00',
-    help="Task ID given project_id")
-  parser.add_argument('-c', '--chain', default=False,
+  parser.add_argument('-t', '--task_id', default='T00', help="Task ID given project_id")
+  parser.add_argument('-c', '--chain', action="store_true",
     help="Execute current task and all remaining tasks followed by this task.")
-  parser.add_argument('-a', '--adapter_3end',
-    help='adapter sequences')
+  
+  parser.add_argument('-a', '--adapter_3end', help='adapter sequences')
   parser.add_argument('-i', '--input', help='Input path')
   parser.add_argument('-o', '--output', help='Output path')
   
   # general optional
   parser.add_argument('-f', '--force_run', default=False, action='store_false', 
     help="Force the app to execute task and overwrite current results.")
-    
+  
+
   # pass arguments
   args = parser.parse_args()
   main(vars(args))

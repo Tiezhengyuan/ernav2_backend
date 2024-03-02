@@ -1,14 +1,23 @@
 '''
-example:
+example of load tasks:
     python3 erna/manage.py shell < erna/scripts/p1_mrnaseq.py
+example of run tasks:
+    python3 erna/erna_app.py -m execute_tasks -p P00002 -c
 '''
+import sys
 from rna_seq.models import *
 from commons.models import CustomUser
 
+
+print('Get genome reference ...')
+specie_name = 'Homo_sapiens'
+genome = Genome.objects.get_genome('NCBI', specie_name, 'GCF_000001405.40')
+if not genome:
+    print("error: no genome reference is found.")
+    sys.exit(1)
+
 print('Cretae project...')
 user = CustomUser.objects.get(pk=1)
-specie_name = 'Homo_sapiens'
-genome = Genome.objects.get_genome(specie_name, 'GCF_000001405.40')
 project_id = "P00001"
 new_project = {
     "project_id": project_id,

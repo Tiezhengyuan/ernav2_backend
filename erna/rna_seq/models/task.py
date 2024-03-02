@@ -127,6 +127,27 @@ class TaskManager(models.Manager):
                 return self.all().delete()
         return []
 
+    def project_tasks(self, project_id:str):
+        res = []
+        for task in self.filter(project=project_id):
+            item = {
+                'project_id': task.project.project_id,
+                'task_id': task.task_id,
+                'is_ready': task.is_ready,
+                'params': json.loads(task.params) if task.params else {},
+                'status': task.task_execution.status if task.task_execution else None,
+            }
+            if task.method_tool:
+                method_name = task.method_tool.method.method_name
+                item.update({
+                    'method_tool_id': task.method_tool.id,
+                    'method_name': method_name,
+                    # name of Vue component
+                    'component': method_name.title().replace('_', ''),
+                })
+            res.append(item)
+        return res
+
 
 class Task(models.Model):
     # project_id + task_id = pk

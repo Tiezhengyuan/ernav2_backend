@@ -5,6 +5,15 @@ from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from .tasks import *
 
+def ExecuteTasksView(request):
+  project_id = request.GET.get('project_id', '')
+  task_id = execute_tasks.delay(project_id)
+  res = {
+    'task_id': [str(task_id),],
+  }
+  return JsonResponse(res, safe=False)
+
+
 def DownloadGenomeView(request):
   data_source = request.GET.get('data_source', '')
   specie = request.GET.get('specie')
