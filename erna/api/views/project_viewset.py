@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions
@@ -39,25 +40,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     return Response({'project_id': res})
 
   @action(detail=False, methods=['GET'])
-  def new_project(self, request):
-    project_id = Project.objects.get_next_project_id()
-    res = {
-      'project_id': project_id,
-      'status': 'active',
-      'project_name': '',
-      'description': '',
-    }
-    return Response(res)
-
-  @action(detail=False, methods=['GET'])
-  def options(self, request):
-    res = {
-      'status': [{'value': i[0], 'label': i[1]} for i in STATUS_OPTIONS],
-      'sequencing': [{'value': i[0], 'label': i[1]} for i in SEQUENCING_OPTIONS],
-    }
-    return Response(res)
-  
-  @action(detail=False, methods=['GET'])
   def count(self, request):
     res = Project.objects.all()
     count = res.count()
@@ -74,3 +56,30 @@ class ProjectViewSet(viewsets.ModelViewSet):
     count = res.count()
     res.delete()
     return Response({'deleted': count})
+
+  @action(detail=False, methods=['GET'])
+  def front_projects(self, request):
+    '''
+    used by front-end
+    '''
+    projects = Project.objects.values()
+    options = {
+      'status': [{'value': i[0], 'text': i[1]} for i in STATUS_OPTIONS],
+      'sequencing': [{'value': i[0], 'text': i[1]} for i in SEQUENCING_OPTIONS],
+      'projects': [{'value': p, 'text': p['project_id']} for p in projects],
+    }
+    new_project = {
+      'project_id': Project.objects.get_next_project_id(),
+      'project_name': '',
+      'description': '',
+      'sequencing': SEQUENCING_OPTIONS[0][0],
+      'status': STATUS_OPTIONS[0][0],
+    }
+   
+    res = {
+      'projects': projects,
+      'options': options,
+      'new_project': new_project,
+    }
+    return Response(res)
+  

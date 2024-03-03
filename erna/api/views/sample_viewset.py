@@ -54,8 +54,9 @@ class SampleViewSet(viewsets.ModelViewSet):
         '''
         study names
         '''
-        res = Sample.objects.values_list('study_name', flat=True).distinct()
-        return Response({'study_names': list(set(res)) })
+        study_names = Sample.objects.values_list('study_name', flat=True).distinct()
+        res = [{'value': s, 'text': s} for s in list(set(study_names))]
+        return Response(res)
     
     @action(detail=False, methods=['post'])
     def load_samples(self, request):

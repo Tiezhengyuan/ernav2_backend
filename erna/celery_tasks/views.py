@@ -5,55 +5,43 @@ from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from .tasks import *
 
-def ExecuteTasksView(request):
-  project_id = request.GET.get('project_id', '')
-  task_id = execute_tasks.delay(project_id)
+def _return(task_id, *args, **kwargs):
   res = {
     'task_id': [str(task_id),],
   }
   return JsonResponse(res, safe=False)
 
+
+def ExecuteTasksView(request):
+  project_id = request.GET.get('project_id', '')
+  task_id = execute_tasks.delay(project_id)
+  return _return(task_id)
 
 def DownloadGenomeView(request):
   data_source = request.GET.get('data_source', '')
   specie = request.GET.get('specie')
   version = request.GET.get('version')
   task_id = download_genome.delay(data_source, specie, version)
-  res = {
-    'task_id': [str(task_id),],
-  }
-  return JsonResponse(res, safe=False)
+  return _return(task_id)
 
 def ScanRawDataView(request):
   task_id = scan_raw_data.delay()
-  res = {
-    'task_id': [str(task_id),],
-  }
-  return JsonResponse(res, safe=False)
+  return _return(task_id)
 
 def RefreshRawDataView(request):
   task_id = refresh_raw_data.delay()
-  res = {
-    'task_id': [str(task_id),],
-  }
-  return JsonResponse(res, safe=False)
+  return _return(task_id)
 
 def ParseSampleDataView(request):
   study_name = request.GET.get('study_name', '')
   prefix = request.GET.get('prefix')
   postfix = request.GET.get('postfix')
   task_id = parse_sample_data.delay(study_name, prefix, postfix)
-  res = {
-    'task_id': [str(task_id),],
-  }
-  return JsonResponse(res, safe=False)
+  return _return(task_id)
 
 def ResetSampleView(request):
   task_id = reset_sample.delay()
-  res = {
-    'task_id': [str(task_id),],
-  }
-  return JsonResponse(res, safe=False)
+  return _return(task_id)
 
 def TrimAdapterView(request):
   params = {
@@ -64,10 +52,7 @@ def TrimAdapterView(request):
     'output': request.GET.get('output'),
   }
   task_id = trim_adapter.delay(params)
-  res = {
-    'task_id': [str(task_id),],
-  }
-  return JsonResponse(res, safe=False)
+  return _return(task_id)
 
 def BuildIndexView(request):
   params = {
@@ -77,11 +62,7 @@ def BuildIndexView(request):
     'aligner': request.GET.get('aligner'),
   }
   task_id = build_index.delay(**params)
-  res = {
-    'task_id': [str(task_id),],
-  }
-  return JsonResponse(res, safe=False)
-
+  return _return(task_id)
 
 
 '''
