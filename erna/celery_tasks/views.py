@@ -19,9 +19,9 @@ def ExecuteTasksView(request):
 
 def DownloadGenomeView(request):
   data_source = request.GET.get('data_source', '')
-  specie = request.GET.get('specie')
+  specie_name = request.GET.get('specie_name')
   version = request.GET.get('version')
-  task_id = download_genome.delay(data_source, specie, version)
+  task_id = download_genome.delay(data_source, specie_name, version)
   return _return(task_id)
 
 def ScanRawDataView(request):

@@ -32,6 +32,18 @@ class SpecieManager(models.Manager):
         )
         return obj
 
+    def group_species(self):
+        name_species = {}
+        for specie in self.all():
+            item = {
+                'value': specie.specie_name,
+                'text': specie.organism_name,
+            }
+            group_name = specie.group if specie.group else 'other'
+            if  group_name not in name_species:
+                name_species[group_name] = []
+            name_species[group_name].append(item)
+        return name_species
 
 class Specie(models.Model):
     # replace whitespace with underscore

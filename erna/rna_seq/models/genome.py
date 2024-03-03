@@ -18,9 +18,28 @@ class GenomeManager(models.Manager):
         return None
     
     def get_versions(self, data_source:str, specie_name:str):
-            specie = Specie.objects.get(specie_name=specie_name)
-            query = self.filter(data_source=data_source, specie=specie)
-            return [i.version for i in query]
+        specie = Specie.objects.get(specie_name=specie_name)
+        query = self.filter(data_source=data_source, specie=specie)
+        return [i.version for i in query]
+
+    def version_genomes(self):
+        '''
+        group genomes by data_source and specie_name
+        '''
+        res = {}
+        for genome in self.all():
+            data_source = genome.data_source if genome.data_source else 'other'
+            if data_source not in res:
+                res[data_source] = {}
+            specie_name = genome.specie.specie_name
+            if specie_name not in res[data_source]:
+                res[data_source][specie_name] = []
+            item = {
+                'value': genome.version,
+                'text': genome.version,
+            }
+            res[data_source][specie_name].append(item)
+        return res
 
     def get_ftp_path(self, data_source:str, specie:str, version:str=None):
         obj = self.filter(data_source=data_source, specie=specie, \

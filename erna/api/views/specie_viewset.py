@@ -48,10 +48,3 @@ class SpecieViewSet(viewsets.ModelViewSet):
             groups[group] = Specie.objects.filter(group=group).count()
         return Response(groups)
     
-    @action(detail=False, methods=['get'])
-    def group_names(self, request):
-        groups = Specie.objects.values_list('group', flat=True)
-        res = [{'text': i.replace('_', ' '), 'value': i} for i in list(set(groups)) if i]
-        return Response(res)
-
-

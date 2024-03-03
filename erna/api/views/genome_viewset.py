@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 
-from rna_seq.models import Genome
+from rna_seq.models import Genome, Specie
 from api.serializers import GenomeSerializer
 
 
@@ -18,20 +18,6 @@ class GenomeViewSet(viewsets.ModelViewSet):
         if params:
             return Genome.objects.filter(**params)
         return Genome.objects.all()
-
-
-    @action(detail=False, methods=['get'])
-    def data_sources(self, request):
-        sources = Genome.objects.values_list('data_source', flat=True)
-        res = [{'text': i, 'value': i} for i in list(set(sources))]
-        return Response(res)
-
-    @action(detail=False, methods=['get'])
-    def ready_genomes(self, request):
-        genomes = Genome.objects.filter(is_ready=True)
-        res = [{'value': i.id, 'text': f"{i.specie}_{i.data_source}_{i.version}"} for i in genomes]
-        return Response(res)
-
 
     @action(detail=False, methods=['post', 'update'])
     def load_genomes(self, request):
@@ -52,3 +38,19 @@ class GenomeViewSet(viewsets.ModelViewSet):
         count = qs.count()
         qs.delete()
         return Response({'deleted': count})
+
+    @action(detail=False, methods=['get'])
+    def front_genomes(self, request):
+        sources = Genome.objects.values_list('data_source', flat=True)
+        ready_genomes = Genome.objects.filter(is_ready=True)
+        groups = Specie.objects.values_list('group', flat=True)
+        res = {
+            'data_sources': [{'value': i, 'text': i} for i in list(set(sources))],
+            'ready_genomes': [{'value': i.id, 'text': f"{i.specie}_{i.data_source}_{i.version}"} \
+                for i in ready_genomes],
+            'specie_groups': [{'value': i, 'text': i.replace('_', ' ')} for i in list(set(groups)) if i],
+            'group_species': Specie.objects.group_species(),
+            'version_genomes': Genome.objects.version_genomes()
+        }
+        return Response(res)
+

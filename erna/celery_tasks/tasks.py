@@ -28,9 +28,9 @@ def execute_tasks(project_id):
   return ExecuteTasks(project_id, None, True)()
 
 @shared_task
-def download_genome(data_source, specie, version):
+def download_genome(data_source, specie_name, version):
   from pipelines.process.process_genome import ProcessGenome
-  p = ProcessGenome(data_source, specie, version)
+  p = ProcessGenome(data_source, specie_name, version)
   return p.download_genome()
 
 
