@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions
 
-from rna_seq.models import Project, STATUS_OPTIONS, SEQUENCING_OPTIONS
+from rna_seq.models import Project, SampleProject, STATUS_OPTIONS, SEQUENCING_OPTIONS
 from api.serializers import ProjectSerializer
 
 

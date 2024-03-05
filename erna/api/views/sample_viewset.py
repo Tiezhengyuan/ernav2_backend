@@ -48,16 +48,7 @@ class SampleViewSet(viewsets.ModelViewSet):
             }
             count.append(item)
         return Response(count)
-
-    @action(detail=False, methods=['get'])
-    def study_names(self, request):
-        '''
-        study names
-        '''
-        study_names = Sample.objects.values_list('study_name', flat=True).distinct()
-        res = [{'value': s, 'text': s} for s in list(set(study_names))]
-        return Response(res)
-    
+   
     @action(detail=False, methods=['post'])
     def load_samples(self, request):
         '''
@@ -86,3 +77,27 @@ class SampleViewSet(viewsets.ModelViewSet):
         res = {'deleted': len(samples)}
         samples.delete()
         return Response(res)
+
+    @action(detail=False, methods=['get'])
+    def front_study(self, request):
+        '''
+        ued for UI
+        '''
+        study_samples = Sample.objects.group_by_study()
+        res = {
+            'study_names': [{'value': s, 'text': s} for s in list(study_samples)],
+            'study_samples': study_samples,
+        }
+        return Response(res)
+
+    @action(detail=False, methods=['get'])
+    def study_samples(self, request):
+        '''
+        deletee sample given a study name
+        '''
+        study_name = self.request.query_params.get('study_name')
+        if study_name is not None:
+            samples = Sample.objects.filter(study_name=study_name)
+            res = [i.to_dict() for i in samples]
+            return Response(res)
+        return []

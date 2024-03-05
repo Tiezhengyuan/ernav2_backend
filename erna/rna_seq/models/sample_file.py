@@ -15,6 +15,8 @@ class SampleFileManager(models.Manager):
         '''
         parse samples ~ raw_data
         one sample may have multiple raw_data
+        args: Sample.study_name
+        args: RawData.batch_name
         '''
         # collect samples and raw data
         samples = []
@@ -92,6 +94,7 @@ class SampleFileManager(models.Manager):
             raw_data_id=sample_file['raw_data']
         )
         if not existing:
+            # SampleFile
             file_obj = self.model.objects.create(
                 sample_id=sample_file['sample'],
                 raw_data_id=sample_file['raw_data']
@@ -111,17 +114,22 @@ class SampleFileManager(models.Manager):
             pass
         return []
 
-    def detect_unparsed(self, study_name, reg):
+    def detect_unparsed_data(self, study_name, reg):
         '''
         one raw data match one sample
         one sample may match to 1-many raw data
         '''
-        study_samples = Sample.objects.filter(study_name=study_name)
-        unparsed_data = RawData.objects.filter(parsed=False)
+        # get unparsed raw data
+        raw_data = RawData.objects.all()
+        parsed_raw_data = {i[1] for i in self.iterate_raw_data(study_name)}
+        unparsed_raw_data = set(raw_data).difference(parsed_raw_data)
+        # print(len(unparsed_raw_data), len(parsed_raw_data), len(raw_data))
+
+        # try to parsing raw data and sample name
         sample_data = []
-        for raw_data in unparsed_data:
+        for raw_data in unparsed_raw_data:
             file_name = raw_data.file_name
-            for sample in study_samples:
+            for sample in Sample.objects.filter(study_name=study_name):
                 target = reg.replace('<S>', sample.sample_name)
                 if re.search(target, file_name):
                     pair = {
@@ -131,6 +139,8 @@ class SampleFileManager(models.Manager):
                         'full_path': os.path.join(raw_data.file_path, raw_data.file_name),
                         'file_name': raw_data.file_name,
                         'batch_name': raw_data.batch_name,
+                        # used for UI, key name is fixed
+                        '_showDetails': False,
                     }
                     sample_data.append(pair)
                     break
@@ -161,3 +171,4 @@ class SampleFile(models.Model):
     def get_raw_data(self):
         res = RawData.objects.get(id=self.raw_data.id)
         return res.to_dict()
+

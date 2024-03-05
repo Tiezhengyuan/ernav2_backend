@@ -125,7 +125,9 @@ class Align:
       'gtf_path': genome_annot['gff'].file_path,
       'index_path': genome_annot['dna'].get_index_path(tool),
       'model_name': 'Annotation',
-      'model_query': {'file_path': genome_annot['dna'].file_path,},
+      'model_query': {
+        'file_path': genome_annot['dna'].file_path,
+      },
       'tool_query': {
         'exe_name': tool.exe_name,
         'version': tool.version,

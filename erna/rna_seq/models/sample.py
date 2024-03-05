@@ -6,6 +6,26 @@ from commons.models import CustomUser
 
 class SampleManager(models.Manager):
 
+    def load_samples(self, user:str, samples:list):
+        '''
+        import samples into database
+        study_name + sample_name should be unique
+        '''
+        res = []
+        for sample in samples:
+            metadata = json.dumps(sample['metadata']) if \
+                sample.get('metadata') else None
+            obj = self.update_or_create(
+                study_name = sample['study_name'],
+                sample_name=sample['sample_name'],
+                defaults = {
+                    'creator': user,
+                    'metadata': metadata,
+                },
+            )
+            res.append(obj)
+        return res
+    
     def study_exists(self, study_name:str)->bool:
         study = self.filter(study_name=study_name)
         if len(study) == 0:
@@ -53,33 +73,12 @@ class SampleManager(models.Manager):
         group data by study name
         '''
         res = {}
-        for i in self.all():
-            if i.study_name in res:
-                res[i.study_name].append(i)
-            else:
-                res[i.study_name] = [i,]
+        for obj in self.all():
+            print(obj.to_dict())
+            if obj.study_name not in res:
+                res[obj.study_name] = []
+            res[obj.study_name].append(obj.to_dict())
         return res
-        
-    def load_samples(self, user:str, samples:list):
-        '''
-        import samples into database
-        study_name + sample_name should be unique
-        '''
-        res = []
-        for sample in samples:
-            metadata = json.dumps(sample['metadata']) if \
-                sample.get('metadata') else None
-            obj = self.update_or_create(
-                study_name = sample['study_name'],
-                sample_name=sample['sample_name'],
-                defaults = {
-                    'creator': user,
-                    'metadata': metadata,
-                },
-            )
-            res.append(obj)
-        return res
-    
 
     def update_sample_name(self, study_name:str, old_name:str, new_name:str):
         '''
@@ -143,10 +142,11 @@ class Sample(models.Model):
 
     def to_dict(self):
         return {
+            'sample_id': self.id,
             'study_name': self.study_name,
             'sample_name': self.sample_name,
-            'creator': self.creator,
-            'metadata': json.loads(self.metadata),
+            'creator': self.creator.username,
+            'metadata': json.loads(self.metadata) if self.metadata else None,
         }
 
 

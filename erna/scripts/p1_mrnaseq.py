@@ -44,9 +44,7 @@ batch_names = ['demo_mrnaseq',]
 sample_files = SampleFile.objects.parse_sample_rawdata([study_name,], batch_names)
 
 print('Update SampleProject...')
-res = SampleProject.objects.load_project_sample_files(
-    project_id, [s.id for s,_ in sample_files]
-)
+res = SampleProject.objects.load_data(project_id, sample_data)
 print(res)
 
 print('Add tasks...')

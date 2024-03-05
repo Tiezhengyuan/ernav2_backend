@@ -2,7 +2,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import Http404
 from rest_framework import viewsets, permissions
-from rna_seq.models import SampleFile
+from rna_seq.models import Sample, SampleFile
 from api.serializers import SampleFileSerializer
        
 class SampleFileViewSet(viewsets.ModelViewSet):
@@ -33,8 +33,15 @@ class SampleFileViewSet(viewsets.ModelViewSet):
         given study name, get all files (raw_data)
         '''
         study_name = self.request.query_params.get('study_name')
-        res = SampleFile.objects.get_study_files(study_name)
-        return Response(res.values())
+        if study_name:
+            study_files = []
+            for sample in Sample.objects.filter(study_name=study_name):
+                item = sample.to_dict()
+                sample_files = SampleFile.objects.filter(sample=sample)
+                item['raw_data'] = [i.get_raw_data() for i in sample_files]
+                study_files.append(item)
+            return Response(study_files)
+        return []
 
     @action(detail=False, methods=['get'])
     def unparsed_data(self, request):
@@ -43,7 +50,7 @@ class SampleFileViewSet(viewsets.ModelViewSet):
         '''
         study_name = self.request.query_params.get('study_name', '')
         reg = self.request.query_params.get('reg', '<S>')
-        res = SampleFile.objects.detect_unparsed(study_name, reg)
+        res = SampleFile.objects.detect_unparsed_data(study_name, reg)
         return Response(res)
     
     @action(detail=False, methods=['post'])
