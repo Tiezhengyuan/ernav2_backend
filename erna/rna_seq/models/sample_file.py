@@ -144,6 +144,7 @@ class SampleFileManager(models.Manager):
                     }
                     sample_data.append(pair)
                     break
+        sample_data = sorted(sample_data, key=lambda x: x['sample_name'])
         return sample_data
 
 class SampleFile(models.Model):

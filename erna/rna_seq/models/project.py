@@ -120,6 +120,20 @@ class Project(models.Model):
 
     def __str__(self):
         return self.project_id
+
+    def to_dict(self):
+        default_genome = {
+            'genome_id': None,
+        }
+        return {
+            'project_id': self.project_id,
+            'project_name': self.project_name,
+            'description': self.description,
+            'sequencing': self.sequencing,
+            'status': self.status,
+            'owner': self.owner.to_dict() if self.owner else None,
+            'genome': self.genome.to_dict() if self.genome else default_genome,
+        }
     
 
     

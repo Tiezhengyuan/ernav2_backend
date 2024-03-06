@@ -126,3 +126,13 @@ class Genome(models.Model):
 
     def __str__(self):
         return self.specie.specie_name
+    
+    def to_dict(self):
+        return {
+            'genome_id': self.id,
+            'specie_name': self.specie.specie_name,
+            'data_source': self.data_source,
+            'version': self.version,
+            'is_ready': self.is_ready,
+            'loach_path': self.local_path if self.local_path else None,
+        }

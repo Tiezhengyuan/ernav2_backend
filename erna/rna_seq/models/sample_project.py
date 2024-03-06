@@ -56,7 +56,35 @@ class SampleProjectManager(models.Manager):
             res.append(item)
         return res
 
+    def sample_files(self, project):
+        '''
+        useed by Collect.import_sample_data()
+        '''
+        res = []
+        for project_sample in self.filter(project=project):
+            sample = project_sample.sample
+            _sample_files = SampleFile.objects.filter(sample=sample)
+            res += _sample_files
+        return res
 
+    def sample_files_path(self, project):
+        '''
+        useed by Collect.import_sample_data()
+        '''
+        res = []
+        for project_sample in self.filter(project=project):
+            sample = project_sample.sample
+            sample_name = sample.sample_name
+            item = {'sample_name': sample_name,}
+            # get raw data by sample_name
+            for sample_file in SampleFile.objects.filter(sample=sample):
+                raw_data = sample_file.raw_data
+                file_type = raw_data.file_type
+                if file_type not in item:
+                    item[file_type] = []
+                item[file_type].append(raw_data.full_file_path)
+            res.append(item)
+        return res
 
 class SampleProject(models.Model):
     '''

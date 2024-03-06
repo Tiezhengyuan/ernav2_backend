@@ -29,7 +29,7 @@ class TaskManager(models.Manager):
         ID of head task is always T00
         that is automatically created
         '''
-        print(Method.objects.head_method())
+        # print(Method.objects.head_method())
         method_tool = MethodTool.objects.get(
             method=Method.objects.head_method()
         )
@@ -52,6 +52,15 @@ class TaskManager(models.Manager):
         task_id could be generated automatically
         The task could be newly created or updated
         '''
+        defaults = {}
+        if 'task_name' in data:
+            defaults['task_name'] = data['task_name']
+        if 'params' in data:
+            defaults['params'] = json.dumps(data['params'])
+        if 'is_ready' in data:
+            defaults['is_ready'] = eval(data['is_ready']),
+
+        # update method_tool
         method_tool = None
         if 'method_tool_id' in data:
             method_tool = MethodTool.objects.get(pk=data['method_tool_id'])
@@ -63,27 +72,22 @@ class TaskManager(models.Manager):
                     data['tool']['version']
                 )
             else:
-                method_tool = MethodTool.objects.get_method_tool(
-                    data['method_name']
-                )
+                method_tool = MethodTool.objects.get_method_tool(data['method_name'])
+        if method_tool is not None:
+            defaults['method_tool'] = method_tool
 
+        # update annoations
         annot = None
         if 'genome' in data:
             genome = Genome.objects.get(**data['genome'])
             annot = Annotation.objects.get(
                 genome=genome,
-                file_format=data['annotation']['file_format'],
-                annot_type=data['annotation']['annot_type']
+                file_format=data['annotation'].get('file_format', 'fna'),
+                annot_type=data['annotation'].get('annot_type', 'genomic'),
             )
-
-        defaults = {
-            'task_name': data.get('task_name'),
-            'params': json.dumps(data.get('params', {})),
-            'is_ready': True if data.get('is_ready') else False,
-            'method_tool': method_tool,
-            'annotation': annot,
-        }
-        print(defaults)
+            defaults['annotation'] = annot
+        
+        # Add new task or update existing task
         task = self.update_or_create(project=project,
             task_id=task_id, defaults=defaults)
         return task
@@ -102,6 +106,10 @@ class TaskManager(models.Manager):
         for data in tasks_data:
             task_id = data.get('task_id')
             task = self.add_task(project, task_id, data)
+            # update Project.genome if there is
+            if 'params' in data and 'genome_id' in data['params']:
+                genome_id = data['params']['genome_id']
+                project.genome = Genome.objects.get(pk=genome_id)
         else:
             # update Project
             project.status = 'ready'

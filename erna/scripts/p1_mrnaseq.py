@@ -2,7 +2,7 @@
 example of load tasks:
     python3 erna/manage.py shell < erna/scripts/p1_mrnaseq.py
 example of run tasks:
-    python3 erna/erna_app.py -m execute_tasks -p P00002 -c
+    python3 erna/erna_app.py -m execute_tasks -p P00001 -c
 '''
 import sys
 from rna_seq.models import *

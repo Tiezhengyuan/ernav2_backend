@@ -41,4 +41,10 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
     
+    def to_dict(self):
+        return {
+            'user_id': self.id,
+            'username': self.username,
+        }
+    
     

@@ -62,7 +62,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     '''
     used by front-end
     '''
-    projects = Project.objects.values()
+    projects = [i.to_dict() for i in Project.objects.all()]
     options = {
       'status': [{'value': i[0], 'text': i[1]} for i in STATUS_OPTIONS],
       'sequencing': [{'value': i[0], 'text': i[1]} for i in SEQUENCING_OPTIONS],

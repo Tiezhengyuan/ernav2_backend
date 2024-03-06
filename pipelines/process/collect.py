@@ -21,22 +21,9 @@ class Collect:
     self.import_sample_data()
 
   def import_sample_data(self):
-    # Samples
-    project_samples = SampleProject.objects.filter(
-      project=self.params['project']
-    )
-    sample_files = [obj.sample_file for obj in project_samples]
-    self.params['sample_files'] = sample_files
-    res = {}
-    for sf in sample_files:
-      path = os.path.join(sf.raw_data.file_path, sf.raw_data.file_name)
-      sample_name = sf.sample.sample_name
-      file_type = sf.raw_data.file_type
-      KeyValue.init_dict(res, [sample_name, file_type], [])
-      res[sample_name][file_type].append(path)
-    for k,v in res.items():
-      v['sample_name'] = k 
-      self.params['output'].append(v) 
+    self.params['sample_files'] = SampleProject.objects.sample_files(self.params['project'])
+    paths = SampleProject.objects.sample_files_path(self.params['project'])
+    self.params['output'] += paths
 
   def merge_transcripts(self):
     '''
