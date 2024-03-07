@@ -114,14 +114,15 @@ class SampleFileManager(models.Manager):
             pass
         return []
 
-    def detect_unparsed_data(self, study_name, reg):
+    def detect_unparsed_data(self, study_name, reg, batch_name=None):
         '''
         one raw data match one sample
         one sample may match to 1-many raw data
         '''
         # get unparsed raw data
-        raw_data = RawData.objects.all()
         parsed_raw_data = {i[1] for i in self.iterate_raw_data(study_name)}
+        raw_data = RawData.objects.filter(batch_name=batch_name) if \
+            batch_name else RawData.objects.all()
         unparsed_raw_data = set(raw_data).difference(parsed_raw_data)
         # print(len(unparsed_raw_data), len(parsed_raw_data), len(raw_data))
 

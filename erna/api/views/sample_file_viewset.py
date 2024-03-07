@@ -49,8 +49,9 @@ class SampleFileViewSet(viewsets.ModelViewSet):
         parse samples with unparsed raw data
         '''
         study_name = self.request.query_params.get('study_name', '')
+        batch_name = self.request.query_params.get('batch_name')
         reg = self.request.query_params.get('reg', '<S>')
-        res = SampleFile.objects.detect_unparsed_data(study_name, reg)
+        res = SampleFile.objects.detect_unparsed_data(study_name, reg, batch_name)
         return Response(res)
     
     @action(detail=False, methods=['post'])

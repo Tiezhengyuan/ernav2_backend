@@ -74,6 +74,7 @@ class RNA(models.Model):
 
     class Meta:
         app_label = 'rna_seq'
+        ordering = ['annot_type', 'data_source', 'specie']
     
     def get_index_path(self, tool=None):
         '''

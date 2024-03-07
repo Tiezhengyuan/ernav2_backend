@@ -2,7 +2,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import Http404
 from rest_framework import viewsets, permissions
-from rna_seq.models import Sample
+
+from rna_seq.models import Sample, RawData
 from api.serializers import SampleSerializer
        
 class SampleViewSet(viewsets.ModelViewSet):
@@ -84,8 +85,10 @@ class SampleViewSet(viewsets.ModelViewSet):
         ued for UI
         '''
         study_samples = Sample.objects.group_by_study()
+        batch_names = RawData.objects.get_batch_names()
         res = {
             'study_names': [{'value': s, 'text': s} for s in list(study_samples)],
+            'batch_names': [{'value': s, 'text': s} for s in batch_names],
             'study_samples': study_samples,
         }
         return Response(res)

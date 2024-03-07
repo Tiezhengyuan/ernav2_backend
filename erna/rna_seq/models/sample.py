@@ -74,7 +74,6 @@ class SampleManager(models.Manager):
         '''
         res = {}
         for obj in self.all():
-            print(obj.to_dict())
             if obj.study_name not in res:
                 res[obj.study_name] = []
             res[obj.study_name].append(obj.to_dict())

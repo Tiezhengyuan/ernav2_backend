@@ -107,6 +107,7 @@ class TaskManager(models.Manager):
             task_id = data.get('task_id')
             task = self.add_task(project, task_id, data)
             # update Project.genome if there is
+            print(data)
             if 'params' in data and 'genome_id' in data['params']:
                 genome_id = data['params']['genome_id']
                 project.genome = Genome.objects.get(pk=genome_id)

@@ -18,14 +18,20 @@ class RNAViewSet(viewsets.ModelViewSet):
         return Response({'count': count})
 
     @action(detail=False, methods=['get'])
-    def type_rnas(self, request):
-        res = {}
+    def front_rnas(self, request):
+        type_rnas = {}
         for rna in RNA.objects.all():
-            if rna.annot_type not in res:
-                res[rna.annot_type] = []
+            if rna.annot_type not in type_rnas:
+                type_rnas[rna.annot_type] = []
+            _specie_name = rna.specie.specie_name if rna.specie else 'unknown'
             item = {
                 'value': rna.id,
-                'text': os.path.basename(rna.file_path),
+                'text': f"{rna.data_source}_{_specie_name}",
             }
-            res[rna.annot_type].append(item)
+            type_rnas[rna.annot_type].append(item)
+
+        res = {
+            'type_rnas': type_rnas,
+            'rna_types': [{'value':i, 'text':i} for i in list(type_rnas)],
+        }
         return Response(res)

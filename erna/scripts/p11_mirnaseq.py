@@ -1,6 +1,9 @@
 '''
-example:
+example of load tasks:
     python3 erna/manage.py shell < erna/scripts/p11_mirnaseq.py
+example of run tasks:
+    python3 erna/erna_app.py -m execute_tasks -p P00011 -c
+
 '''
 from rna_seq.models import *
 from commons.models import CustomUser
@@ -24,7 +27,7 @@ print(project)
 
 print('Load samples...')
 study_name = 'test_mirnaseq'
-sample_names = ['LW_AB_1', 'LW_AI_1', 'LW_AN_1']
+sample_names = ['AB_1', 'AI_1', 'AN_1']
 sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
     for s in sample_names]
 samples = Sample.objects.load_samples(user, sample_data)
@@ -35,9 +38,7 @@ batch_names = ['demo_mirnaseq',]
 sample_files = SampleFile.objects.parse_sample_rawdata([study_name,], batch_names)
 
 print('Update SampleProject...')
-res = SampleProject.objects.load_project_sample_files(
-    project_id, [s.id for s,_ in sample_files]
-)
+res = SampleProject.objects.load_data(project_id, sample_data)
 print(res)
 
 print('Add tasks...')
@@ -61,7 +62,7 @@ tasks_data = [
             'model': 'RNA',
             'query': {
                 'specie': "Homo_sapiens",
-                'database': 'miRBase',
+                'data_source': 'miRBase',
                 'annot_type': 'miRNA_mature',
             }
         },

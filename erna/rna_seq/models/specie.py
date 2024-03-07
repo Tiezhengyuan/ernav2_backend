@@ -78,7 +78,7 @@ class Specie(models.Model):
 
     class Meta:
         app_label = 'rna_seq'
-        ordering = ['group', 'organism_name',]
+        ordering = ['specie_name',]
 
     def __str__(self):
          return self.organism_name

@@ -20,6 +20,15 @@ STANDERD_FORMAT = {
 }
 
 class RawDataManager(models.Manager):
+  def get_batch_names(self):
+    res = []
+    for obj in self.all():
+      batch_name = obj.batch_name if obj.batch_name else 'other'
+      if batch_name not in res:
+        res.append(batch_name)
+    res.sort()
+    return res
+
   def get_batch_files(self, batch_name:str):
     return self.filter(batch_name=batch_name)
 

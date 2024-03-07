@@ -59,6 +59,7 @@ class Align:
     this_model = getattr(rna_seq.models, task_params['model'])
     obj = this_model.objects.get(pk=task_params['id']) if 'id' in task_params \
       else this_model.objects.get(**task_params['query'])
+    
     # update seqdata
     if hasattr(obj, 'annot_json') and obj.annot_json:
       self.params['seqdata'].put_variables(obj.annot_json)
