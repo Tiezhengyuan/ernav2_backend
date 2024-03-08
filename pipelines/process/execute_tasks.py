@@ -149,6 +149,7 @@ class ExecuteTasks:
             return []
         
         parent_output = deepcopy(parents[0].task_execution.get_output())
+        print("##parent_output", parent_output)
         if len(parents) > 1:
             for parent in parents[1:]:
                 another = deepcopy(parent.task_execution.get_output())

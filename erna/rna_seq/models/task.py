@@ -107,7 +107,7 @@ class TaskManager(models.Manager):
             task_id = data.get('task_id')
             task = self.add_task(project, task_id, data)
             # update Project.genome if there is
-            print(data)
+            print(data, task)
             if 'params' in data and 'genome_id' in data['params']:
                 genome_id = data['params']['genome_id']
                 project.genome = Genome.objects.get(pk=genome_id)
@@ -156,6 +156,16 @@ class TaskManager(models.Manager):
                 })
             res.append(item)
         return res
+
+    def update_params(self, data:dict):
+        if 'project_id' in data:
+            project = Project.objects.get(project_id=data['project_id'])
+            if 'task_id' in data:
+                print(data)
+                obj = self.filter(project=project, task_id=data['task_id'])
+                params = json.dumps(data['params']) if 'params' in data else None
+                res = obj.update(params=params)
+                return res 
 
 
 class Task(models.Model):

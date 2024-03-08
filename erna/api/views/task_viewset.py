@@ -42,7 +42,7 @@ class TaskViewSet(viewsets.ModelViewSet):
   @action(detail=False, methods=['get'])
   def front_project_tasks(self, request):
     '''
-    response is consumeb by NewTask.vue
+    response is consumed by NewTask.vue
     '''
     project_id = self.request.query_params.get('project_id')
     if project_id is None:
@@ -55,3 +55,9 @@ class TaskViewSet(viewsets.ModelViewSet):
     }
     return Response(res)
          
+  @action(detail=False, methods=['put'])
+  def update_params(self, request):
+    '''
+    '''
+    res = Task.objects.update_params(request.data)
+    return Response({'count': res})

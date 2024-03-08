@@ -1,6 +1,8 @@
 '''
 example:
     python3 erna/manage.py shell < erna/scripts/p13_mirnaseq_iterative.py
+example of run tasks:
+    python3 erna/erna_app.py -m execute_tasks -p P00013 -c
 '''
 from rna_seq.models import *
 from commons.models import CustomUser
@@ -24,7 +26,7 @@ print(project)
 
 print('Load samples...')
 study_name = 'test_mirnaseq'
-sample_names = ['LW_AB_1', 'LW_AI_1', 'LW_AN_1']
+sample_names = ['AB_1', 'AI_1', 'AN_1']
 sample_data = [{'study_name':study_name, 'sample_name':s, 'metadata':{},} \
     for s in sample_names]
 samples = Sample.objects.load_samples(user, sample_data)
@@ -35,9 +37,7 @@ batch_names = ['demo_mirnaseq',]
 sample_files = SampleFile.objects.parse_sample_rawdata([study_name,], batch_names)
 
 print('Update SampleProject...')
-res = SampleProject.objects.load_project_sample_files(
-    project_id, [s.id for s,_ in sample_files]
-)
+res = SampleProject.objects.load_data(project_id, sample_data)
 print(res)
 
 print('Add tasks...')
@@ -69,7 +69,7 @@ tasks_data = [
             'query': {
                 'specie': specie_name,
                 'annot_type': 'miRNA_mature',
-                'database': 'miRBase',
+                'data_source': 'miRBase',
             }
         },
     },
@@ -136,7 +136,7 @@ print(tasks)
 
 '''
         T00
-   /   /  \    \
+   /   /  \   \
 T01  T02  T05  T08
   \  /     |    |
    T03     |    |
@@ -149,8 +149,8 @@ T01  T02  T05  T08
     |  |\  /
     |  | T09
     |  |  |
-    |  | T10
-    \  | /
+    \  | T10
+     \ | /
       T11
 '''
 print('Add Task Tree...')

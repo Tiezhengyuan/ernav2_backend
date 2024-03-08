@@ -81,7 +81,7 @@ class ProcessCMD:
 
         sam_file = input_data['output_prefix'] + '.sam'
         cmd += ['-S', sam_file]
-        
+
         input_data.update({
             'cmd': ' '.join(cmd),
             'sam_file': sam_file,

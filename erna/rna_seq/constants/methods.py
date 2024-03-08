@@ -67,7 +67,7 @@ GENERAL_METHODS = [
   {
     "method_name": "count_reads",
     "description": "count reads and collect unaligned reads",
-    "child_method": ["merge_read_counts",],
+    "child_method": ["merge_read_counts", "align_short_reads",],
     "exe_name": [],
   },
   {

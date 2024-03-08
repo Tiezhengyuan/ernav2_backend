@@ -67,11 +67,13 @@ class Align:
 
     # build index
     index_path = obj.get_index_path(tool)
+    # print('##index_path', tool, index_path)
     meta_data = {
       'fa_path': obj.file_path,
       'index_path': index_path,
       'model_name': task_params['model'],
-      'model_query': task_params['query'],
+      'model_id': task_params.get('id'),
+      'model_query': task_params.get('query'),
       'tool_query': {
         'exe_name': tool.exe_name,
         'version': tool.version,
@@ -93,10 +95,14 @@ class Align:
     '''
     # Firstly check Task.params
     if self.params.get('task') and self.params['task'].get_params():
-      return self.params['task'].get_params().get('index_path')
+      index_path = self.params['task'].get_params().get('index_path')
+      if index_path:
+        print("#Get index path form task.params")
+        return index_path
     
     # secondly check its parent TaskExecution
     if self.params.get('parent_params'):
+      print("#Get index path form parent_params.")
       parent_output = self.params['parent_params']['output']
       for item in parent_output:
         if 'index_path' in item:
@@ -105,6 +111,7 @@ class Align:
     # Finally check its execution of parent Task
     for parent_output in self.params['parent_outputs']:
       if 'index_path' in parent_output:
+        print("#Get index path form parent_outputs")
         return parent_output['index_path']
     return None
 
@@ -164,6 +171,7 @@ class Align:
     
     sample_files = self.params['parent_outputs']
     for meta_data in sample_files:
+      # print('##', meta_data)
       sample_name = meta_data['sample_name']
       output_prefix = os.path.join(self.params['output_dir'], sample_name)
       meta_data['index_path'] = self.get_index_path()

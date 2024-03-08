@@ -38,7 +38,6 @@ class AlignerIndexManager(models.Manager):
     res = []
     indexes = self.scan_index_dir()
     for digit_name, info in indexes:
-      print(info)
       this_model = getattr(rna_seq.models, info['model_name'])
       defaults = {
         'tool': Tool.objects.get(**info['tool_query']),
@@ -55,7 +54,8 @@ class AlignerIndexManager(models.Manager):
     -args: meta would be updated.
     '''
     # create new record
-    obj = self.create(tool=tool, content_object=related_obj)
+    print(tool, related_obj, meta_data)
+    obj = self.create(tool=tool, content_object=related_obj, object_id=related_obj.id)
 
     # create index_dir
     index_dir_path = os.path.join(settings.INDEX_DIR, str(obj.id))
@@ -95,7 +95,7 @@ class AlignerIndex(models.Model):
 
   class Meta:
     app_label = "rna_seq"
-    unique_together = ('tool', 'content_type')
+    unique_together = ('tool', 'content_type', 'object_id')
     ordering = ("tool", "index_path")
 
   def update_index(self, meta_data:dict) -> None:
